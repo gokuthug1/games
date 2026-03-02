@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Defense | Balanced Infinite Scaling</title>
+    <title>Candy Tower Defense</title>
     <!-- Google Fonts for a bouncy, casual look -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -266,6 +266,9 @@
         <!-- Eye Icons -->
         <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
         <symbol id="icon-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <!-- Fullscreen Icons -->
+        <symbol id="icon-fullscreen" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="icon-fullscreen-exit" viewBox="0 0 24 24"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     </svg>
 
     <div id="game-container">
@@ -297,6 +300,9 @@
                 </button>
                 <button id="btn-auto" class="control-btn" onclick="Game.toggleAuto()" title="Auto Wave">
                     <svg class="icon-svg"><use href="#icon-auto"></use></svg>
+                </button>
+                <button id="btn-fullscreen" class="control-btn" onclick="Game.toggleFullScreen()" title="Full Screen">
+                    <svg class="icon-svg"><use id="fullscreen-icon-use" href="#icon-fullscreen"></use></svg>
                 </button>
                 <div class="stat-pill" title="Wave">
                     <span class="stat-wave stat-label-text">W</span> <span id="ui-wave">1</span>
@@ -817,6 +823,36 @@ const Game = {
         this.playSound('click'); document.getElementById('controls-wrapper').classList.toggle('collapsed');
     },
 
+    toggleFullScreen() {
+        this.playSound('click');
+        const doc = window.document;
+        const docEl = doc.documentElement;
+
+        const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+        const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+        if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+            if(requestFullScreen) requestFullScreen.call(docEl);
+        } else {
+            if(cancelFullScreen) cancelFullScreen.call(doc);
+        }
+    },
+
+    updateFullscreenUI() {
+        const doc = window.document;
+        const isFull = !!(doc.fullscreenElement || doc.mozFullScreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement);
+        const useEl = document.getElementById('fullscreen-icon-use');
+        const btn = document.getElementById('btn-fullscreen');
+        
+        if (isFull) {
+            if(useEl) useEl.setAttribute('href', '#icon-fullscreen-exit');
+            if(btn) btn.classList.add('active');
+        } else {
+            if(useEl) useEl.setAttribute('href', '#icon-fullscreen');
+            if(btn) btn.classList.remove('active');
+        }
+    },
+
     resize() {
         const wrap = document.getElementById('canvas-wrapper');
         const newW = wrap.clientWidth; const newH = wrap.clientHeight;
@@ -941,6 +977,12 @@ const Game = {
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') { this.selectedTower = null; this.selectedTowerType = null; this.closeUpgradePopup(); this.updateBuildUI(); }
         });
+
+        // Listen for native fullscreen changes to keep the icon in sync (e.g., when pressing ESC)
+        document.addEventListener('fullscreenchange', () => this.updateFullscreenUI());
+        document.addEventListener('webkitfullscreenchange', () => this.updateFullscreenUI());
+        document.addEventListener('mozfullscreenchange', () => this.updateFullscreenUI());
+        document.addEventListener('MSFullscreenChange', () => this.updateFullscreenUI());
     },
 
     showTooltip(t, e) {
@@ -1350,4 +1392,4 @@ const Game = {
 window.onload = () => Game.init();
 </script>
 </body>
-</html>
+</html> 
