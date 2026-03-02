@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GokuGames</title>
+    <title>GokuGames - Remastered</title>
     
-    <!-- Google Fonts: Inter -->
+    <!-- Google Fonts: Inter & Orbitron for Gaming Vibe -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,16 +19,41 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans:['Inter', 'sans-serif'] },
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        display:['Orbitron', 'sans-serif']
+                    },
                     colors: {
                         brand: {
                             400: '#a78bfa',
                             500: '#8b5cf6',
                             600: '#7c3aed',
                         },
+                        neon: {
+                            blue: '#00f0ff',
+                            purple: '#b026ff',
+                            pink: '#ff0055'
+                        },
                         slate: {
                             850: '#151e2e',
-                            950: '#0b0f19',
+                            900: '#0f172a',
+                            950: '#020617', // Darker background for neon to pop
+                        }
+                    },
+                    animation: {
+                        blob: 'blob 7s infinite',
+                        'text-glow': 'text-glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        'text-glow': {
+                            '0%': { textShadow: '0 0 10px rgba(176,38,255,0.5), 0 0 20px rgba(176,38,255,0.3)' },
+                            '100%': { textShadow: '0 0 20px rgba(0,240,255,0.8), 0 0 30px rgba(0,240,255,0.5)' }
                         }
                     }
                 }
@@ -38,50 +63,106 @@
 
     <style>
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #b026ff; }
         html { scroll-behavior: smooth; }
+        
+        /* Glassmorphism utilities */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .game-card-hover:hover {
+            box-shadow: 0 0 25px rgba(176, 38, 255, 0.3), inset 0 0 15px rgba(0, 240, 255, 0.1);
+            border-color: rgba(176, 38, 255, 0.5);
+            transform: translateY(-5px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-300 font-sans antialiased overflow-x-hidden">
+<body class="bg-slate-950 text-slate-300 font-sans antialiased overflow-x-hidden relative">
+
+    <!-- Background Animated Blobs for Modern Vibe -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-neon-purple/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob"></div>
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-neon-blue/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob" style="animation-delay: 2s;"></div>
+        <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-neon-pink/20 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-blob" style="animation-delay: 4s;"></div>
+    </div>
 
     <!-- Sticky Navigation Header -->
-    <header class="fixed top-0 w-full z-50 bg-slate-950/70 backdrop-blur-md border-b border-slate-800/60">
-        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <header class="fixed top-0 w-full z-50 glass-panel border-b-0 border-white/5 shadow-lg shadow-black/50">
+        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
             
-            <a href="#" class="flex items-center gap-2 text-white font-bold text-xl tracking-tight">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/30">
-                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1.6l8.4 5.8v6.8L10 20l-8.4-5.8V7.4L10 1.6z"/></svg>
+            <a href="#" class="flex items-center gap-3 text-white font-display font-bold text-2xl tracking-wider hover:text-neon-blue transition-colors duration-300">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-purple to-neon-blue flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.5)]">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1.6l8.4 5.8v6.8L10 20l-8.4-5.8V7.4L10 1.6z"/></svg>
                 </div>
-                <span>GokuGames</span>
+                <span>GOKU<span class="text-neon-blue">GAMES</span></span>
             </a>
 
             <!-- Search Bar -->
-            <div class="flex-1 max-w-xl hidden sm:block relative ml-8">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <div class="flex-1 max-w-xl hidden md:block relative ml-8">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <input type="search" class="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-full bg-slate-900/50 text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm" placeholder="Search instantly playable HTML5 games...">
+                <input type="search" class="block w-full pl-12 pr-4 py-3 border border-white/10 rounded-2xl bg-slate-900/50 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent focus:bg-slate-800/80 transition-all shadow-inner sm:text-sm" placeholder="Search instantly playable HTML5 games...">
             </div>
 
-            <div class="hidden md:flex items-center pl-6">
-                <span class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
+            <div class="flex items-center gap-4 pl-6">
+                <!-- GitHub Link -->
+                <a href="https://github.com/gokuthug1" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-2 text-slate-300 hover:text-white group transition-colors">
+                    <svg class="w-7 h-7 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                </a>
+                
+                <span class="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 bg-emerald-400/10 px-4 py-2 rounded-xl border border-emerald-400/20 shadow-[0_0_10px_rgba(52,211,153,0.2)]">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    100% Free
+                    100% FREE
                 </span>
             </div>
         </div>
     </header>
 
     <!-- Main Content Area -->
-    <main class="pt-24 pb-12 max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 min-h-screen">
+    <main class="relative z-10 pt-32 pb-16 max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 min-h-screen">
         
-        <!-- Minimal Hero Section (No Images) -->
-        <section class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-900 to-slate-850 border border-slate-800 shadow-xl p-8 md:p-12 text-center">
-            <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-4">Instant Play. Zero Friction.</h1>
-            <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base">Jump straight into the action. No downloads, no accounts, no paywalls. Just pure HTML5 gaming right in your browser.</p>
+        <!-- Modern Cyberpunk/Glass Hero Section -->
+        <section class="relative rounded-3xl overflow-hidden glass-panel p-10 md:p-20 text-center border border-white/10">
+            <div class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
+            
+            <div class="relative z-10 max-w-3xl mx-auto">
+                <h1 class="text-5xl md:text-7xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink tracking-tight mb-6 animate-text-glow">
+                    LEVEL UP YOUR PLAY.
+                </h1>
+                <p class="text-slate-400 text-lg md:text-xl font-medium mb-10">
+                    Instant Play. Zero Friction. No downloads, no accounts, no paywalls. Just pure HTML5 gaming right in your browser.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="#games" class="px-8 py-4 rounded-xl bg-white text-slate-950 font-bold text-lg hover:bg-slate-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                        Explore Games
+                    </a>
+                    <a href="https://github.com/gokuthug1" target="_blank" rel="noopener noreferrer" class="px-8 py-4 rounded-xl glass-panel text-white font-bold text-lg hover:bg-white/10 transition-colors flex items-center gap-3">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                        Follow on GitHub
+                    </a>
+                </div>
+            </div>
         </section>
+
+        <!-- Dynamic Game Grid Header -->
+        <div id="games" class="flex items-center justify-between border-b border-white/10 pb-4">
+            <h2 class="text-2xl md:text-3xl font-display font-bold text-white flex items-center gap-3">
+                <span class="w-3 h-8 rounded-full bg-neon-purple shadow-[0_0_10px_rgba(176,38,255,0.8)]"></span>
+                Featured Titles
+            </h2>
+        </div>
 
         <!-- Dynamic Game Grid -->
         <section aria-label="Games Grid">
@@ -92,22 +173,33 @@
         
     </main>
 
+    <!-- Simple Footer -->
+    <footer class="relative z-10 border-t border-white/10 bg-slate-950/80 backdrop-blur-md py-8">
+        <div class="max-w-screen-xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-slate-500 text-sm">© 2024 GokuGames. Built with HTML5 & Tailwind CSS.</p>
+            <a href="https://github.com/gokuthug1" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                Created by gokuthug1
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            </a>
+        </div>
+    </footer>
+
     <!-- Game Data & Logic -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
             // ==========================================
-            // 1. GAME DATA 
+            // 1. GAME DATA (Updated with Mock Titles for aesthetics)
             // ==========================================
             const games =[
                 { title: "Candy Tower Defense!", genre: "Strategy", url: "https://gokuthug1.github.io/games/Tower-Defense" },
-                { title: "Coming Soon!",         genre: "Puzzle",   url: "#" },
-                { title: "Coming Soon!",         genre: "Racing",   url: "#" },
-                { title: "Coming Soon!",         genre: "Strategy", url: "#" },
-                { title: "Coming Soon!",         genre: "Action",   url: "#" },
-                { title: "Coming Soon!",         genre: "Puzzle",   url: "#" },
-                { title: "Coming Soon!",         genre: "Racing",   url: "#" },
-                { title: "Coming Soon!",         genre: "Strategy", url: "#" }
+                { title: "Neon Racer",           genre: "Racing",   url: "#" },
+                { title: "Cyber Puzzle",         genre: "Puzzle",   url: "#" },
+                { title: "Galactic Wars",        genre: "Action",   url: "#" },
+                { title: "Block Builder",        genre: "Puzzle",   url: "#" },
+                { title: "Speed Drift",          genre: "Racing",   url: "#" },
+                { title: "Base Command",         genre: "Strategy", url: "#" },
+                { title: "Rogue Survivor",       genre: "Action",   url: "#" }
             ];
 
             // ==========================================
@@ -116,27 +208,50 @@
             games.sort((a, b) => a.genre.localeCompare(b.genre));
 
             // ==========================================
-            // 3. RENDER GRID (NO IMAGES)
+            // 3. RENDER GRID (MODERNIZED UI)
             // ==========================================
             const gameGrid = document.getElementById('game-grid');
             
-            gameGrid.innerHTML = games.map(game => {
+            gameGrid.innerHTML = games.map((game, index) => {
                 const isComingSoon = game.url === "#";
+                // Add staggered animation delay
+                const animDelay = index * 100;
                 
                 return `
-                <article class="game-card group relative bg-slate-850 rounded-xl border border-slate-800/80 overflow-hidden shadow-lg transition-all duration-300 ${isComingSoon ? 'cursor-default opacity-80' : 'cursor-pointer hover:shadow-2xl hover:border-brand-500/50'}" data-game-url="${game.url}" tabindex="0">
-                    
-                    <!-- Card Background & Content -->
-                    <div class="relative aspect-video flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-slate-850 p-4 text-center">
-                        <h2 class="text-xl font-bold mb-3 ${isComingSoon ? 'text-slate-500' : 'text-white group-hover:text-brand-400 transition-colors'}">${game.title}</h2>
-                        <span class="text-xs font-semibold px-3 py-1 rounded-full border ${isComingSoon ? 'text-slate-400 bg-slate-800/50 border-slate-700/50' : 'text-brand-300 bg-brand-500/10 border-brand-500/20'}">${game.genre}</span>
+                <article 
+                    class="game-card group relative bg-slate-900 rounded-2xl overflow-hidden transition-all duration-300 ${isComingSoon ? 'cursor-not-allowed opacity-75 grayscale-[30%]' : 'cursor-pointer game-card-hover'}" 
+                    data-game-url="${game.url}" 
+                    tabindex="0"
+                    style="animation: fadeIn 0.5s ease-out ${animDelay}ms both;"
+                >
+                    <!-- Background Glow & Grid pattern -->
+                    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-30"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent pointer-events-none"></div>
+
+                    <!-- Card Content -->
+                    <div class="relative flex flex-col items-center justify-center p-8 h-48 text-center border border-white/5 rounded-2xl group-hover:border-transparent transition-colors z-10">
+                        <h2 class="text-xl font-display font-bold mb-3 ${isComingSoon ? 'text-slate-400' : 'text-white group-hover:text-neon-blue transition-colors drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]'}">
+                            ${game.title}
+                        </h2>
+                        
+                        <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md border ${
+                            isComingSoon 
+                            ? 'text-slate-500 border-slate-700 bg-slate-800/50' 
+                            : 'text-neon-purple border-neon-purple/50 bg-neon-purple/10 shadow-[0_0_10px_rgba(176,38,255,0.2)]'
+                        }">
+                            ${game.genre}
+                        </span>
                         
                         <!-- Hover Overlay -->
-                        <div class="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 backdrop-blur-sm">
-                            <span class="inline-flex items-center gap-2 text-white font-semibold px-5 py-2.5 rounded-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 ${isComingSoon ? 'bg-slate-700' : 'bg-brand-500 shadow-lg shadow-brand-500/40'}">
+                        <div class="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-sm rounded-2xl">
+                            <span class="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 ${
+                                isComingSoon 
+                                    ? 'bg-slate-800 text-slate-400' 
+                                    : 'bg-gradient-to-r from-neon-purple to-neon-blue text-white shadow-[0_0_20px_rgba(0,240,255,0.5)]'
+                            }">
                                 ${isComingSoon 
-                                    ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Coming Soon!' 
-                                    : '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg> Play Now'}
+                                    ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Coming Soon' 
+                                    : '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg> Launch Game'}
                             </span>
                         </div>
                     </div>
@@ -152,7 +267,6 @@
                     const destinationUrl = card.getAttribute('data-game-url');
                     // Check to make sure it's not a "Coming Soon" placeholder
                     if (destinationUrl && destinationUrl !== "#") {
-                        // Actually opens the game in a new browser tab
                         window.open(destinationUrl, '_blank');
                     }
                 }
