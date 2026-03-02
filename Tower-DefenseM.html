@@ -234,6 +234,9 @@
         <!-- Eye Icons -->
         <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
         <symbol id="icon-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <!-- Fullscreen Icons -->
+        <symbol id="icon-fullscreen-on" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></symbol>
+        <symbol id="icon-fullscreen-off" viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></symbol>
     </svg>
 
     <div id="game-container">
@@ -252,6 +255,7 @@
                 <button id="btn-speed" class="control-btn" onclick="Game.toggleSpeed()"><svg class="icon-svg"><use href="#icon-speed"></use></svg> <span id="ui-speed-txt">1x</span></button>
                 <button id="btn-range" class="control-btn" onclick="Game.toggleRanges()"><svg class="icon-svg"><use href="#icon-range"></use></svg></button>
                 <button id="btn-auto" class="control-btn" onclick="Game.toggleAuto()"><svg class="icon-svg"><use href="#icon-auto"></use></svg></button>
+                <button id="btn-fullscreen" class="control-btn" onclick="Game.toggleFullscreen()"><svg class="icon-svg"><use id="fullscreen-icon-use" href="#icon-fullscreen-on"></use></svg></button>
             </div>
         </div>
 
@@ -709,6 +713,16 @@ const Game = {
         this.audioEngine.init();
         this.resize(); window.addEventListener('resize', () => this.resize());
         this.setupUI(); this.setupInput(); requestAnimationFrame(t => this.loop(t));
+
+        // Listen for external changes to fullscreen state
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.getElementById('fullscreen-icon-use');
+            if (document.fullscreenElement) {
+                icon.setAttribute('href', '#icon-fullscreen-off');
+            } else {
+                icon.setAttribute('href', '#icon-fullscreen-on');
+            }
+        });
     },
 
     playSound(key) { this.audioEngine.play(key); },
@@ -731,6 +745,21 @@ const Game = {
         this.playSound('click'); this.audioEngine.enabled = !this.audioEngine.enabled;
         document.getElementById('btn-sound').classList.toggle('active', this.audioEngine.enabled);
         document.getElementById('sound-icon-use').setAttribute('href', this.audioEngine.enabled ? '#icon-sound-on' : '#icon-sound-off');
+    },
+
+    toggleFullscreen() {
+        this.playSound('click');
+        const icon = document.getElementById('fullscreen-icon-use');
+        
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch((err) => {
+                console.log(`Error attempting to enable fullscreen: ${err.message}`);
+            });
+            icon.setAttribute('href', '#icon-fullscreen-off');
+        } else {
+            document.exitFullscreen();
+            icon.setAttribute('href', '#icon-fullscreen-on');
+        }
     },
 
     resize() {
