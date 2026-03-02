@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GokuGames - Remastered</title>
+    <title>GokuGames</title>
     
     <!-- Google Fonts: Inter & Orbitron for Gaming Vibe -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,7 +37,7 @@
                         slate: {
                             850: '#151e2e',
                             900: '#0f172a',
-                            950: '#020617', // Darker background for neon to pop
+                            950: '#020617',
                         }
                     },
                     animation: {
@@ -68,7 +68,6 @@
         ::-webkit-scrollbar-thumb:hover { background: #b026ff; }
         html { scroll-behavior: smooth; }
         
-        /* Glassmorphism utilities */
         .glass-panel {
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(12px);
@@ -113,7 +112,7 @@
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <input type="search" class="block w-full pl-12 pr-4 py-3 border border-white/10 rounded-2xl bg-slate-900/50 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent focus:bg-slate-800/80 transition-all shadow-inner sm:text-sm" placeholder="Search instantly playable HTML5 games...">
+                <input type="search" id="game-search" class="block w-full pl-12 pr-4 py-3 border border-white/10 rounded-2xl bg-slate-900/50 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent focus:bg-slate-800/80 transition-all shadow-inner sm:text-sm" placeholder="Search instantly playable HTML5 games...">
             </div>
 
             <div class="flex items-center gap-4 pl-6">
@@ -167,16 +166,16 @@
         <!-- Dynamic Game Grid -->
         <section aria-label="Games Grid">
             <div id="game-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- JavaScript will inject the 8 game placeholders here -->
+                <!-- JavaScript will inject the games here -->
             </div>
         </section>
         
     </main>
 
-    <!-- Simple Footer -->
+    <!-- Footer updated to 2026 -->
     <footer class="relative z-10 border-t border-white/10 bg-slate-950/80 backdrop-blur-md py-8">
         <div class="max-w-screen-xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p class="text-slate-500 text-sm">© 2024 GokuGames. Built with HTML5 & Tailwind CSS.</p>
+            <p class="text-slate-500 text-sm">© 2026 GokuGames. Built with HTML5 & Tailwind CSS.</p>
             <a href="https://github.com/gokuthug1" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
                 Created by gokuthug1
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
@@ -189,17 +188,17 @@
         document.addEventListener('DOMContentLoaded', () => {
             
             // ==========================================
-            // 1. GAME DATA (Updated with Mock Titles for aesthetics)
+            // 1. GAME DATA (Restored to "Coming Soon!")
             // ==========================================
             const games =[
                 { title: "Candy Tower Defense!", genre: "Strategy", url: "https://gokuthug1.github.io/games/Tower-Defense" },
-                { title: "Neon Racer",           genre: "Racing",   url: "#" },
-                { title: "Cyber Puzzle",         genre: "Puzzle",   url: "#" },
-                { title: "Galactic Wars",        genre: "Action",   url: "#" },
-                { title: "Block Builder",        genre: "Puzzle",   url: "#" },
-                { title: "Speed Drift",          genre: "Racing",   url: "#" },
-                { title: "Base Command",         genre: "Strategy", url: "#" },
-                { title: "Rogue Survivor",       genre: "Action",   url: "#" }
+                { title: "Coming Soon!",         genre: "Puzzle",   url: "#" },
+                { title: "Coming Soon!",         genre: "Racing",   url: "#" },
+                { title: "Coming Soon!",         genre: "Strategy", url: "#" },
+                { title: "Coming Soon!",         genre: "Action",   url: "#" },
+                { title: "Coming Soon!",         genre: "Puzzle",   url: "#" },
+                { title: "Coming Soon!",         genre: "Racing",   url: "#" },
+                { title: "Coming Soon!",         genre: "Strategy", url: "#" }
             ];
 
             // ==========================================
@@ -207,59 +206,107 @@
             // ==========================================
             games.sort((a, b) => a.genre.localeCompare(b.genre));
 
-            // ==========================================
-            // 3. RENDER GRID (MODERNIZED UI)
-            // ==========================================
             const gameGrid = document.getElementById('game-grid');
-            
-            gameGrid.innerHTML = games.map((game, index) => {
-                const isComingSoon = game.url === "#";
-                // Add staggered animation delay
-                const animDelay = index * 100;
-                
-                return `
-                <article 
-                    class="game-card group relative bg-slate-900 rounded-2xl overflow-hidden transition-all duration-300 ${isComingSoon ? 'cursor-not-allowed opacity-75 grayscale-[30%]' : 'cursor-pointer game-card-hover'}" 
-                    data-game-url="${game.url}" 
-                    tabindex="0"
-                    style="animation: fadeIn 0.5s ease-out ${animDelay}ms both;"
-                >
-                    <!-- Background Glow & Grid pattern -->
-                    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-30"></div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent pointer-events-none"></div>
-
-                    <!-- Card Content -->
-                    <div class="relative flex flex-col items-center justify-center p-8 h-48 text-center border border-white/5 rounded-2xl group-hover:border-transparent transition-colors z-10">
-                        <h2 class="text-xl font-display font-bold mb-3 ${isComingSoon ? 'text-slate-400' : 'text-white group-hover:text-neon-blue transition-colors drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]'}">
-                            ${game.title}
-                        </h2>
-                        
-                        <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md border ${
-                            isComingSoon 
-                            ? 'text-slate-500 border-slate-700 bg-slate-800/50' 
-                            : 'text-neon-purple border-neon-purple/50 bg-neon-purple/10 shadow-[0_0_10px_rgba(176,38,255,0.2)]'
-                        }">
-                            ${game.genre}
-                        </span>
-                        
-                        <!-- Hover Overlay -->
-                        <div class="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-sm rounded-2xl">
-                            <span class="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 ${
-                                isComingSoon 
-                                    ? 'bg-slate-800 text-slate-400' 
-                                    : 'bg-gradient-to-r from-neon-purple to-neon-blue text-white shadow-[0_0_20px_rgba(0,240,255,0.5)]'
-                            }">
-                                ${isComingSoon 
-                                    ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Coming Soon' 
-                                    : '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg> Launch Game'}
-                            </span>
-                        </div>
-                    </div>
-                </article>
-            `}).join('');
+            const searchInput = document.getElementById('game-search');
 
             // ==========================================
-            // 4. CLICK & KEYBOARD REDIRECTION LOGIC
+            // 3. RENDER GRID LOGIC
+            // ==========================================
+            const renderGames = (gamesToRender) => {
+                // Handle empty search results
+                if (gamesToRender.length === 0) {
+                    gameGrid.innerHTML = `
+                        <div class="col-span-full py-12 text-center text-slate-500 font-display">
+                            No games found matching your search.
+                        </div>
+                    `;
+                    return;
+                }
+
+                gameGrid.innerHTML = gamesToRender.map((game, index) => {
+                    const isComingSoon = game.url === "#";
+                    const animDelay = index * 50; // Faster stagger for search
+                    
+                    return `
+                    <article 
+                        class="game-card group relative bg-slate-900 rounded-2xl overflow-hidden transition-all duration-300 ${isComingSoon ? 'cursor-not-allowed opacity-75 grayscale-[30%]' : 'cursor-pointer game-card-hover'}" 
+                        data-game-url="${game.url}" 
+                        tabindex="0"
+                        style="animation: fadeIn 0.4s ease-out ${animDelay}ms both;"
+                    >
+                        <!-- Background Glow & Grid pattern -->
+                        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-30"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent pointer-events-none"></div>
+
+                        <!-- Card Content -->
+                        <div class="relative flex flex-col items-center justify-center p-8 h-48 text-center border border-white/5 rounded-2xl group-hover:border-transparent transition-colors z-10">
+                            <h2 class="text-xl font-display font-bold mb-3 ${isComingSoon ? 'text-slate-400' : 'text-white group-hover:text-neon-blue transition-colors drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]'}">
+                                ${game.title}
+                            </h2>
+                            
+                            <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md border ${
+                                isComingSoon 
+                                ? 'text-slate-500 border-slate-700 bg-slate-800/50' 
+                                : 'text-neon-purple border-neon-purple/50 bg-neon-purple/10 shadow-[0_0_10px_rgba(176,38,255,0.2)]'
+                            }">
+                                ${game.genre}
+                            </span>
+                            
+                            <!-- Hover Overlay -->
+                            <div class="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-sm rounded-2xl">
+                                <span class="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 ${
+                                    isComingSoon 
+                                        ? 'bg-slate-800 text-slate-400' 
+                                        : 'bg-gradient-to-r from-neon-purple to-neon-blue text-white shadow-[0_0_20px_rgba(0,240,255,0.5)]'
+                                }">
+                                    ${isComingSoon 
+                                        ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Coming Soon' 
+                                        : '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg> Launch Game'}
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+                `}).join('');
+
+                attachAccessibility();
+            };
+
+            // ==========================================
+            // 4. ACCESSIBILITY (KEYBOARD SUPPORT)
+            // ==========================================
+            const attachAccessibility = () => {
+                const cards = document.querySelectorAll('.game-card');
+                cards.forEach(card => {
+                    // Remove old listeners to prevent duplication if re-rendered
+                    const newCard = card.cloneNode(true);
+                    card.parentNode.replaceChild(newCard, card);
+                    
+                    newCard.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            newCard.click();
+                        }
+                    });
+                });
+            };
+
+            // ==========================================
+            // 5. SEARCH FUNCTIONALITY
+            // ==========================================
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                
+                // Filter by title or genre
+                const filteredGames = games.filter(game => 
+                    game.title.toLowerCase().includes(query) || 
+                    game.genre.toLowerCase().includes(query)
+                );
+                
+                renderGames(filteredGames);
+            });
+
+            // ==========================================
+            // 6. CLICK REDIRECTION LOGIC
             // ==========================================
             gameGrid.addEventListener('click', (e) => {
                 const card = e.target.closest('.game-card');
@@ -272,16 +319,8 @@
                 }
             });
 
-            // Accessibility: Trigger click on Enter or Space
-            const cards = document.querySelectorAll('.game-card');
-            cards.forEach(card => {
-                card.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        card.click();
-                    }
-                });
-            });
+            // Initial load
+            renderGames(games);
         });
     </script>
 </body>
