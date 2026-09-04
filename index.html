@@ -29,6 +29,13 @@
                             elevated: '#1e293b',
                             border: '#2a374f',
                             borderLight: '#3b4a6b'
+                        },
+                        brand: {
+                            blue: '#0284c7',
+                            sky: '#38bdf8',
+                            rose: '#e11d48',
+                            emerald: '#059669',
+                            amber: '#d97706'
                         }
                     }
                 }
@@ -40,13 +47,16 @@
         :root {
             --color-bg: #0b0f19;
             --color-surface: #131b2e;
+            --color-elevated: #1e293b;
             --color-border: #2a374f;
+            --color-border-light: #3b4a6b;
             --color-text: #f8fafc;
             --color-text-muted: #94a3b8;
             --radius-md: 12px;
+            --radius-lg: 18px;
         }
 
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--color-bg); }
         ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
@@ -83,6 +93,31 @@
             outline-offset: -2px;
         }
 
+        /* Theater mode expansion */
+        body.theater-mode #play-next-sidebar { display: none !important; }
+        body.theater-mode #game-main-col { max-width: 100% !important; }
+        body.theater-mode #player-stage { height: 75vh !important; }
+
+        /* Floating Controls Popover */
+        #controls-popover {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        #controls-popover.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(8px);
+        }
+
+        /* Sticky Back to Game Button */
+        #btn-back-to-game {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        #btn-back-to-game.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(12px);
+        }
+
         @media (min-width: 1024px) {
             body.desktop-collapsed #sidebar { width: 5rem; }
             body.desktop-collapsed #main-content { margin-left: 5rem; }
@@ -110,7 +145,7 @@
                 <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
             
-            <a href="index.html" class="flex items-center gap-3 text-white font-display font-bold text-xl sm:text-2xl tracking-wider hover:text-sky-400 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 rounded-lg p-1">
+            <a href="javascript:void(0)" onclick="GameHub.closeGame()" class="flex items-center gap-3 text-white font-display font-bold text-xl sm:text-2xl tracking-wider hover:text-sky-400 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 rounded-lg p-1">
                 <div class="w-10 h-10 rounded-lg bg-sky-600 flex items-center justify-center text-white shadow-md">
                     <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4m-2-2v4m9-2h.01m3-2h.01"></path></svg>
                 </div>
@@ -222,36 +257,270 @@
                 </div>
             </div>
 
-            <!-- Hero Section -->
-            <section class="rounded-2xl surface-panel p-6 md:p-10 border border-[#2a374f] relative overflow-hidden" aria-labelledby="hero-title">
-                <div class="max-w-2xl relative z-10 space-y-3">
-                    <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-sky-950 text-sky-400 border border-sky-800 text-xs font-semibold">
-                        NATIVE HTML5 • INSTANT PLAY
+            <!-- ========================================== -->
+            <!-- VIEW 1: CATALOG GRID VIEW                  -->
+            <!-- ========================================== -->
+            <div id="catalog-view" class="space-y-8">
+                <!-- Hero Section -->
+                <section class="rounded-2xl surface-panel p-6 md:p-10 border border-[#2a374f] relative overflow-hidden" aria-labelledby="hero-title">
+                    <div class="max-w-2xl relative z-10 space-y-3">
+                        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-sky-950 text-sky-400 border border-sky-800 text-xs font-semibold">
+                            NATIVE HTML5 • INSTANT EMBEDDED PLAY
+                        </div>
+                        <h1 id="hero-title" class="text-2xl sm:text-4xl font-display font-bold text-white tracking-wide">
+                            PLAY DIRECTLY IN THE HUB.
+                        </h1>
+                        <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                            No redirects or broken tabs. Play curated browser games right here with full walkthroughs, hotkeys, and guides.
+                        </p>
                     </div>
-                    <h1 id="hero-title" class="text-2xl sm:text-4xl font-display font-bold text-white tracking-wide">
-                        ZERO DOWNLOADS. INSTANT ACTION.
-                    </h1>
-                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
-                        Curated collection of high-performance HTML5 browser games. Works offline, on desktop, and on mobile.
-                    </p>
-                </div>
-            </section>
+                </section>
 
-            <!-- Section Controls & Count -->
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h2 id="section-title" class="text-xl font-display font-semibold text-white flex items-center gap-2">
-                    <span class="w-1.5 h-6 bg-sky-500 rounded-sm"></span>
-                    Featured Titles
-                </h2>
-                <span id="game-count" class="text-slate-400 text-sm font-medium">0 Games</span>
+                <!-- Section Controls & Count -->
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h2 id="section-title" class="text-xl font-display font-semibold text-white flex items-center gap-2">
+                        <span class="w-1.5 h-6 bg-sky-500 rounded-sm"></span>
+                        Featured Titles
+                    </h2>
+                    <span id="game-count" class="text-slate-400 text-sm font-medium">0 Games</span>
+                </div>
+
+                <!-- Game Grid -->
+                <section aria-label="Available Games">
+                    <div id="game-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                        <!-- JavaScript dynamically renders games here -->
+                    </div>
+                </section>
             </div>
 
-            <!-- Game Grid -->
-            <section aria-label="Available Games">
-                <div id="game-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    <!-- JavaScript dynamically renders games here -->
+            <!-- ========================================== -->
+            <!-- VIEW 2: EMBEDDED GAME PLAYER VIEW          -->
+            <!-- ========================================== -->
+            <div id="player-view" class="hidden space-y-6">
+                
+                <div class="flex flex-col xl:flex-row gap-6 items-start">
+                    
+                    <!-- Center/Main Game Stage Column -->
+                    <div id="game-main-col" class="w-full xl:flex-1 space-y-4">
+                        
+                        <!-- Breadcrumb & Mode Quick-Switch -->
+                        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-400">
+                            <nav aria-label="Breadcrumb" class="flex items-center gap-2 flex-wrap">
+                                <button type="button" onclick="GameHub.closeGame()" class="hover:text-white transition-colors">GokuGames</button>
+                                <span>»</span>
+                                <span id="player-breadcrumb-genre" class="text-slate-400">Strategy</span>
+                                <span>»</span>
+                                <span id="player-breadcrumb-title" class="text-sky-400 font-medium">Candy Tower Defense</span>
+                            </nav>
+                            
+                            <button type="button" onclick="GameHub.closeGame()" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition-colors border border-slate-700" title="Return to catalog">
+                                <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                <span>Close</span>
+                            </button>
+                        </div>
+
+                        <!-- Iframe Game Stage Container -->
+                        <div id="player-stage-container" class="relative rounded-2xl overflow-hidden border border-[#2a374f] bg-black shadow-2xl">
+                            
+                            <!-- Loading Spinner -->
+                            <div id="player-loading" class="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center z-10 space-y-3">
+                                <div class="w-10 h-10 border-4 border-slate-700 border-t-sky-500 rounded-full animate-spin"></div>
+                                <span class="text-xs text-slate-400 font-medium">Loading game...</span>
+                            </div>
+
+                            <!-- Controls Floating Popover (CrazyGames Style Overlay) -->
+                            <div id="controls-popover" class="absolute bottom-4 right-4 z-20 w-80 max-w-[90%] bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl p-4 shadow-2xl hidden" role="dialog" aria-label="Game Controls">
+                                <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                                    <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-sky-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="6" y1="8" x2="6.01" y2="8"></line><line x1="10" y1="8" x2="10.01" y2="8"></line><line x1="14" y1="8" x2="14.01" y2="8"></line><line x1="18" y1="8" x2="18.01" y2="8"></line><line x1="6" y1="12" x2="6.01" y2="12"></line><line x1="18" y1="12" x2="18.01" y2="12"></line><line x1="8" y1="16" x2="16" y2="16"></line></svg>
+                                        Controls Guide
+                                    </h4>
+                                    <button type="button" onclick="GameHub.toggleControlsPopover()" class="text-slate-400 hover:text-white" aria-label="Close controls guide">✕</button>
+                                </div>
+                                <div id="controls-popover-content" class="text-xs text-slate-300 space-y-2 max-h-48 overflow-y-auto">
+                                    <!-- Controls injected dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Embedded Game Iframe -->
+                            <iframe 
+                                id="player-iframe" 
+                                class="w-full h-[540px] sm:h-[620px] md:h-[680px] block border-0" 
+                                title="Game Viewport"
+                                sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-fullscreen allow-modals"
+                                allow="fullscreen; autoplay">
+                            </iframe>
+                        </div>
+
+                        <!-- Game Action Bar (CrazyGames Style) -->
+                        <div class="surface-panel rounded-xl px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <div class="flex items-center gap-3 w-full sm:w-auto">
+                                <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center text-white flex-shrink-0">
+                                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4m-2-2v4m9-2h.01m3-2h.01"></path></svg>
+                                </div>
+                                <div>
+                                    <h3 id="player-bar-title" class="text-sm sm:text-base font-bold text-white leading-tight">Candy Tower Defense</h3>
+                                    <span id="player-bar-genre" class="text-xs text-slate-400">Strategy</span>
+                                </div>
+                            </div>
+
+                            <!-- Right Controls: Like, Favorite, Controls Guide, Device, Theater, Fullscreen, Popout -->
+                            <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
+                                
+                                <!-- Like Button -->
+                                <button type="button" id="btn-player-like" onclick="GameHub.toggleLike()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-colors" title="Like this game" aria-label="Like this game">
+                                    <svg class="w-4 h-4 text-rose-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                                    <span id="player-likes-count">24.5K</span>
+                                </button>
+
+                                <!-- Dislike Button -->
+                                <button type="button" id="btn-player-dislike" onclick="GameHub.toggleDislike()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors" title="Dislike this game" aria-label="Dislike this game">
+                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path></svg>
+                                </button>
+
+                                <!-- Favorite Button -->
+                                <button type="button" id="btn-player-fav" onclick="GameHub.toggleFavorite()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors" title="Bookmark game" aria-label="Favorite this game">
+                                    <svg id="fav-icon" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                                </button>
+
+                                <!-- Controls Helper Popover Toggle -->
+                                <button type="button" onclick="GameHub.toggleControlsPopover()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-colors" title="View controls guide" aria-label="Toggle controls guide">
+                                    <svg class="w-4 h-4 text-sky-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="6" y1="8" x2="6.01" y2="8"></line><line x1="10" y1="8" x2="10.01" y2="8"></line><line x1="14" y1="8" x2="14.01" y2="8"></line><line x1="18" y1="8" x2="18.01" y2="8"></line><line x1="8" y1="16" x2="16" y2="16"></line></svg>
+                                    <span class="hidden md:inline">Controls</span>
+                                </button>
+
+                                <!-- Switch Device Edition (Desktop vs Mobile) -->
+                                <button type="button" id="btn-player-device-toggle" onclick="GameHub.toggleDeviceEdition()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-colors" title="Switch layout edition" aria-label="Toggle Desktop and Mobile edition">
+                                    <svg id="device-toggle-icon" class="w-4 h-4 text-emerald-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                                    <span id="device-toggle-label" class="hidden md:inline">Mobile Edition</span>
+                                </button>
+
+                                <!-- Theater Mode Toggle -->
+                                <button type="button" onclick="GameHub.toggleTheaterMode()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors" title="Theater / Wide Mode" aria-label="Toggle Theater Mode">
+                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                                </button>
+
+                                <!-- Fullscreen -->
+                                <button type="button" onclick="GameHub.toggleFullscreen()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors" title="Fullscreen" aria-label="Toggle Fullscreen">
+                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                                </button>
+
+                                <!-- Open Standalone / Popout -->
+                                <a id="btn-player-standalone" href="#" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors" title="Open in new window" aria-label="Open game in standalone window">
+                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Game Details, Metadata & How to Play (CrazyGames Style) -->
+                        <section id="game-info-section" class="surface-panel rounded-2xl p-6 md:p-8 space-y-6">
+                            
+                            <!-- Header & Share Bar -->
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+                                <div>
+                                    <h2 id="info-title" class="text-2xl font-display font-bold text-white mb-1">Candy Tower Defense</h2>
+                                    <div class="flex items-center gap-2 flex-wrap text-xs text-slate-400">
+                                        <span id="info-rating" class="font-bold text-amber-400">4.9 ★</span>
+                                        <span>•</span>
+                                        <span id="info-developer">Developer: gokuthug1</span>
+                                        <span>•</span>
+                                        <span id="info-release">Released: March 2026</span>
+                                    </div>
+                                </div>
+                                <button type="button" id="btn-share-game" onclick="GameHub.shareGame()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors">
+                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                    <span id="share-btn-text">Share</span>
+                                </button>
+                            </div>
+
+                            <!-- Metadata Specifications Table (Image 2 style) -->
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-xs">
+                                <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                                    <span class="text-slate-500 font-semibold block uppercase">Rating</span>
+                                    <span class="text-white font-bold">4.9 / 5.0</span>
+                                </div>
+                                <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                                    <span class="text-slate-500 font-semibold block uppercase">Engine</span>
+                                    <span class="text-white font-bold">HTML5 Canvas</span>
+                                </div>
+                                <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                                    <span class="text-slate-500 font-semibold block uppercase">Audio</span>
+                                    <span class="text-white font-bold">Web Audio API</span>
+                                </div>
+                                <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                                    <span class="text-slate-500 font-semibold block uppercase">Platforms</span>
+                                    <span class="text-white font-bold">Desktop / Mobile</span>
+                                </div>
+                                <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                                    <span class="text-slate-500 font-semibold block uppercase">Orientation</span>
+                                    <span id="info-orientation" class="text-white font-bold">Landscape</span>
+                                </div>
+                                <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                                    <span class="text-slate-500 font-semibold block uppercase">Offline</span>
+                                    <span class="text-emerald-400 font-bold">Supported</span>
+                                </div>
+                            </div>
+
+                            <!-- Genre Tag Pills -->
+                            <div id="info-tags" class="flex items-center gap-2 flex-wrap pt-1">
+                                <!-- Tags injected via JS -->
+                            </div>
+
+                            <!-- Description -->
+                            <div class="space-y-2 text-sm text-slate-300 leading-relaxed">
+                                <p id="info-description">
+                                    Candy Tower Defense is an action-packed strategic tower defense game where your mission is to defend the jelly candy heart against swarms of attacking sweets! Place towers with complementary abilities, upgrade them to Master Tier, and conquer challenging boss encounters.
+                                </p>
+                            </div>
+
+                            <!-- Features List -->
+                            <div class="space-y-3 pt-2">
+                                <h3 class="text-base font-bold text-white">Features</h3>
+                                <ul id="info-features" class="list-disc list-inside space-y-1.5 text-sm text-slate-300">
+                                    <li>8 unique confectionery towers with distinct fire rates, ranges, and special damage effects.</li>
+                                    <li>5 enemy archetypes: Gummy (Normal), Peppermint (Fast Sprinter), Jawbreaker (Armored Tank), Sugar Bean (Swarm), and King Gummy (Boss).</li>
+                                    <li>Tactical targeting priorities: switch any tower to target First, Last, Strongest, or Weakest.</li>
+                                    <li>Deep progression with Level 5 Master Tier upgrades.</li>
+                                    <li>Foolproof audio engine with procedural sound synthesizer fallback.</li>
+                                </ul>
+                            </div>
+
+                            <!-- How to Play Section -->
+                            <div class="space-y-3 pt-2">
+                                <h3 class="text-base font-bold text-white">How to Play</h3>
+                                <ul class="list-disc list-inside space-y-1.5 text-sm text-slate-300">
+                                    <li>Choose a tower from the build menu at the bottom.</li>
+                                    <li>Click or tap any open green pasture spot to place your defense tower. Towers cannot be placed on the winding path.</li>
+                                    <li>Click "START WAVE" or press Space to summon the enemy wave.</li>
+                                    <li>Earn Sugar Coins by popping enemies and clearing waves. Use your earnings to upgrade or build more towers!</li>
+                                    <li>Click on any placed tower to inspect stats, level up, sell, or toggle targeting priority.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Controls Table -->
+                            <div class="space-y-3 pt-2">
+                                <h3 class="text-base font-bold text-white">Controls</h3>
+                                <div id="info-controls-table" class="border border-slate-800 rounded-xl overflow-hidden">
+                                    <!-- Controls table injected via JS -->
+                                </div>
+                            </div>
+
+                        </section>
+                    </div>
+
+                    <!-- Right Column: "Play Next" Recommendations (CrazyGames Style) -->
+                    <aside id="play-next-sidebar" class="w-full xl:w-72 space-y-3 flex-shrink-0">
+                        <div class="flex items-center justify-between pb-1">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Play Next</h3>
+                            <span class="text-xs text-slate-400 font-medium">Recommended</span>
+                        </div>
+                        <div id="play-next-list" class="space-y-3">
+                            <!-- Injected via JavaScript -->
+                        </div>
+                    </aside>
+
                 </div>
-            </section>
+            </div>
 
             <!-- Footer -->
             <footer class="mt-16 border-t border-slate-800 pt-6 pb-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
@@ -259,25 +528,26 @@
                 <div class="flex items-center gap-4">
                     <a href="https://github.com/gokuthug1" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300 transition-colors">Developer Profile</a>
                     <span>•</span>
-                    <a href="Tower-Defense.html" class="hover:text-slate-300 transition-colors">Desktop Edition</a>
+                    <button type="button" onclick="GameHub.openGame('td-desktop')" class="hover:text-slate-300 transition-colors">Desktop Edition</button>
                     <span>•</span>
-                    <a href="Tower-DefenseM.html" class="hover:text-slate-300 transition-colors">Mobile Edition</a>
+                    <button type="button" onclick="GameHub.openGame('td-mobile')" class="hover:text-slate-300 transition-colors">Mobile Edition</button>
                 </div>
             </footer>
 
         </main>
     </div>
 
+    <!-- Sticky "↑ Back to game" Button (CrazyGames Style) -->
+    <button type="button" id="btn-back-to-game" onclick="GameHub.scrollToGame()" class="fixed bottom-6 right-6 z-40 hidden inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs shadow-xl transition-all border border-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white">
+        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+        <span>Back to game</span>
+    </button>
+
     <!-- Application Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        const GameHub = (() => {
             
-            // Device Detection: Coarse pointer or small viewport indicates mobile
             const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
-
-            // Load persistent game statistics from localStorage
-            const savedHighScore = localStorage.getItem('candy_defense_highscore') || 0;
-            const savedBestWave = localStorage.getItem('candy_defense_best_wave') || 0;
 
             const games = [
                 { 
@@ -285,22 +555,53 @@
                     title: "Candy Tower Defense!", 
                     genre: "Strategy", 
                     url: "Tower-Defense.html", 
+                    altUrl: "Tower-DefenseM.html",
+                    altId: "td-mobile",
                     isMobile: false,  
                     isTrending: true,
                     isReady: true,
                     desc: "Desktop Edition with full mouse controls, hotkeys, and tactical depth.",
-                    badge: !isTouchDevice ? "Recommended" : null
+                    badge: !isTouchDevice ? "Recommended" : null,
+                    rating: "4.9 ★",
+                    developer: "gokuthug1",
+                    releaseDate: "March 2026",
+                    orientation: "Landscape",
+                    tags: ["Strategy", "Tower Defense", "Candy", "Hotkeys", "Tactical"],
+                    controls: [
+                        { key: "Left Click", action: "Select tower to build / inspect tower" },
+                        { key: "1 – 8 Keys", action: "Quick-select towers 1 to 8" },
+                        { key: "Space", action: "Start wave / Toggle pause" },
+                        { key: "P", action: "Pause or resume game" },
+                        { key: "U", action: "Upgrade selected tower" },
+                        { key: "S", action: "Sell selected tower" },
+                        { key: "T", action: "Cycle targeting priority (First, Last, Strongest, Weakest)" },
+                        { key: "Esc", action: "Deselect tower or close inspector" }
+                    ]
                 },
                 { 
                     id: "td-mobile",
                     title: "Candy Tower Defense Mobile!", 
                     genre: "Strategy", 
                     url: "Tower-DefenseM.html", 
+                    altUrl: "Tower-Defense.html",
+                    altId: "td-desktop",
                     isMobile: true,   
                     isTrending: true,
                     isReady: true,
                     desc: "Touch-optimized edition designed specifically for mobile and tablets.",
-                    badge: isTouchDevice ? "Recommended" : null
+                    badge: isTouchDevice ? "Recommended" : null,
+                    rating: "4.9 ★",
+                    developer: "gokuthug1",
+                    releaseDate: "March 2026",
+                    orientation: "Portrait",
+                    tags: ["Strategy", "Tower Defense", "Touch Ready", "Mobile", "Casual"],
+                    controls: [
+                        { key: "Tap Bottom Menu", action: "Select tower type to build" },
+                        { key: "Tap Green Field", action: "Place tower (green preview = valid, red = invalid)" },
+                        { key: "Tap Placed Tower", action: "Open upgrade & target inspector drawer" },
+                        { key: "Tap Mode Pills", action: "Switch target priority (First, Last, Strong, Weak)" },
+                        { key: "Top HUD Buttons", action: "Pause, sound, speed, ranges, auto wave" }
+                    ]
                 },
                 { 
                     id: "cs-1",
@@ -310,7 +611,8 @@
                     isMobile: true,  
                     isTrending: false,
                     isReady: false,
-                    desc: "Match-3 candy puzzle adventure. Currently in development."
+                    desc: "Match-3 candy puzzle adventure with combo multipliers.",
+                    tags: ["Puzzle", "Match 3", "Casual"]
                 },
                 { 
                     id: "cs-2",
@@ -320,7 +622,8 @@
                     isMobile: false, 
                     isTrending: true,
                     isReady: false,
-                    desc: "Fast-paced endless runner through candy terrain."
+                    desc: "Fast-paced endless runner through waffle valleys and syrup rivers.",
+                    tags: ["Action", "Runner", "Fast"]
                 },
                 { 
                     id: "cs-3",
@@ -330,7 +633,8 @@
                     isMobile: true,  
                     isTrending: false,
                     isReady: false,
-                    desc: "Kart racing on waffle and frosting tracks."
+                    desc: "Kart racing on frosting and gingerbread tracks.",
+                    tags: ["Racing", "Kart", "Multiplayer"]
                 },
                 { 
                     id: "cs-4",
@@ -340,28 +644,81 @@
                     isMobile: true,  
                     isTrending: false,
                     isReady: false,
-                    desc: "Turn-based kingdom management and siege defense."
+                    desc: "Turn-based kingdom management and siege defense.",
+                    tags: ["Strategy", "Turn-Based", "Kingdom"]
                 }
             ];
 
-            // Initial sort: Ready games first, then by title
-            games.sort((a, b) => {
-                if (a.isReady !== b.isReady) return b.isReady ? 1 : -1;
-                return a.title.localeCompare(b.title);
-            });
+            let activeGame = null;
+            let currentFilter = 'All';
+            let currentSearch = '';
+            let isTheaterMode = false;
 
-            // State Elements
+            // DOM Elements
+            const catalogView = document.getElementById('catalog-view');
+            const playerView = document.getElementById('player-view');
             const gameGrid = document.getElementById('game-grid');
             const searchInputDesk = document.getElementById('game-search');
             const searchInputMob = document.getElementById('mobile-game-search');
             const sectionTitle = document.getElementById('section-title');
             const gameCount = document.getElementById('game-count');
-            
-            let currentFilter = 'All';
-            let currentSearch = '';
 
-            // Render Game Cards
-            const renderGames = () => {
+            const playerIframe = document.getElementById('player-iframe');
+            const playerLoading = document.getElementById('player-loading');
+            const playerBarTitle = document.getElementById('player-bar-title');
+            const playerBarGenre = document.getElementById('player-bar-genre');
+            const playerBreadcrumbGenre = document.getElementById('player-breadcrumb-genre');
+            const playerBreadcrumbTitle = document.getElementById('player-breadcrumb-title');
+            const playerLikesCount = document.getElementById('player-likes-count');
+            const btnPlayerLike = document.getElementById('btn-player-like');
+            const favIcon = document.getElementById('fav-icon');
+            const btnPlayerStandalone = document.getElementById('btn-player-standalone');
+            const btnPlayerDeviceToggle = document.getElementById('btn-player-device-toggle');
+            const deviceToggleLabel = document.getElementById('device-toggle-label');
+            const deviceToggleIcon = document.getElementById('device-toggle-icon');
+
+            const infoTitle = document.getElementById('info-title');
+            const infoRating = document.getElementById('info-rating');
+            const infoDeveloper = document.getElementById('info-developer');
+            const infoRelease = document.getElementById('info-release');
+            const infoOrientation = document.getElementById('info-orientation');
+            const infoTags = document.getElementById('info-tags');
+            const infoControlsTable = document.getElementById('info-controls-table');
+            const playNextList = document.getElementById('play-next-list');
+            const controlsPopover = document.getElementById('controls-popover');
+            const controlsPopoverContent = document.getElementById('controls-popover-content');
+            const btnBackToGame = document.getElementById('btn-back-to-game');
+
+            const init = () => {
+                renderCatalog();
+                setupEventListeners();
+                checkUrlHash();
+
+                // Listen for messages from iframe (e.g. clicking "Hub" or "Mobile/PC" inside game)
+                window.addEventListener('message', (e) => {
+                    if (!e.data) return;
+                    if (e.data.action === 'closeGame') {
+                        closeGame();
+                    } else if (e.data.action === 'switchLayout' && e.data.target) {
+                        openGame(e.data.target);
+                    }
+                });
+
+                // Window scroll listener for "Back to game" sticky button
+                window.addEventListener('scroll', () => {
+                    if (activeGame) {
+                        const stage = document.getElementById('player-stage-container');
+                        const stageBottom = stage.getBoundingClientRect().bottom;
+                        if (stageBottom < 0) {
+                            btnBackToGame.classList.remove('hidden');
+                        } else {
+                            btnBackToGame.classList.add('hidden');
+                        }
+                    }
+                });
+            };
+
+            const renderCatalog = () => {
                 let filtered = games.filter(game => {
                     if (currentFilter === 'All') return true;
                     if (currentFilter === 'Trending') return game.isTrending;
@@ -373,11 +730,10 @@
                     filtered = filtered.filter(game => 
                         game.title.toLowerCase().includes(currentSearch) || 
                         game.genre.toLowerCase().includes(currentSearch) ||
-                        game.desc.toLowerCase().includes(currentSearch)
+                        (game.desc && game.desc.toLowerCase().includes(currentSearch))
                     );
                 }
 
-                // Update UI Counters & Title
                 gameCount.textContent = `${filtered.length} ${filtered.length === 1 ? 'Game' : 'Games'}`;
                 
                 let headerText = 'Featured Titles';
@@ -388,31 +744,23 @@
                 
                 sectionTitle.innerHTML = `<span class="w-1.5 h-6 bg-sky-500 rounded-sm"></span> ${headerText}`;
 
-                // Handle Empty State
                 if (filtered.length === 0) {
                     gameGrid.innerHTML = `
                         <div class="col-span-full py-12 px-4 flex flex-col items-center justify-center border border-dashed border-slate-700 rounded-xl bg-slate-900/60 text-center">
                             <svg class="w-12 h-12 text-slate-500 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             <h3 class="text-base font-semibold text-slate-200 mb-1">No matching games found</h3>
                             <p class="text-sm text-slate-400 max-w-sm mb-4">No titles match your current search or genre filter.</p>
-                            <button type="button" id="btn-clear-search" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors border border-slate-600">
+                            <button type="button" onclick="GameHub.resetFilters()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors border border-slate-600">
                                 Reset Filters
                             </button>
                         </div>
                     `;
-                    document.getElementById('btn-clear-search')?.addEventListener('click', () => {
-                        currentFilter = 'All';
-                        currentSearch = '';
-                        searchInputDesk.value = '';
-                        searchInputMob.value = '';
-                        document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
-                        document.querySelector('.sidebar-item[data-filter="All"]')?.classList.add('active');
-                        renderGames();
-                    });
                     return;
                 }
 
-                // Render Cards
+                const savedHighScore = localStorage.getItem('candy_defense_highscore') || 0;
+                const savedBestWave = localStorage.getItem('candy_defense_best_wave') || 0;
+
                 gameGrid.innerHTML = filtered.map(game => {
                     const isPlayable = game.isReady && game.url !== '#';
                     
@@ -460,10 +808,10 @@
                             ${statPill}
                             
                             ${isPlayable ? `
-                                <a href="${game.url}" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-semibold text-sm rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                                <button type="button" onclick="GameHub.openGame('${game.id}')" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-semibold text-sm rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
                                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                                    Play Now
-                                </a>
+                                    Play on Hub
+                                </button>
                             ` : `
                                 <button type="button" disabled class="w-full px-4 py-2.5 bg-slate-800 text-slate-500 font-semibold text-sm rounded-lg cursor-not-allowed border border-slate-700">
                                     Coming Soon
@@ -475,77 +823,359 @@
                 }).join('');
             };
 
-            // Sidebar Filter Listener
-            const sidebarButtons = document.querySelectorAll('.sidebar-item');
-            sidebarButtons.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    sidebarButtons.forEach(b => b.classList.remove('active'));
-                    const targetBtn = e.currentTarget;
-                    targetBtn.classList.add('active');
-                    
-                    currentFilter = targetBtn.getAttribute('data-filter') || 'All';
-                    
-                    if (window.innerWidth < 1024) closeMobileMenu();
-                    renderGames();
-                });
-            });
+            const openGame = (gameId) => {
+                const game = games.find(g => g.id === gameId);
+                if (!game || !game.isReady) return;
 
-            // Search Listeners
-            const handleSearch = (e) => {
-                currentSearch = e.target.value.toLowerCase().trim();
-                if (e.target === searchInputDesk) searchInputMob.value = currentSearch;
-                else searchInputDesk.value = currentSearch;
-                renderGames();
-            };
-            searchInputDesk.addEventListener('input', handleSearch);
-            searchInputMob.addEventListener('input', handleSearch);
+                activeGame = game;
+                window.location.hash = 'game=' + game.id;
 
-            // Responsive Sidebar Menu Toggle
-            const menuBtn = document.getElementById('menu-btn');
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-            let isMobileMenuOpen = false;
+                // Toggle views
+                catalogView.classList.add('hidden');
+                playerView.classList.remove('hidden');
 
-            const openMobileMenu = () => {
-                isMobileMenuOpen = true;
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-                menuBtn.setAttribute('aria-expanded', 'true');
-            };
+                // Update Action Bar & Breadcrumbs
+                playerBarTitle.textContent = game.title;
+                playerBarGenre.textContent = game.genre;
+                playerBreadcrumbGenre.textContent = game.genre;
+                playerBreadcrumbTitle.textContent = game.title;
+                btnPlayerStandalone.href = game.url;
 
-            const closeMobileMenu = () => {
-                isMobileMenuOpen = false;
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-                document.body.style.overflow = '';
-                menuBtn.setAttribute('aria-expanded', 'false');
-            };
-
-            menuBtn.addEventListener('click', () => {
-                if (window.innerWidth < 1024) {
-                    if (isMobileMenuOpen) closeMobileMenu();
-                    else openMobileMenu();
+                // Device layout button config
+                if (game.altId) {
+                    btnPlayerDeviceToggle.style.display = 'inline-flex';
+                    const isNowMobile = game.isMobile;
+                    deviceToggleLabel.textContent = isNowMobile ? 'Desktop Edition' : 'Mobile Edition';
+                    if (isNowMobile) {
+                        deviceToggleIcon.innerHTML = '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>';
+                    } else {
+                        deviceToggleIcon.innerHTML = '<rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line>';
+                    }
                 } else {
-                    document.body.classList.toggle('desktop-collapsed');
+                    btnPlayerDeviceToggle.style.display = 'none';
                 }
-            });
-            
-            overlay.addEventListener('click', closeMobileMenu);
 
-            window.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && isMobileMenuOpen) closeMobileMenu();
-            });
+                // Update Metadata & Specifications
+                infoTitle.textContent = game.title;
+                infoRating.textContent = game.rating || "4.9 ★";
+                infoDeveloper.textContent = "Developer: " + (game.developer || "gokuthug1");
+                infoRelease.textContent = "Released: " + (game.releaseDate || "March 2026");
+                infoOrientation.textContent = game.orientation || "Landscape";
 
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 1024 && isMobileMenuOpen) {
-                    closeMobileMenu();
+                // Update Tags
+                const tags = game.tags || [game.genre, "HTML5", "Offline"];
+                const tagCounts = { "Strategy": "1,420", "Tower Defense": "890", "Candy": "640", "Hotkeys": "512", "Tactical": "730", "Touch Ready": "2,150", "Mobile": "3,400", "Casual": "1,880", "Puzzle": "950", "Action": "1,200", "Racing": "680" };
+                infoTags.innerHTML = tags.map(t => `
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-slate-300 text-xs font-medium border border-slate-800 hover:border-slate-700 transition-colors">
+                        <span>${t}</span>
+                        <span class="text-[10px] text-sky-400 font-bold bg-sky-950/80 px-1.5 py-0.5 rounded border border-sky-800/60">${tagCounts[t] || '450'}</span>
+                    </span>
+                `).join('');
+
+                // Update Controls Table & Popover
+                const controlsList = game.controls || [
+                    { key: "Left Click / Tap", action: "Interact and select" }
+                ];
+                
+                infoControlsTable.innerHTML = `
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-900/90 text-slate-400 font-semibold border-b border-slate-800">
+                            <tr>
+                                <th class="p-3 w-40">Input</th>
+                                <th class="p-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            ${controlsList.map(c => `
+                                <tr class="hover:bg-slate-900/50">
+                                    <td class="p-3 font-mono font-bold text-sky-400">${c.key}</td>
+                                    <td class="p-3 text-slate-300">${c.action}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                controlsPopoverContent.innerHTML = controlsList.map(c => `
+                    <div class="flex items-center justify-between gap-2 border-b border-slate-800/60 pb-1">
+                        <span class="font-mono font-bold text-sky-400">${c.key}</span>
+                        <span class="text-slate-300 text-right">${c.action}</span>
+                    </div>
+                `).join('');
+
+                // Update Likes, Dislike & Bookmark state from localStorage
+                updateLikeState();
+                updateDislikeState();
+                updateFavState();
+
+                // Render "Play Next" recommendation sidebar
+                renderPlayNext(game.id);
+
+                // Load Iframe cleanly
+                playerLoading.style.display = 'flex';
+                playerIframe.src = game.url;
+                playerIframe.onload = () => {
+                    playerLoading.style.display = 'none';
+                };
+
+                // Scroll smoothly to player
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const closeGame = () => {
+                activeGame = null;
+                window.location.hash = '';
+                playerIframe.src = 'about:blank';
+                playerView.classList.add('hidden');
+                catalogView.classList.remove('hidden');
+                controlsPopover.classList.add('hidden');
+                btnBackToGame.classList.add('hidden');
+                renderCatalog();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const toggleDeviceEdition = () => {
+                if (!activeGame || !activeGame.altId) return;
+                openGame(activeGame.altId);
+            };
+
+            const toggleTheaterMode = () => {
+                isTheaterMode = !isTheaterMode;
+                document.body.classList.toggle('theater-mode', isTheaterMode);
+            };
+
+            const toggleFullscreen = () => {
+                const stage = document.getElementById('player-stage-container');
+                if (!document.fullscreenElement) {
+                    stage.requestFullscreen().catch(() => {});
+                } else {
+                    document.exitFullscreen().catch(() => {});
                 }
-            });
+            };
 
-            // Initial Render
-            renderGames();
-        });
+            const toggleControlsPopover = () => {
+                controlsPopover.classList.toggle('hidden');
+            };
+
+            const scrollToGame = () => {
+                document.getElementById('player-stage-container').scrollIntoView({ behavior: 'smooth' });
+            };
+
+            const renderPlayNext = (currentId) => {
+                const others = games.filter(g => g.id !== currentId);
+                playNextList.innerHTML = others.map(g => {
+                    const playable = g.isReady && g.url !== '#';
+                    return `
+                        <div class="surface-panel p-3.5 rounded-xl flex items-center justify-between gap-3 border border-slate-800 hover:border-slate-700 transition-colors">
+                            <div>
+                                <h4 class="text-xs sm:text-sm font-bold text-white mb-0.5">${g.title}</h4>
+                                <span class="text-[11px] text-slate-400">${g.genre}</span>
+                            </div>
+                            ${playable ? `
+                                <button type="button" onclick="GameHub.openGame('${g.id}')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs rounded-lg transition-colors flex-shrink-0">
+                                    Play
+                                </button>
+                            ` : `
+                                <span class="text-[10px] text-slate-500 bg-slate-800 px-2 py-1 rounded font-semibold">Soon</span>
+                            `}
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            const updateDislikeState = () => {
+                if (!activeGame) return;
+                const isDisliked = localStorage.getItem('candy_disliked_' + activeGame.id) === 'true';
+                const btnDislike = document.getElementById('btn-player-dislike');
+                if (btnDislike) {
+                    btnDislike.classList.toggle('bg-slate-700', isDisliked);
+                    btnDislike.classList.toggle('text-white', isDisliked);
+                }
+            };
+
+            const toggleDislike = () => {
+                if (!activeGame) return;
+                const key = 'candy_disliked_' + activeGame.id;
+                const isDisliked = localStorage.getItem(key) === 'true';
+                localStorage.setItem(key, (!isDisliked).toString());
+                if (!isDisliked) {
+                    localStorage.setItem('candy_liked_' + activeGame.id, 'false');
+                    updateLikeState();
+                }
+                updateDislikeState();
+            };
+
+            const updateLikeState = () => {
+                if (!activeGame) return;
+                const isLiked = localStorage.getItem('candy_liked_' + activeGame.id) === 'true';
+                btnPlayerLike.classList.toggle('bg-rose-950', isLiked);
+                btnPlayerLike.classList.toggle('border-rose-700', isLiked);
+                btnPlayerLike.classList.toggle('text-rose-200', isLiked);
+                playerLikesCount.textContent = isLiked ? "24.6K" : "24.5K";
+            };
+
+            const toggleLike = () => {
+                if (!activeGame) return;
+                const key = 'candy_liked_' + activeGame.id;
+                const isLiked = localStorage.getItem(key) === 'true';
+                localStorage.setItem(key, (!isLiked).toString());
+                updateLikeState();
+            };
+
+            const updateFavState = () => {
+                if (!activeGame) return;
+                const isFav = localStorage.getItem('candy_fav_' + activeGame.id) === 'true';
+                favIcon.setAttribute('fill', isFav ? '#38bdf8' : 'none');
+                favIcon.setAttribute('stroke', isFav ? '#38bdf8' : 'currentColor');
+            };
+
+            const toggleFavorite = () => {
+                if (!activeGame) return;
+                const key = 'candy_fav_' + activeGame.id;
+                const isFav = localStorage.getItem(key) === 'true';
+                localStorage.setItem(key, (!isFav).toString());
+                updateFavState();
+            };
+
+            const shareGame = () => {
+                const shareData = {
+                    title: activeGame ? activeGame.title : "GokuGames",
+                    text: "Play " + (activeGame ? activeGame.title : "free web games") + " on GokuGames!",
+                    url: window.location.href
+                };
+
+                if (navigator.share) {
+                    navigator.share(shareData).catch(() => {});
+                } else {
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        const btnText = document.getElementById('share-btn-text');
+                        btnText.textContent = "Link Copied!";
+                        setTimeout(() => { btnText.textContent = "Share"; }, 2000);
+                    });
+                }
+            };
+
+            const resetFilters = () => {
+                currentFilter = 'All';
+                currentSearch = '';
+                searchInputDesk.value = '';
+                searchInputMob.value = '';
+                document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+                document.querySelector('.sidebar-item[data-filter="All"]')?.classList.add('active');
+                renderCatalog();
+            };
+
+            const checkUrlHash = () => {
+                const hash = window.location.hash;
+                if (hash.startsWith('#game=')) {
+                    const gameId = hash.replace('#game=', '');
+                    openGame(gameId);
+                } else if (activeGame) {
+                    closeGame();
+                }
+            };
+
+            const setupEventListeners = () => {
+                // Category Filtering
+                const sidebarButtons = document.querySelectorAll('.sidebar-item');
+                sidebarButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        sidebarButtons.forEach(b => b.classList.remove('active'));
+                        const targetBtn = e.currentTarget;
+                        targetBtn.classList.add('active');
+                        currentFilter = targetBtn.getAttribute('data-filter') || 'All';
+                        
+                        if (activeGame) closeGame();
+                        if (window.innerWidth < 1024) closeMobileMenu();
+                        renderCatalog();
+                    });
+                });
+
+                // Search Listeners
+                const handleSearch = (e) => {
+                    currentSearch = e.target.value.toLowerCase().trim();
+                    if (e.target === searchInputDesk) searchInputMob.value = currentSearch;
+                    else searchInputDesk.value = currentSearch;
+                    if (activeGame) closeGame();
+                    renderCatalog();
+                };
+                searchInputDesk.addEventListener('input', handleSearch);
+                searchInputMob.addEventListener('input', handleSearch);
+
+                // Hash routing change
+                window.addEventListener('hashchange', checkUrlHash);
+
+                // Mobile Menu Toggle
+                const menuBtn = document.getElementById('menu-btn');
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebar-overlay');
+                let isMobileMenuOpen = false;
+
+                const openMobileMenu = () => {
+                    isMobileMenuOpen = true;
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                    menuBtn.setAttribute('aria-expanded', 'true');
+                };
+
+                const closeMobileMenu = () => {
+                    isMobileMenuOpen = false;
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                    menuBtn.setAttribute('aria-expanded', 'false');
+                };
+
+                menuBtn.addEventListener('click', () => {
+                    if (window.innerWidth < 1024) {
+                        if (isMobileMenuOpen) closeMobileMenu();
+                        else openMobileMenu();
+                    } else {
+                        document.body.classList.toggle('desktop-collapsed');
+                    }
+                });
+                
+                overlay.addEventListener('click', closeMobileMenu);
+
+                document.addEventListener('pointerdown', (e) => {
+                    if (!controlsPopover.classList.contains('hidden')) {
+                        const isInside = controlsPopover.contains(e.target) || e.target.closest('[onclick*="toggleControlsPopover"]');
+                        if (!isInside) {
+                            controlsPopover.classList.add('hidden');
+                        }
+                    }
+                });
+
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        if (!controlsPopover.classList.contains('hidden')) {
+                            controlsPopover.classList.add('hidden');
+                        } else if (isMobileMenuOpen) {
+                            closeMobileMenu();
+                        }
+                    }
+                });
+            };
+
+            return {
+                init,
+                openGame,
+                closeGame,
+                toggleDeviceEdition,
+                toggleTheaterMode,
+                toggleFullscreen,
+                toggleControlsPopover,
+                toggleLike,
+                toggleDislike,
+                toggleFavorite,
+                shareGame,
+                resetFilters,
+                scrollToGame
+            };
+        })();
+
+        document.addEventListener('DOMContentLoaded', GameHub.init);
     </script>
 </body>
 </html>
