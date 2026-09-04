@@ -1571,31 +1571,37 @@ const Game = {
         }
     },
 
-    updateUpgradeUI() {
-        if (!this.selectedTower) return;
+        updateUpgradeUI() {
+        if (!this.selectedTower) {
+            this.closeUpgradeDrawer();
+            return;
+        }
         const t = this.selectedTower;
-        
-        document.getElementById('upg-name').innerText = t.type.name;
-        document.getElementById('upg-lvl').innerText = t.level >= t.maxLevel ? "MAX (LVL 5)" : "Lvl " + t.level;
+        const setElText = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = val;
+        };
+
+        setElText('upg-name', t.type.name);
+        setElText('upg-lvl', t.level >= t.maxLevel ? "MAX (LVL 5)" : "Lvl " + t.level);
         
         const currentDmg = t.damageDisplay;
-        document.getElementById('upg-dmg').innerText = currentDmg;
-        document.getElementById('upg-rng').innerText = Math.floor(t.range);
-        document.getElementById('upg-spd').innerText = t.type.cooldown === 0 ? "Cont." : t.fireRate.toFixed(2) + 's';
+        setElText('upg-dmg', currentDmg);
+        setElText('upg-rng', Math.floor(t.range));
+        setElText('upg-spd', t.type.cooldown === 0 ? "Cont." : t.fireRate.toFixed(2) + 's');
 
         if (t.level < t.maxLevel) {
             const nextDmg = Math.floor(t.type.dmg * (t.damageMult * 1.45)) - currentDmg;
-            document.getElementById('upg-dmg-next').innerText = '+' + nextDmg;
-            document.getElementById('upg-rng-next').innerText = '+8';
-            document.getElementById('upg-spd-next').innerText = t.type.cooldown === 0 ? '' : '-0.1s';
-            document.getElementById('upg-cost').innerText = t.upgradeCost;
+            setElText('upg-dmg-next', '+' + nextDmg);
+            setElText('upg-rng-next', '+8');
+            setElText('upg-spd-next', t.type.cooldown === 0 ? '' : '-0.1s');
         } else {
-            document.getElementById('upg-dmg-next').innerText = '';
-            document.getElementById('upg-rng-next').innerText = '';
-            document.getElementById('upg-spd-next').innerText = '';
+            setElText('upg-dmg-next', '');
+            setElText('upg-rng-next', '');
+            setElText('upg-spd-next', '');
         }
 
-        document.getElementById('sell-cost').innerText = t.sellValue;
+        setElText('sell-cost', t.sellValue);
 
         // Target Pills update
         document.querySelectorAll('.target-pill').forEach(pill => {
@@ -1603,13 +1609,15 @@ const Game = {
         });
 
         const upgBtn = document.getElementById('btn-upgrade');
-        if (t.level >= t.maxLevel) {
-            upgBtn.innerText = 'Max Level';
-            upgBtn.classList.add('btn-disabled');
-        } else {
-            upgBtn.innerText = `Upgrade $${t.upgradeCost}`;
-            if (this.money < t.upgradeCost) upgBtn.classList.add('btn-disabled');
-            else upgBtn.classList.remove('btn-disabled');
+        if (upgBtn) {
+            if (t.level >= t.maxLevel) {
+                upgBtn.innerHTML = '<span>Max Level</span>';
+                upgBtn.classList.add('btn-disabled');
+            } else {
+                upgBtn.innerHTML = `Upgrade $<span id="upg-cost">${t.upgradeCost}</span>`;
+                if (this.money < t.upgradeCost) upgBtn.classList.add('btn-disabled');
+                else upgBtn.classList.remove('btn-disabled');
+            }
         }
     },
 
