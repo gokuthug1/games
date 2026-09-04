@@ -1085,6 +1085,30 @@ class Enemy {
         }
     }
 
+    predictPositionAhead(distance) {
+        if (!this.waypoints || this.waypoints.length === 0) return { x: this.pos.x, y: this.pos.y };
+        let remaining = distance;
+        let currX = this.pos.x;
+        let currY = this.pos.y;
+        let idx = this.wpIndex + 1;
+        while (remaining > 0 && idx < this.waypoints.length) {
+            const target = this.waypoints[idx];
+            const segDist = Math.hypot(target.x - currX, target.y - currY);
+            if (remaining <= segDist) {
+                const ratio = remaining / Math.max(0.001, segDist);
+                return {
+                    x: currX + (target.x - currX) * ratio,
+                    y: currY + (target.y - currY) * ratio
+                };
+            }
+            remaining -= segDist;
+            currX = target.x;
+            currY = target.y;
+            idx++;
+        }
+        return { x: currX, y: currY };
+    }
+
     draw(ctx, time) {
         ctx.save();
         ctx.translate(this.pos.x, this.pos.y);
@@ -1152,7 +1176,12 @@ class Projectile {
         this.effect = sourceTower.type.effect || null;
         this.size = this.aoe > 0 ? 7 : (this.dmg > 30 ? 5 : 3.5);
         
-        if (this.aoe > 0) this.targetPos = new Vec2(target.pos.x, target.pos.y); 
+        if (this.aoe > 0) {
+            const flightTime = Math.hypot(target.pos.x - x, target.pos.y - y) / Math.max(1, this.speed);
+            const leadDist = target.speed * (target.slowTimer > 0 ? 0.5 : 1.0) * flightTime;
+            const predPos = (target.predictPositionAhead) ? target.predictPositionAhead(leadDist) : target.pos;
+            this.targetPos = new Vec2(predPos.x, predPos.y);
+        } 
     }
     update(dt) {
         let tX, tY;
@@ -2036,6 +2065,26 @@ class AutonomousAgent {
             if (money < 250) return; // Save for Candy Cane / Beam deploy
         }
 
+        // 1b. Piggy Bank Strategic Sunset Recycling:
+        // In late game (W >= 12) or during critical Boss waves, recycle passive capital generators into active combat DPS
+        if ((this.game.wave >= 12 || (this.forecast && this.forecast.hasBoss)) && this.activeDoctrine !== 'GREEDY_CAPITALIST') {
+            const bank = this.game.towers.find(t => t.typeKey === 'BANK');
+            if (bank && (this.telemetry.pacingConfidence < 1.25 || this.forecast.hasBoss)) {
+                const refund = bank.sellValue;
+                const tx = Math.round(bank.pos.x);
+                const ty = Math.round(bank.pos.y);
+                this.game.sellTowerInstance(bank);
+                this.recordThinkingStep({
+                    category: 'TACTICAL_VALUATION',
+                    title: 'STRATEGIC ASSET RECYCLE: PIGGY BANK',
+                    formula: 'Refund: +$' + refund + ' | Wave ' + this.game.wave + ' | Pacing: ' + this.telemetry.pacingConfidence.toFixed(2) + 'x',
+                    rationale: 'Liquidated passive capital generator to reallocate $' + refund + ' into active high-threat combat defense.',
+                    gridPos: { x: tx, y: ty }
+                });
+                return;
+            }
+        }
+
         // 2. Evaluate Best Upgrade Candidate (Marginal ROI Calculus)
         let bestUpgradeTower = null;
         let maxUpgradeROI = -1;
@@ -2063,6 +2112,41 @@ class AutonomousAgent {
         let bestBuildSpot = null;
         let maxBuildUtility = -1;
         this.bestSectors = [];
+
+        // 3b. Prime Chokepoint Redevelopment / Spatial Upzoning:
+        // If high-tier weapon needed and prime chokepoint occupied by low-tier basic turret, redevelop node
+        if (this.game.towers.length >= 6 && (proto.id === 4 || proto.id === 3 || proto.id === 6 || proto.id === 2)) {
+            let bestChokepointTurret = null;
+            let bestChokepointCoverage = 10;
+            for (const t of this.game.towers) {
+                if (t.typeKey !== 'TURRET' || t.level > 2) continue;
+                const details = this.game.calcPathExposureWithDetails
+                    ? this.game.calcPathExposureWithDetails(t.pos.x, t.pos.y, proto.range)
+                    : { coveragePct: 0, segmentsIntersected: 0 };
+                if (details.segmentsIntersected >= 2 && details.coveragePct > bestChokepointCoverage) {
+                    bestChokepointCoverage = details.coveragePct;
+                    bestChokepointTurret = t;
+                }
+            }
+            if (bestChokepointTurret && (money + bestChokepointTurret.sellValue >= proto.cost)) {
+                const bx = bestChokepointTurret.pos.x;
+                const by = bestChokepointTurret.pos.y;
+                const refund = bestChokepointTurret.sellValue;
+                this.game.sellTowerInstance(bestChokepointTurret);
+                this.game.money -= proto.cost;
+                this.game.playSound('build');
+                const newTower = new Tower(bx, by, targetTypeKey);
+                this.game.towers.push(newTower);
+                this.recordThinkingStep({
+                    category: 'CONSTRUCTION',
+                    title: 'CHOKEPOINT REDEVELOPMENT: ' + proto.name,
+                    formula: 'Upzoned (' + Math.round(bx) + ', ' + Math.round(by) + ') | Sold Turret (+$' + refund + ') -> Built ' + targetTypeKey,
+                    rationale: 'Demolished basic turret at prime chokepoint to construct high-synergy ' + proto.name + ' battery.',
+                    gridPos: { x: Math.round(bx), y: Math.round(by) }
+                });
+                return;
+            }
+        }
 
         if (money >= proto.cost) {
             const stepX = 40;
