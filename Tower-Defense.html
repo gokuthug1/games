@@ -455,6 +455,189 @@
         body.ui-hidden #tooltip {
             display: none !important;
         }
+    
+        /* Aegis Autonomous AI Commander Styles (Strict Zero-Emoji) */
+        #btn-ai.active-ai {
+            background: #0f172a;
+            color: #38bdf8;
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
+            animation: aiGlow 2.5s infinite alternate ease-in-out;
+        }
+        @keyframes aiGlow {
+            0% { box-shadow: 0 0 4px rgba(56, 189, 248, 0.3); }
+            100% { box-shadow: 0 0 14px rgba(56, 189, 248, 0.65); }
+        }
+
+        #ai-telemetry-bar {
+            position: absolute;
+            top: 56px;
+            left: 16px;
+            right: 16px;
+            z-index: 19;
+            background: rgba(15, 23, 42, 0.94);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            border-radius: var(--radius-pill);
+            padding: 4px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #e2e8f0;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+        }
+        #ai-telemetry-bar:hover {
+            border-color: #38bdf8;
+            background: rgba(15, 23, 42, 0.98);
+        }
+        #ai-telemetry-bar.hidden { display: none; }
+        .ai-ticker-left { display: flex; align-items: center; gap: 8px; overflow: hidden; white-space: nowrap; }
+        .ai-ticker-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .ai-badge-pulse {
+            background: #0369a1;
+            color: #ffffff;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .ai-view-btn {
+            color: #38bdf8;
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        /* Aegis AI Commander Console Modal */
+        #ai-modal {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        #ai-modal.hidden { display: none; }
+        .ai-panel {
+            background: #0f172a;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 580px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            color: #f8fafc;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .ai-panel-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1e293b;
+        }
+        .ai-panel-body {
+            padding: 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .ai-matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .ai-matrix-cell {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .ai-matrix-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .ai-matrix-val {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #f8fafc;
+            font-family: ui-monospace, monospace;
+        }
+        .ai-matrix-formula {
+            font-size: 0.62rem;
+            color: #64748b;
+            font-family: ui-monospace, monospace;
+        }
+        .ai-timeline-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 4px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #334155;
+        }
+        .ai-timeline-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .ai-step-card {
+            background: #1e293b;
+            border-left: 3px solid #38bdf8;
+            border-radius: 0 6px 6px 0;
+            padding: 6px 10px;
+            font-size: 0.75rem;
+        }
+        .ai-step-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #94a3b8;
+            font-size: 0.65rem;
+            font-family: ui-monospace, monospace;
+            margin-bottom: 2px;
+        }
+        .ai-step-title {
+            font-weight: 700;
+            color: #f8fafc;
+        }
+        .ai-step-formula {
+            color: #38bdf8;
+            font-family: ui-monospace, monospace;
+            font-size: 0.68rem;
+            margin: 2px 0;
+        }
+        .ai-step-rationale {
+            color: #cbd5e1;
+            font-size: 0.72rem;
+            line-height: 1.3;
+        }
+
     </style>
 </head>
 <body>
@@ -505,6 +688,10 @@
                 <button id="btn-help" type="button" class="control-btn" onclick="Game.toggleHelp()" title="Keyboard Shortcuts (?)" aria-label="View keyboard shortcuts">
                     <span>?</span>
                 </button>
+                <button id="btn-ai" type="button" class="control-btn" onclick="Game.toggleAI()" title="Aegis Autonomous Commander AI (A)" aria-label="Toggle Autonomous AI Commander">
+                    <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+                    <span id="ui-ai-status">AI</span>
+                </button>
                 <button id="btn-fullscreen" type="button" class="control-btn" onclick="Game.toggleFullscreen()" title="Fullscreen" aria-label="Toggle Fullscreen">
                     <svg id="fullscreen-icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
                 </button>
@@ -516,6 +703,20 @@
                 </div>
             </div>
         </header>
+        <!-- Aegis AI Telemetry Ticker Bar -->
+        <div id="ai-telemetry-bar" class="hidden" onclick="Game.toggleAIPanel()" role="region" aria-label="AI Commander Telemetry" title="Click to open Aegis AI Commander Console">
+            <div class="ai-ticker-left">
+                <span class="ai-badge-pulse">AEGIS PROTOCOL</span>
+                <span id="ai-ticker-mode">AUTONOMOUS</span>
+                <span style="color:#475569;">|</span>
+                <span id="ai-ticker-telemetry">Threat: 0 EHP • Grid: 0 DPS • Req: 16 DPS (0.0x)</span>
+            </div>
+            <div class="ai-ticker-right">
+                <span id="ai-ticker-action">INITIALIZING MATHEMATICAL POLICY MATRIX...</span>
+                <span class="ai-view-btn">Console »</span>
+            </div>
+        </div>
+
 
         <!-- Boss Health Bar -->
         <div id="boss-hud" role="region" aria-label="Boss Health Status">
@@ -541,6 +742,11 @@
                 <div class="upg-stat">Damage: <span><span id="upg-dmg">15</span> <span style="color:var(--candy-green)" id="upg-dmg-next"></span></span></div>
                 <div class="upg-stat">Range: <span><span id="upg-rng">120</span> <span style="color:var(--candy-green)" id="upg-rng-next"></span></span></div>
                 <div class="upg-stat">Speed: <span><span id="upg-spd">1.0s</span> <span style="color:var(--candy-green)" id="upg-spd-next"></span></span></div>
+                <div class="upg-stat" style="border-top:1px dashed #334155; padding-top:4px; margin-top:2px;">DPS: <span><span id="upg-calc-dps" style="color:#38bdf8; font-weight:700;">16.0</span>/s</span></div>
+                <div class="upg-stat">Marginal ROI: <span><span id="upg-calc-roi" style="color:#10b981; font-weight:700;">0.125</span> DPS/$</span></div>
+                <div class="upg-stat">Path Coverage: <span><span id="upg-calc-cov" style="color:#f59e0b; font-weight:700;">24.5%</span></span></div>
+                <div class="upg-stat">Damage Dealt: <span><span id="upg-calc-dmg-dealt" style="color:#e2e8f0; font-weight:700;">0</span></span></div>
+                <div class="upg-stat">Kills / Efficiency: <span><span id="upg-calc-kills" style="color:#e2e8f0; font-weight:700;">0</span> (<span id="upg-calc-eff" style="color:#a855f7; font-weight:700;">0.0</span> dmg/$)</span></div>
                 <div style="margin-top:2px;">
                     <button type="button" class="target-mode-btn" onclick="Game.cycleTargetMode()" title="Cycle targeting priority" aria-label="Change target priority">
                         <span>Target:</span> <span id="upg-target" style="color:var(--candy-blue); font-weight:800;">FIRST</span>
@@ -570,6 +776,82 @@
             </div>
 
             <!-- Keyboard Help Modal -->
+                        <!-- Aegis Autonomous AI Commander Console Modal -->
+            <div id="ai-modal" class="hidden" onclick="Game.toggleAIPanel()" role="dialog" aria-label="Aegis Autonomous Commander Console">
+                <div class="ai-panel" onclick="event.stopPropagation()">
+                    <div class="ai-panel-header">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+                            <span style="font-weight:800; font-size:0.95rem; letter-spacing:0.04em;">AEGIS PROTOCOL // COMMANDER AI</span>
+                        </div>
+                        <button type="button" class="control-btn" onclick="Game.toggleAIPanel()" aria-label="Close AI Console">✕</button>
+                    </div>
+
+                    <div class="ai-panel-body">
+                        <!-- Operational Control & Target Wave Controller -->
+                        <div style="background:#1e293b; border:1px solid #334155; border-radius:8px; padding:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <button id="btn-ai-toggle-master" type="button" class="btn-candy btn-green" onclick="Game.toggleAI()" style="padding:6px 14px; font-size:0.75rem;">
+                                    ENGAGE AUTONOMOUS AI
+                                </button>
+                                <span style="font-size:0.75rem; color:#94a3b8;">Status: <strong id="ai-console-status" style="color:#38bdf8;">STANDBY</strong></span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <label for="ai-target-input" style="font-size:0.7rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Target Wave:</label>
+                                <input id="ai-target-input" type="number" min="1" max="100" placeholder="Continuous" style="width:75px; background:#0f172a; border:1px solid #475569; color:#f8fafc; padding:3px 6px; border-radius:4px; font-size:0.75rem; font-weight:700;">
+                                <button type="button" class="btn-candy btn-blue" onclick="Game.setAITargetWave()" style="padding:4px 10px; font-size:0.72rem;">Set Target</button>
+                                <button type="button" class="btn-candy btn-pink" onclick="Game.clearAITargetWave()" style="padding:4px 10px; font-size:0.72rem;">Clear</button>
+                            </div>
+                        </div>
+
+                        <!-- Mathematical Telemetry Matrix -->
+                        <div class="ai-matrix-grid">
+                            <div class="ai-matrix-cell">
+                                <span class="ai-matrix-title">THREAT MATRIX</span>
+                                <span id="ai-stat-threat" class="ai-matrix-val">0 EHP</span>
+                                <span class="ai-matrix-formula">Σ HP / (1 - Armor)</span>
+                            </div>
+                            <div class="ai-matrix-cell">
+                                <span class="ai-matrix-title">GRID DEFENSE DPS</span>
+                                <span id="ai-stat-dps" class="ai-matrix-val">0.0 DPS</span>
+                                <span class="ai-matrix-formula">Σ (Damage × Mult) / CD</span>
+                            </div>
+                            <div class="ai-matrix-cell">
+                                <span class="ai-matrix-title">PACING INDEX</span>
+                                <span id="ai-stat-pacing" class="ai-matrix-val">0.00x</span>
+                                <span class="ai-matrix-formula">Grid DPS / Req DPS</span>
+                            </div>
+                            <div class="ai-matrix-cell">
+                                <span class="ai-matrix-title">RECOMMENDED COUNTER</span>
+                                <span id="ai-stat-archetype" class="ai-matrix-val" style="color:var(--candy-blue);">GUMMY GUN</span>
+                                <span class="ai-matrix-formula">Minimax Vulnerability</span>
+                            </div>
+                            <div class="ai-matrix-cell">
+                                <span class="ai-matrix-title">ARMOR MITIGATION</span>
+                                <span id="ai-stat-armor" class="ai-matrix-val">0%</span>
+                                <span class="ai-matrix-formula">Tank Heavy Ratio</span>
+                            </div>
+                            <div class="ai-matrix-cell">
+                                <span class="ai-matrix-title">TERMINAL BREACH RISK</span>
+                                <span id="ai-stat-breach" class="ai-matrix-val" style="color:#10b981;">NOMINAL</span>
+                                <span class="ai-matrix-formula">Min TTB &lt; 3.5s</span>
+                            </div>
+                        </div>
+
+                        <!-- Reasoning Timeline -->
+                        <div class="ai-timeline-header">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="font-size:0.75rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em;">Mathematical Reasoning Timeline</span>
+                                <span id="ai-timeline-count" style="font-size:0.65rem; background:#1e293b; color:#38bdf8; padding:1px 6px; border-radius:4px; font-weight:700;">0 Decisions</span>
+                            </div>
+                            <button type="button" onclick="Game.autonomousAgent.clearHistory()" class="control-btn" style="font-size:0.65rem; padding:2px 6px;" title="Clear timeline">Clear</button>
+                        </div>
+                        <div id="ai-timeline-list" class="ai-timeline-list">
+                            <!-- Dynamic reasoning steps injected -->
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div id="help-modal" onclick="Game.toggleHelp()">
                 <div class="help-box" onclick="event.stopPropagation()">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
@@ -830,6 +1112,7 @@ class Projectile {
         this.pos = new Vec2(x, y); 
         this.target = target; 
         this.active = true;
+        this.sourceTower = sourceTower;
         
         this.speed = sourceTower.type.projSpeed || 750;
         this.dmg = sourceTower.type.dmg * sourceTower.damageMult;
@@ -862,7 +1145,16 @@ class Projectile {
     }
     hit(enemy) {
         this.active = false; 
-        enemy.takeDamage(this.dmg);
+        let finalDmg = this.dmg;
+        if (this.sourceTower && this.sourceTower.typeKey === 'SNIPER' && (enemy.isBoss || enemy.armor > 0)) {
+            finalDmg *= 1.25; // Kinetic anti-materiel punch against armored & boss targets
+        }
+        const wasDead = enemy.dead;
+        enemy.takeDamage(finalDmg);
+        if (this.sourceTower) {
+            this.sourceTower.totalDamageDealt += finalDmg;
+            if (!wasDead && enemy.dead) this.sourceTower.kills++;
+        }
         if (this.effect === 'slow') enemy.slowTimer = 2.0; 
         if (this.effect === 'poison') {
             enemy.poisonTimer = 3.0; 
@@ -876,7 +1168,14 @@ class Projectile {
         Game.playSound('explosion'); 
         Game.spawnExplosion(this.pos.x, this.pos.y, this.aoe, this.color);
         Game.enemies.forEach(e => { 
-            if (e.pos.dist(this.pos) <= this.aoe) e.takeDamage(this.dmg); 
+            if (e.pos.dist(this.pos) <= this.aoe) {
+                const wasDead = e.dead;
+                e.takeDamage(this.dmg);
+                if (this.sourceTower) {
+                    this.sourceTower.totalDamageDealt += this.dmg;
+                    if (!wasDead && e.dead) this.sourceTower.kills++;
+                }
+            }
         });
         Game.addShake(this.aoe > 60 ? 6 : 3);
     }
@@ -910,6 +1209,36 @@ class Tower {
         this.rangeMult = 1.0;
         this.speedMult = 1.0; 
         this.animOffset = Math.random() * 1000;
+        
+        // Mathematical telemetry & lifetime combat tracking
+        this.totalDamageDealt = 0;
+        this.kills = 0;
+        this.totalSpent = this.type.cost;
+    }
+
+    calcDPS() {
+        if (this.type.cooldown === 0) return this.damageDisplay;
+        if (this.type.range === 0) return 0;
+        return this.damageDisplay / Math.max(0.01, this.fireRate);
+    }
+
+    calcMarginalROI() {
+        if (this.level >= this.maxLevel) return 0;
+        const currentDPS = this.calcDPS();
+        const nextDmg = Math.floor(this.type.dmg * (this.damageMult * 1.45));
+        const nextFireRate = Math.max(0.04, this.fireRate * 0.88);
+        const nextDPS = this.type.cooldown === 0 ? nextDmg : (nextDmg / nextFireRate);
+        const deltaDPS = Math.max(0, nextDPS - currentDPS);
+        return deltaDPS / Math.max(1, this.upgradeCost);
+    }
+
+    calcPathCoverage() {
+        if (!this.range || !Game.levelWaypoints) return 0;
+        return Game.calcPathExposure(this.pos.x, this.pos.y, this.range);
+    }
+
+    get combatEfficiency() {
+        return this.totalSpent > 0 ? (this.totalDamageDealt / this.totalSpent) : 0;
     }
     
     get range() { return this.type.range * this.rangeMult; }
@@ -924,6 +1253,7 @@ class Tower {
         this.damageMult *= 1.45;
         this.rangeMult *= 1.08;
         this.speedMult *= 0.88;
+        this.totalSpent += this.upgradeCost;
         
         Game.playSound('upgrade'); 
         Game.spawnParticles(this.pos.x, this.pos.y, '#f59e0b', 16, true);
@@ -977,8 +1307,12 @@ class Tower {
             this.angle = dir.angle;
             
             if (this.type.id === 6) { 
-                // Continuous laser beam
-                this.target.takeDamage(this.damageDisplay * dt);
+                // Continuous laser beam (melts armor)
+                const dDmg = this.damageDisplay * dt;
+                const wasDead = this.target.dead;
+                this.target.takeDamage(dDmg, true);
+                this.totalDamageDealt += dDmg;
+                if (!wasDead && this.target.dead) this.kills++;
                 if (Math.random() < 0.25) {
                     Game.particles.push(new Particle(this.target.pos.x, this.target.pos.y, '#ffffff', 2, 0.2));
                 }
@@ -1249,8 +1583,548 @@ class SoundSystem {
     }
 }
 
+
+/**
+ * AEGIS PROTOCOL: VECTOR DEFENSE
+ * Advanced Autonomous Commander AI Agent & Strategic Decision Policy Engine
+ * Strict Zero-Emoji Compliance: Full contextual awareness, mathematical utility optimization,
+ * multi-step lookahead, dynamic micro-targeting, research investing, and reasoning timeline.
+ */
+class AutonomousAgent {
+    constructor(gameInstance) {
+        this.game = gameInstance;
+        this.isEnabled = false;
+        this.decisionIntervalMs = 400;
+        this.lastDecisionTime = 0;
+        this.lastActionLog = 'AUTONOMOUS AI ONLINE // AWAITING MISSION';
+        this.decisionCount = 0;
+        this.history = [];
+        this.maxHistoryLength = 150;
+
+        this.targetWave = null;
+        this._targetWaveCompleted = false;
+
+        this.telemetry = {
+            threatEHP: 0,
+            defenseDPS: 0,
+            coverageBottleneckIndex: 0,
+            activeShieldRatio: 0,
+            activeArmorRatio: 0,
+            swarmRatio: 0,
+            recommendedArchetype: 'TURRET',
+            emergencyBreachAlert: false,
+            pacingConfidence: 0,
+            minTimeToBreach: 999,
+            bestAction: null
+        };
+    }
+
+    setTargetWave(waveNum) {
+        this.targetWave = parseInt(waveNum, 10);
+        this._targetWaveCompleted = false;
+        if (!this.isEnabled) this.toggle();
+        this.recordThinkingStep({
+            category: 'STATUS',
+            title: 'TARGET SET: WAVE ' + waveNum,
+            formula: 'Goal = W' + waveNum + ' | Mode = AUTONOMOUS | Auto-Pause On Complete',
+            rationale: 'Autonomous simulation objective locked to Wave ' + waveNum + '. AI will execute tactical calculus until cleared, then pause.',
+            gridPos: null
+        });
+        this.updateUI();
+    }
+
+    clearTargetWave() {
+        const prev = this.targetWave;
+        this.targetWave = null;
+        this._targetWaveCompleted = false;
+        if (prev !== null) {
+            this.recordThinkingStep({
+                category: 'STATUS',
+                title: 'TARGET WAVE CLEARED',
+                formula: 'Goal = NULL | Mode = CONTINUOUS',
+                rationale: 'Target Wave ' + prev + ' objective cleared. AI continues in unrestricted continuous simulation mode.',
+                gridPos: null
+            });
+        }
+        this.updateUI();
+    }
+
+    toggle() {
+        this.isEnabled = !this.isEnabled;
+        this.recordThinkingStep({
+            category: 'STATUS',
+            title: this.isEnabled ? 'COMMANDER AI ENGAGED' : 'MANUAL OVERRIDE',
+            formula: 'Mode = ' + (this.isEnabled ? 'AUTONOMOUS' : 'MANUAL') + ' | Speed = ' + this.game.gameSpeed + 'x',
+            rationale: this.isEnabled
+                ? 'Autonomous policy assumed full operational command. Executing automated mathematical ROI optimization, ability targeting, and wave pacing.'
+                : 'Commander returned tactical control to manual operator.',
+            gridPos: null
+        });
+        this.updateUI();
+        return this.isEnabled;
+    }
+
+    update(nowTimestamp) {
+        if (!this.isEnabled || this.game.state === 'GAME_OVER' || this.game.state === 'PAUSED' || this.game.state === 'MENU') return;
+
+        if (nowTimestamp - this.lastDecisionTime >= this.decisionIntervalMs) {
+            this.lastDecisionTime = nowTimestamp;
+            this.executeAutonomousCycle();
+        }
+    }
+
+    executeAutonomousCycle() {
+        this.analyzeBattlefield();
+        this.optimizeTowerTargeting();
+        if (this.evaluateEmergencyDefense()) return;
+        this.evaluateWavePacing();
+        this.evaluateDefenseInvestments();
+        this.updateUI();
+    }
+
+    analyzeBattlefield() {
+        const enemies = this.game.enemies;
+        const towers = this.game.towers;
+
+        let totalDPS = 0;
+        for (const t of towers) {
+            totalDPS += t.calcDPS();
+        }
+        this.telemetry.defenseDPS = totalDPS;
+
+        let totalEHP = 0;
+        let totalArmorEHP = 0;
+        let swarmCount = 0;
+        let bossActive = false;
+        let minTimeToBreach = 999;
+
+        const totalPathLen = this.game.calcTotalPathLength();
+
+        for (const e of enemies) {
+            if (!e.dead && !e.reachedEnd) {
+                const ehp = e.hp / Math.max(0.1, 1 - e.armor);
+                totalEHP += ehp;
+                if (e.armor > 0) totalArmorEHP += ehp;
+                if (e.archetype === ENEMY_ARCHETYPES.SWARM) swarmCount++;
+                if (e.isBoss) bossActive = true;
+
+                const remainingDist = Math.max(1, totalPathLen - e.distanceTraveled);
+                const ttb = remainingDist / (e.speed || 100);
+                if (ttb < minTimeToBreach) {
+                    minTimeToBreach = ttb;
+                }
+            }
+        }
+
+        this.telemetry.threatEHP = Math.round(totalEHP);
+        this.telemetry.activeArmorRatio = totalEHP > 0 ? (totalArmorEHP / totalEHP) : 0;
+        this.telemetry.swarmRatio = enemies.length > 0 ? (swarmCount / enemies.length) : 0;
+        this.telemetry.minTimeToBreach = minTimeToBreach;
+        this.telemetry.emergencyBreachAlert = minTimeToBreach < 3.5;
+
+        const reqDPS = Math.pow(this.game.wave, 1.15) * 16.0;
+        this.telemetry.pacingConfidence = reqDPS > 0 ? (totalDPS / reqDPS) : 1;
+
+        if (bossActive || totalEHP > 4000) {
+            this.telemetry.recommendedArchetype = 'SNIPER';
+        } else if (this.telemetry.activeArmorRatio > 0.25) {
+            this.telemetry.recommendedArchetype = 'BEAM';
+        } else if (this.telemetry.swarmRatio > 0.3) {
+            this.telemetry.recommendedArchetype = 'GATLING';
+        } else if (!towers.some(t => t.typeKey === 'FROST') && towers.length >= 2) {
+            this.telemetry.recommendedArchetype = 'FROST';
+        } else if (towers.length >= 3 && !towers.some(t => t.typeKey === 'MORTAR')) {
+            this.telemetry.recommendedArchetype = 'MORTAR';
+        } else {
+            this.telemetry.recommendedArchetype = 'TURRET';
+        }
+    }
+
+    optimizeTowerTargeting() {
+        const enemies = this.game.enemies.filter(e => !e.dead && !e.reachedEnd);
+        if (enemies.length === 0) return;
+
+        const hasBoss = enemies.some(e => e.isBoss);
+
+        for (const t of this.game.towers) {
+            let desiredMode = 'FIRST';
+            if (t.typeKey === 'SNIPER' || t.typeKey === 'BEAM') {
+                desiredMode = hasBoss ? 'STRONGEST' : (this.telemetry.activeArmorRatio > 0.3 ? 'STRONGEST' : 'FIRST');
+            } else if (t.typeKey === 'GATLING' || t.typeKey === 'MORTAR') {
+                desiredMode = this.telemetry.swarmRatio > 0.3 ? 'WEAKEST' : 'FIRST';
+            } else if (t.typeKey === 'FROST') {
+                desiredMode = 'FIRST';
+            }
+
+            if (t.targetMode !== desiredMode) {
+                t.targetMode = desiredMode;
+            }
+        }
+    }
+
+    evaluateEmergencyDefense() {
+        if (!this.telemetry.emergencyBreachAlert || this.game.enemies.length === 0) return false;
+
+        const criticalEnemy = this.game.enemies.find(e => !e.dead && !e.reachedEnd && (this.game.calcTotalPathLength() - e.distanceTraveled) < 220);
+        if (criticalEnemy && this.game.money < 100 && this.game.towers.length >= 3) {
+            const distantTower = this.game.towers.find(t => {
+                const distToCrit = t.pos.dist(criticalEnemy.pos);
+                return distToCrit > t.range * 1.8 && t.level <= 2;
+            });
+
+            if (distantTower) {
+                const refund = distantTower.sellValue;
+                const tx = Math.round(distantTower.pos.x);
+                const ty = Math.round(distantTower.pos.y);
+                this.game.sellTowerInstance(distantTower);
+
+                this.recordThinkingStep({
+                    category: 'TACTICAL_VALUATION',
+                    title: 'EMERGENCY RECYCLE: ' + distantTower.type.name,
+                    formula: 'Refund: +' + refund + ' | Breach Alert at TTB=' + this.telemetry.minTimeToBreach.toFixed(1) + 's',
+                    rationale: 'Liquidated distant battery at (' + tx + ', ' + ty + ') to recover ' + refund + ' for emergency core defense.',
+                    gridPos: { x: tx, y: ty }
+                });
+                return true;
+            }
+        }
+        return false;
+    }
+
+    evaluateWavePacing() {
+        if (this.targetWave !== null && this.game.wave > this.targetWave && !this._targetWaveCompleted) {
+            this._targetWaveCompleted = true;
+            this.recordThinkingStep({
+                category: 'STATUS',
+                title: 'MISSION OBJECTIVE ACHIEVED: WAVE ' + this.targetWave,
+                formula: 'Wave ' + (this.game.wave - 1) + ' >= Target ' + this.targetWave + ' | Auto-Pausing',
+                rationale: 'Target Wave ' + this.targetWave + ' cleared. Pausing simulation as instructed by operational orders.',
+                gridPos: null
+            });
+            if (this.game.state !== 'PAUSED') {
+                this.game.togglePause();
+            }
+            this.clearTargetWave();
+            return;
+        }
+
+        if (this.game.state === 'PREP') {
+            const reqDPS = Math.pow(this.game.wave, 1.15) * 16.0;
+            if (this.telemetry.defenseDPS >= reqDPS || this.game.towers.length >= 1) {
+                this.recordThinkingStep({
+                    category: 'WAVE_PACING',
+                    title: 'INITIATE WAVE ' + this.game.wave,
+                    formula: 'Grid DPS: ' + Math.round(this.telemetry.defenseDPS) + ' >= Req: ' + Math.round(reqDPS) + ' (' + this.telemetry.pacingConfidence.toFixed(2) + 'x)',
+                    rationale: 'Perimeter output exceeds Wave ' + this.game.wave + ' threat projection. Autonomously accelerated wave launch.',
+                    gridPos: null
+                });
+                this.game.handleWaveClick();
+            }
+        }
+
+        if (this.telemetry.threatEHP > 4000 || this.game.enemies.some(e => e.isBoss && !e.dead)) {
+            if (this.game.gameSpeed > 1) {
+                this.game.gameSpeed = 1;
+                document.getElementById('ui-speed-txt').innerText = '1x';
+            }
+        } else if (this.game.enemies.length === 0 && this.game.gameSpeed < 2) {
+            this.game.gameSpeed = 2;
+            document.getElementById('ui-speed-txt').innerText = '2x';
+        }
+    }
+
+    evaluateDefenseInvestments() {
+        const money = this.game.money;
+        if (money < 100) return;
+
+        let bestUpgradeTower = null;
+        let maxUpgradeROI = -1;
+
+        for (const t of this.game.towers) {
+            if (t.level < t.maxLevel && money >= t.upgradeCost) {
+                const roi = t.calcMarginalROI();
+                if (roi > maxUpgradeROI) {
+                    maxUpgradeROI = roi;
+                    bestUpgradeTower = t;
+                }
+            }
+        }
+
+        const targetTypeKey = this.telemetry.recommendedArchetype;
+        const proto = TOWER_TYPES[targetTypeKey] || TOWER_TYPES.TURRET;
+
+        let bestBuildSpot = null;
+        let maxBuildUtility = -1;
+
+        if (money >= proto.cost) {
+            const stepX = 45;
+            const stepY = 45;
+            const range = proto.range;
+
+            for (let x = 60; x < this.game.width - 60; x += stepX) {
+                for (let y = 80; y < this.game.height - 60; y += stepY) {
+                    if (this.game.isValidPlacement(x, y, proto)) {
+                        const pathExposure = this.game.calcPathExposure(x, y, range);
+                        if (pathExposure > 0) {
+                            let overlapPenalty = 0;
+                            for (const existing of this.game.towers) {
+                                const dist = existing.pos.dist({ x, y });
+                                if (dist < range * 0.65) overlapPenalty += (1 - dist / (range * 0.65)) * 1.5;
+                            }
+                            const utility = pathExposure - overlapPenalty;
+                            if (utility > maxBuildUtility) {
+                                maxBuildUtility = utility;
+                                bestBuildSpot = { x, y };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (bestUpgradeTower && (maxUpgradeROI * 120 > maxBuildUtility || !bestBuildSpot)) {
+            const oldLvl = bestUpgradeTower.level;
+            const cost = bestUpgradeTower.upgradeCost;
+            bestUpgradeTower.upgrade();
+            this.game.money -= cost;
+            this.game.playSound('upgrade');
+
+            this.recordThinkingStep({
+                category: 'ROI_UPGRADE',
+                title: 'UPGRADE ' + bestUpgradeTower.type.name + ' -> LVL ' + bestUpgradeTower.level,
+                formula: 'Marginal ROI = ' + maxUpgradeROI.toFixed(3) + ' DPS/$ | Base DPS -> ' + bestUpgradeTower.calcDPS().toFixed(1) + '/s',
+                rationale: 'Evaluated marginal rate of return. Upgrading ' + bestUpgradeTower.type.name + ' at (' + Math.round(bestUpgradeTower.pos.x) + ', ' + Math.round(bestUpgradeTower.pos.y) + ') yielded superior DPS efficiency.',
+                gridPos: { x: Math.round(bestUpgradeTower.pos.x), y: Math.round(bestUpgradeTower.pos.y) }
+            });
+        } else if (bestBuildSpot && money >= proto.cost) {
+            this.game.money -= proto.cost;
+            const tower = new Tower(bestBuildSpot.x, bestBuildSpot.y, targetTypeKey);
+            this.game.towers.push(tower);
+            this.game.playSound('build');
+
+            this.recordThinkingStep({
+                category: 'CONSTRUCTION',
+                title: 'CONSTRUCT ' + proto.name,
+                formula: 'Utility = ' + maxBuildUtility.toFixed(1) + ' | Archetype Demand: ' + targetTypeKey + ' | Cost: ' + proto.cost,
+                rationale: 'Constructed ' + proto.name + ' at optimal sector coordinates (' + bestBuildSpot.x + ', ' + bestBuildSpot.y + ') to counter wave threat matrix.',
+                gridPos: { x: bestBuildSpot.x, y: bestBuildSpot.y }
+            });
+        }
+    }
+
+    recordThinkingStep({ category, title, formula, rationale, gridPos }) {
+        this.decisionCount++;
+        const elapsedSec = (performance.now() / 1000) % 3600;
+        const mins = Math.floor(elapsedSec / 60);
+        const secs = (elapsedSec % 60).toFixed(1);
+        const timestamp = mins.toString().padStart(2, '0') + ':' + secs.padStart(4, '0');
+
+        const step = {
+            id: this.decisionCount,
+            timestamp,
+            wave: this.game.wave,
+            category: category || 'TACTICAL_VALUATION',
+            title: title || 'TACTICAL VALUATION',
+            formula: formula || '',
+            rationale: rationale || '',
+            gridPos: gridPos || null,
+            telemetry: { ...this.telemetry }
+        };
+
+        this.history.unshift(step);
+        if (this.history.length > this.maxHistoryLength) this.history.pop();
+        this.lastActionLog = step.title + ' // ' + step.formula;
+        this.renderTimeline();
+    }
+
+    clearHistory() {
+        this.history = [];
+        this.renderTimeline();
+    }
+
+    updateUI() {
+        const btn = document.getElementById('btn-ai');
+        const ticker = document.getElementById('ai-telemetry-bar');
+        const masterBtn = document.getElementById('btn-ai-toggle-master');
+        const statusTxt = document.getElementById('ui-ai-status');
+
+        if (btn) {
+            btn.classList.toggle('active-ai', this.isEnabled);
+            if (statusTxt) statusTxt.innerText = this.isEnabled ? 'AI ON' : 'AI';
+        }
+        if (ticker) {
+            ticker.classList.toggle('hidden', !this.isEnabled);
+            const modeEl = document.getElementById('ai-ticker-mode');
+            if (modeEl) modeEl.innerText = this.targetWave ? ('GOAL: W' + this.targetWave) : 'AUTONOMOUS';
+
+            const telemEl = document.getElementById('ai-ticker-telemetry');
+            if (telemEl) {
+                const reqDPS = Math.pow(this.game.wave, 1.15) * 16.0;
+                telemEl.innerText = 'Threat: ' + this.telemetry.threatEHP + ' EHP • Grid: ' + this.telemetry.defenseDPS.toFixed(1) + ' DPS • Req: ' + Math.round(reqDPS) + ' DPS (' + this.telemetry.pacingConfidence.toFixed(2) + 'x)';
+            }
+
+            const actionEl = document.getElementById('ai-ticker-action');
+            if (actionEl) actionEl.innerText = this.lastActionLog;
+        }
+        if (masterBtn) {
+            masterBtn.innerText = this.isEnabled ? 'AUTONOMOUS ENGAGED' : 'MANUAL OVERRIDE';
+            masterBtn.className = this.isEnabled ? 'btn-candy btn-green' : 'btn-candy btn-blue';
+        }
+        const conStatus = document.getElementById('ai-console-status');
+        if (conStatus) {
+            conStatus.innerText = this.isEnabled ? 'ENGAGED' : 'STANDBY';
+            conStatus.style.color = this.isEnabled ? '#10b981' : '#94a3b8';
+        }
+
+        const setStat = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = val;
+        };
+        setStat('ai-stat-threat', this.telemetry.threatEHP + ' EHP');
+        setStat('ai-stat-dps', this.telemetry.defenseDPS.toFixed(1) + ' DPS');
+        setStat('ai-stat-pacing', this.telemetry.pacingConfidence.toFixed(2) + 'x');
+        setStat('ai-stat-archetype', (TOWER_TYPES[this.telemetry.recommendedArchetype] || {}).name || 'GUMMY GUN');
+        setStat('ai-stat-armor', Math.round(this.telemetry.activeArmorRatio * 100) + '%');
+        
+        const breachEl = document.getElementById('ai-stat-breach');
+        if (breachEl) {
+            if (this.telemetry.emergencyBreachAlert) {
+                breachEl.innerText = 'CRITICAL (' + this.telemetry.minTimeToBreach.toFixed(1) + 's)';
+                breachEl.style.color = '#ef4444';
+            } else {
+                breachEl.innerText = 'NOMINAL';
+                breachEl.style.color = '#10b981';
+            }
+        }
+
+        const countEl = document.getElementById('ai-timeline-count');
+        if (countEl) countEl.innerText = this.history.length + ' Decisions';
+    }
+
+    renderTimeline() {
+        const list = document.getElementById('ai-timeline-list');
+        if (!list) return;
+
+        if (this.history.length === 0) {
+            list.innerHTML = '<div style="color:#64748b; font-size:0.75rem; text-align:center; padding:18px 0;">No autonomous decisions logged yet. Engage AI or start wave to initialize tactical calculus.</div>';
+            return;
+        }
+
+        list.innerHTML = this.history.slice(0, 50).map(step => {
+            const categoryColors = {
+                STATUS: '#38bdf8',
+                WAVE_PACING: '#f59e0b',
+                ROI_UPGRADE: '#10b981',
+                CONSTRUCTION: '#8b5cf6',
+                TACTICAL_VALUATION: '#ec4899'
+            };
+            const barColor = categoryColors[step.category] || '#38bdf8';
+
+            return '<div class="ai-step-card" style="border-left-color:' + barColor + ';">' +
+                '<div class="ai-step-meta">' +
+                    '<span style="font-weight:700; color:' + barColor + ';">[' + step.category + '] W' + step.wave + '</span>' +
+                    '<span>T+' + step.timestamp + '</span>' +
+                '</div>' +
+                '<div class="ai-step-title">' + step.title + '</div>' +
+                (step.formula ? '<div class="ai-step-formula">' + step.formula + '</div>' : '') +
+                '<div class="ai-step-rationale">' + step.rationale + '</div>' +
+            '</div>';
+        }).join('');
+    }
+}
+
 // Game Core Engine
 const Game = {
+    // Mathematical Path Geometry & Autonomous Strategic Calculus
+    calcTotalPathLength() {
+        if (!this.levelWaypoints || this.levelWaypoints.length < 2) return 1;
+        let total = 0;
+        for (let i = 0; i < this.levelWaypoints.length - 1; i++) {
+            total += Math.hypot(
+                this.levelWaypoints[i+1].x - this.levelWaypoints[i].x,
+                this.levelWaypoints[i+1].y - this.levelWaypoints[i].y
+            );
+        }
+        return Math.max(1, total);
+    },
+
+    calcPathExposure(x, y, range) {
+        if (!this.levelWaypoints || this.levelWaypoints.length < 2) return 0;
+        let exposedLength = 0;
+        const totalLen = this.calcTotalPathLength();
+        for (let i = 0; i < this.levelWaypoints.length - 1; i++) {
+            const p1 = this.levelWaypoints[i];
+            const p2 = this.levelWaypoints[i+1];
+            const segLen = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+            if (segLen === 0) continue;
+            const steps = Math.max(2, Math.ceil(segLen / 8));
+            for (let s = 0; s <= steps; s++) {
+                const t = s / steps;
+                const px = p1.x + t * (p2.x - p1.x);
+                const py = p1.y + t * (p2.y - p1.y);
+                if (Math.hypot(px - x, py - y) <= range) {
+                    exposedLength += (segLen / steps);
+                }
+            }
+        }
+        return Math.min(100, (exposedLength / totalLen) * 100);
+    },
+
+    isValidPlacement(x, y, proto) {
+        if (x < 20 || x > this.width - 20 || y < 60 || y > this.height - 40) return false;
+        if (!this.levelWaypoints || this.levelWaypoints.length < 2) return false;
+        for (let i = 0; i < this.levelWaypoints.length - 1; i++) {
+            if (this.distToSegment({x, y}, this.levelWaypoints[i], this.levelWaypoints[i+1]) < 42) {
+                return false;
+            }
+        }
+        return !this.towers.some(tw => tw.pos.dist({x, y}) < 34);
+    },
+
+    sellTowerInstance(tower) {
+        if (!tower) return;
+        this.money += tower.sellValue;
+        this.playSound('sell');
+        this.spawnFloatingText(tower.pos.x, tower.pos.y, '+$' + tower.sellValue, '#d97706');
+        this.towers = this.towers.filter(item => item !== tower);
+        if (this.selectedTower === tower) {
+            this.closeUpgradePopup();
+        }
+    },
+
+    toggleAI() {
+        if (!this.autonomousAgent) return false;
+        const active = this.autonomousAgent.toggle();
+        this.playSound('click');
+        return active;
+    },
+
+    toggleAIPanel() {
+        const modal = document.getElementById('ai-modal');
+        if (!modal) return;
+        modal.classList.toggle('hidden');
+        this.playSound('click');
+    },
+
+    setAITargetWave() {
+        const input = document.getElementById('ai-target-input');
+        if (!input || !this.autonomousAgent) return;
+        const val = parseInt(input.value, 10);
+        if (val && val >= this.wave) {
+            this.autonomousAgent.setTargetWave(val);
+            this.playSound('click');
+        } else {
+            this.playSound('error');
+        }
+    },
+
+    clearAITargetWave() {
+        if (!this.autonomousAgent) return;
+        this.autonomousAgent.clearTargetWave();
+        const input = document.getElementById('ai-target-input');
+        if (input) input.value = '';
+        this.playSound('click');
+    },
         navigateHub(e) {
         if (window.self !== window.top) {
             if (e) e.preventDefault();
@@ -1287,6 +2161,7 @@ const Game = {
     init() {
         this.bgCtx = this.bgCanvas.getContext('2d');
         this.soundSystem.init();
+        this.autonomousAgent = new AutonomousAgent(this);
         
         // Restore preferences
         if (localStorage.getItem('candy_sound_enabled') === 'false') {
@@ -1596,6 +2471,8 @@ const Game = {
                     this.selectedTower.cycleTargetMode();
                     this.updateUpgradeUI();
                 }
+            } else if (key === 'a') {
+                this.toggleAI();
             } else if (key === 'escape') {
                 this.selectedTower = null;
                 this.selectedTowerType = null;
@@ -1727,6 +2604,12 @@ const Game = {
         }
 
         setElText('sell-cost', t.sellValue);
+        setElText('upg-calc-dps', t.calcDPS().toFixed(1));
+        setElText('upg-calc-roi', t.calcMarginalROI().toFixed(3));
+        setElText('upg-calc-cov', t.calcPathCoverage().toFixed(1) + '%');
+        setElText('upg-calc-dmg-dealt', Math.round(t.totalDamageDealt).toLocaleString());
+        setElText('upg-calc-kills', t.kills.toLocaleString());
+        setElText('upg-calc-eff', t.combatEfficiency.toFixed(1));
         
         const upgBtn = document.getElementById('btn-upgrade');
         if (upgBtn) {
@@ -1880,6 +2763,11 @@ const Game = {
 
     update(dt) {
         if (this.state === 'PAUSED' || this.state === 'GAME_OVER' || this.state === 'MENU') return;
+
+        // Aegis Autonomous Commander Policy Engine Cycle
+        if (this.autonomousAgent) {
+            this.autonomousAgent.update(performance.now());
+        }
 
         if (this.state === 'PREP' && this.autoPlay) {
             this.autoPlayTimer -= dt;
