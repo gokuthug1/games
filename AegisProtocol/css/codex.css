@@ -1,0 +1,146 @@
+/**
+ * AEGIS PROTOCOL: VECTOR DEFENSE
+ * Codex & Bestiary Stylesheet
+ */
+
+.codex-tab-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.codex-tab-btn {
+  padding: 8px 18px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-bright);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.codex-tab-btn.active {
+  background: var(--cyan);
+  color: #050811;
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px var(--cyan-glow);
+}
+
+.codex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.codex-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  border-radius: 6px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.codex-card-title {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.codex-card-title .badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  background: rgba(0, 243, 255, 0.15);
+  color: var(--cyan);
+  border-radius: 3px;
+}
+
+.codex-card-sub {
+  font-size: 12px;
+  color: var(--cyan);
+}
+
+.codex-card-lore {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.codex-stats-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  border-top: 1px solid var(--border-dim);
+  padding-top: 8px;
+  color: var(--text-dim);
+}
+
+/* Achievements List Styles */
+.achievements-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.achievement-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.achievement-card.unlocked {
+  border-color: var(--amber);
+  background: rgba(255, 183, 3, 0.08);
+}
+
+.achievement-card.locked {
+  opacity: 0.45;
+}
+
+.ach-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--amber);
+  flex-shrink: 0;
+}
+
+.ach-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ach-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.ach-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.ach-reward {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--amber);
+}

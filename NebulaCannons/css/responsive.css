@@ -1,0 +1,277 @@
+/* ==========================================================================
+   Nebula Cannons — responsive.css
+   Mobile + tablet overhaul: safe-area insets, thumb-zone touch controls,
+   readable HUD sizing, and compact menus. Desktop keeps the base layout.
+   ========================================================================== */
+
+/* Safe-area helpers (notch / home indicator). */
+.hud-top { padding-top: calc(12px + var(--safe-top)); }
+.hud-bottom { padding-bottom: calc(12px + var(--safe-bottom)); }
+.touch-cluster-left { margin-left: var(--safe-left); }
+.touch-cluster-right { margin-right: var(--safe-right); }
+.touch-cluster-left, .touch-cluster-right { margin-bottom: var(--safe-bottom); }
+
+/* ==========================================================================
+   Rotate-device overlay — portrait + touch: suggest landscape, and relocate
+   the touch controls to the screen edges so play stays comfortable upright.
+   ========================================================================== */
+
+#rotate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 28px;
+  text-align: center;
+  background: radial-gradient(900px 600px at 50% 35%, #0c1130, rgba(4, 6, 14, 0.95) 72%);
+  backdrop-filter: blur(8px);
+}
+
+#rotate-overlay .rotate-phone {
+  color: var(--accent);
+  filter: drop-shadow(0 0 18px rgba(62, 242, 255, 0.6));
+  animation: rotate-hint 1.9s ease-in-out infinite;
+}
+
+#rotate-overlay .rotate-title {
+  font-size: clamp(20px, 6vw, 26px);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+#rotate-overlay .rotate-hint {
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.55;
+  max-width: 300px;
+}
+
+@keyframes rotate-hint {
+  0%, 40% { transform: rotate(0deg); }
+  70% { transform: rotate(90deg); }
+  100% { transform: rotate(90deg); }
+}
+
+@media (orientation: portrait) and (pointer: coarse) {
+  #rotate-overlay { display: flex; }
+  #rotate-overlay.dismissed { display: none !important; }
+
+  /* Held upright: hug the thumb clusters to the screen edges. Inline
+     custom positions (Settings) still control the vertical offset. */
+  .hud-touch .touch-cluster-left {
+    left: 0 !important;
+    right: auto !important;
+    margin-left: calc(8px + var(--safe-left));
+  }
+  .hud-touch .touch-cluster-right {
+    right: 0 !important;
+    left: auto !important;
+    margin-right: calc(8px + var(--safe-right));
+  }
+}
+
+/* ==========================================================================
+   Touch (coarse pointer) — show touch controls, enlarge targets.
+   ========================================================================== */
+
+@media (pointer: coarse) {
+  .hud-touch { display: flex; }
+
+  /* The one-time rotation hint floats above the touch clusters. */
+  .hud-rotate-hint {
+    bottom: calc(240px + var(--safe-bottom));
+    font-size: 12px;
+  }
+
+  /* Blur filters are GPU-heavy on phones; the solid panels already read
+     fine without them. */
+  .panel, .overlay, .modal, .weapon-tooltip, #rotate-overlay {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .hud-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+  }
+
+  .touch-joystick { width: 116px; height: 116px; }
+  .touch-joystick-knob { width: 50px; height: 50px; }
+
+  .touch-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    font-size: 24px;
+    background: rgba(10, 14, 28, 0.82);
+  }
+
+  .touch-btn.touch-small {
+    width: 54px;
+    height: 54px;
+    font-size: 20px;
+  }
+
+  .hud-fire-btn {
+    width: 84px;
+    height: 74px;
+    border-radius: 16px;
+    font-size: 13px;
+  }
+
+  .hud-weapon-chip {
+    width: 58px;
+    height: 58px;
+    border-radius: 13px;
+  }
+
+  .menu-btn { padding: 17px 18px; font-size: 18px; }
+  .btn { padding: 13px 22px; }
+  .weapon-card { padding: 16px; }
+  .slot { min-height: 82px; }
+}
+
+/* ==========================================================================
+   Small / short screens — compact but readable.
+   ========================================================================== */
+
+@media (max-height: 560px), (max-width: 760px) {
+  .hud-card { width: 140px; padding: 8px 10px; }
+  .hud-card-name { font-size: 11px; }
+  .hud-readout { min-width: 74px; font-size: 12px; padding: 6px 9px; }
+  .hud-fire-btn { width: 70px; height: 60px; }
+  .hud-power-slider { flex-basis: 120px; }
+  .hud-banner { top: 16%; }
+  .panel { padding: 22px 20px; }
+}
+
+/* ==========================================================================
+   Phone portrait / narrow — reflow the bottom bar, hide the slider.
+   ========================================================================== */
+
+@media (max-width: 560px) {
+  .hud-top { gap: 6px; padding-left: 10px; padding-right: 10px; }
+
+  .hud-cards { gap: 6px; flex: 1 1 auto; }
+  .hud-cards-left { min-width: 0; }
+  .hud-cards-right { min-width: 0; }
+
+  .hud-card { width: 100%; min-width: 0; padding: 7px 9px; }
+  .hud-card-head { gap: 4px; }
+  .hud-card-name { font-size: 10.5px; letter-spacing: 0.05em; }
+  .hud-card-hp { font-size: 12px; }
+  .hud-bar { height: 9px; }
+  .hud-bar-fuel-label, .hud-bar-fuel-val { font-size: 7.5px; }
+
+  /* Wind moves below the cards so the two cards get the full width. */
+  .hud-center { top: calc(74px + var(--safe-top)); }
+  .hud-wind { padding: 4px 12px; }
+  .hud-wind-value { font-size: 13px; }
+
+  /* Buttons stay top-right, tuck tighter. */
+  .hud-buttons { gap: 6px; }
+
+  /* Bottom bar: scrollable weapon row + fire, readouts on top. */
+  .hud-bottom {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 8px 10px;
+  }
+
+  .hud-readouts { flex-direction: row; order: 1; width: auto; }
+  .hud-readout { min-width: 68px; padding: 6px 9px; }
+
+  .hud-power-slider { display: none; } /* power via touch buttons on phones */
+
+  .hud-weapons {
+    order: 3;
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .hud-weapons::-webkit-scrollbar { display: none; }
+  .hud-weapon-chip { flex: none; }
+
+  .hud-fire-btn { order: 2; margin-left: auto; }
+
+  .hud-banner { top: 24%; }
+  .hud-banner-inner { font-size: clamp(18px, 6vw, 26px); }
+
+  /* Touch controls float above the wrapped bottom bar (weapons row + fire). */
+  .touch-cluster-left { left: 12px; bottom: 156px; }
+  .touch-cluster-right { right: 12px; bottom: 156px; }
+
+  .hud-minimap-canvas { width: 132px; height: 74px; }
+
+  .menu-btn { padding: 13px 15px; font-size: 16px; }
+  .loadout-slots { grid-template-columns: repeat(3, 1fr); }
+  .modal-actions { flex-direction: column; }
+  .online-join { flex-direction: column; }
+}
+
+/* ==========================================================================
+   Extra-narrow phones (< 400px)
+   ========================================================================== */
+
+@media (max-width: 399px) {
+  .hud-card-name { font-size: 9.5px; }
+  .hud-card-hp { font-size: 11px; }
+  .hud-wind-value { font-size: 12px; }
+  .hud-readout { min-width: 60px; font-size: 11px; }
+  .touch-btn { width: 58px; height: 58px; }
+  .touch-btn.touch-small { width: 48px; height: 48px; }
+  .touch-joystick { width: 96px; height: 96px; }
+  .touch-joystick-knob { width: 42px; height: 42px; }
+  .hud-fire-btn { width: 72px; height: 64px; }
+}
+
+/* ==========================================================================
+   Landscape phones / small tablets — single-row bottom bar stays compact.
+   ========================================================================== */
+
+@media (max-height: 480px) and (pointer: coarse) {
+  .touch-cluster-left, .touch-cluster-right { bottom: 78px; }
+  .hud-fire-btn { width: 76px; height: 64px; }
+  .hud-weapon-chip { width: 50px; height: 50px; }
+  .hud-banner { top: 10%; }
+}
+
+/* ==========================================================================
+   Accessibility
+   ========================================================================== */
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body.reduce-motion *,
+body.reduce-motion *::before,
+body.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Prefer reduced motion also skips the canvas shake when enabled. */
+body.reduce-motion #game-canvas {
+  filter: none;
+}

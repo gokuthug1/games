@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="Nebula Cannons — a neon 2D turn-based artillery duel. Offline-first with hand-crafted SVG artwork and synthesized WAV audio." />
+  <title>Nebula Cannons — Neon Artillery Duels</title>
+  <link rel="icon" href="assets/svg/favicon.svg" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/menu.css" />
+  <link rel="stylesheet" href="css/hud.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+    <!-- Hub Navigation Overlay -->
+    <div style="position: fixed; top: 12px; left: 12px; z-index: 9999; display: flex; gap: 8px;">
+      <button onclick="returnToHub()" style="display:inline-flex;align-items:center;gap:6px;background:rgba(15,23,42,0.85);backdrop-filter:blur(8px);border:1px solid #38bdf8;color:#38bdf8;padding:6px 14px;border-radius:9999px;font-family:sans-serif;font-size:11px;font-weight:bold;cursor:pointer;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        HUB
+      </button>
+      <button onclick="toggleHubFullscreen()" style="display:inline-flex;align-items:center;gap:6px;background:rgba(15,23,42,0.85);backdrop-filter:blur(8px);border:1px solid #38bdf8;color:#38bdf8;padding:6px 14px;border-radius:9999px;font-family:sans-serif;font-size:11px;font-weight:bold;cursor:pointer;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        FULLSCREEN
+      </button>
+    </div>
+    <script>
+      function returnToHub() {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ action: 'closeGame' }, '*');
+        } else {
+          window.location.href = '../index.html';
+        }
+      }
+      function toggleHubFullscreen() {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ action: 'toggleFullscreen' }, '*');
+        } else {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
+        }
+      }
+    </script>
+
+  <div id="app">
+    <div id="viewport">
+      <canvas id="game-canvas" aria-label="Battlefield"></canvas>
+      <div id="hud-root" class="hud-hidden"></div>
+      <div id="menu-root">
+        <img class="menu-backdrop" src="assets/svg/bg-menu.svg" alt="" aria-hidden="true" draggable="false" />
+      </div>
+    </div>
+    <div id="modal-root"></div>
+    <div id="rotate-overlay" role="dialog" aria-label="Rotate your device">
+      <svg class="rotate-phone" viewBox="0 0 64 64" width="76" height="76" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="20" y="5" width="24" height="54" rx="6"/>
+        <path d="M28 11h8"/>
+        <path d="M8 46a22 22 0 0 1 41-19"/>
+        <path d="M49 27v12H37"/>
+      </svg>
+      <p class="rotate-title">Rotate your device</p>
+      <p class="rotate-hint">Nebula Cannons plays best in landscape. While upright, the touch controls move to the screen edges so you can keep playing.</p>
+      <button class="btn btn-ghost" data-action="rotate-dismiss">Continue anyway</button>
+    </div>
+    <div id="boot-error" class="boot-error" hidden>
+      The game failed to start. Check the browser console for details.
+    </div>
+    <div id="loading-screen" class="loading-screen" aria-hidden="true">
+      <img class="loading-logo" src="assets/svg/logo.svg" alt="Nebula Cannons" draggable="false" />
+      <div class="loading-track"><div class="loading-fill" id="loading-fill"></div></div>
+      <p class="loading-hint">loading the arsenal…</p>
+    </div>
+  </div>
+  <noscript>
+    <div class="noscript-warning">Nebula Cannons needs JavaScript enabled to fire its cannons.</div>
+  </noscript>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

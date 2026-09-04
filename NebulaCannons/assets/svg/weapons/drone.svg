@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <!-- arms -->
+  <path d="M14 14 L5 8 M14 14 L23 8 M14 14 L5 20 M14 14 L23 20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- rotors -->
+  <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+    <path d="M2 8 h6 M20 8 h6 M2 20 h6 M20 20 h6"/>
+  </g>
+  <!-- body -->
+  <ellipse cx="14" cy="14" rx="5" ry="4" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.8"/>
+  <circle cx="14" cy="14" r="1.8" fill="currentColor"/>
+  <!-- sensor -->
+  <circle cx="17.5" cy="12" r="1.2" fill="currentColor" fill-opacity="0.7"/>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <!-- cloud puffs -->
+  <g fill="currentColor" fill-opacity="0.9">
+    <ellipse cx="9" cy="16" rx="5" ry="4"/>
+    <ellipse cx="15" cy="18.5" rx="6" ry="4.5"/>
+    <ellipse cx="21" cy="16" rx="4.5" ry="3.8"/>
+    <ellipse cx="12" cy="13" rx="4.5" ry="3.5"/>
+    <ellipse cx="18" cy="12.5" rx="4" ry="3.2"/>
+  </g>
+  <!-- rising wisps -->
+  <g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" stroke-opacity="0.6">
+    <path d="M10 9 q2 -3 1 -6"/>
+    <path d="M16 8.5 q-2 -3 -1 -6"/>
+  </g>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <!-- barrel -->
+  <line x1="4" y1="20.5" x2="20.5" y2="11.5" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/>
+  <line x1="4" y1="20.5" x2="20.5" y2="11.5" stroke="#0b0e16" stroke-width="1" stroke-linecap="round" stroke-opacity="0.55"/>
+  <!-- muzzle brake -->
+  <rect x="19" y="9.6" width="4.4" height="4" rx="1" fill="currentColor" transform="rotate(33.7 21.2 11.6)"/>
+  <!-- breech / mount -->
+  <path d="M2.5 21.5 h9 a2 2 0 0 1 2 2 v1 a2 2 0 0 1 -2 2 h-9 a2 2 0 0 1 -2 -2 v-1 a2 2 0 0 1 2 -2 z" fill="currentColor" fill-opacity="0.25"/>
+  <path d="M3.5 23 h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+  <!-- blast spark -->
+  <path d="M22.5 8.5 l1.2 -1.6 M24.5 10.5 h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-opacity="0.7"/>
+</svg>

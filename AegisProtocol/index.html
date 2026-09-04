@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AEGIS PROTOCOL // VECTOR DEFENSE</title>
+  
+  <!-- High Quality Vector SVG Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230a0d14'/><path d='M32 6 L54 16 L54 36 C54 48 32 58 32 58 C32 58 10 48 10 36 L10 16 Z' fill='%23101726' stroke='%2300f3ff' stroke-width='2.5'/><polygon points='32,14 46,22 46,36 32,44 18,36 18,22' fill='none' stroke='%23ffb703' stroke-width='1.5'/><circle cx='32' cy='29' r='6' fill='%2300f3ff'/><line x1='32' y1='10' x2='32' y2='23' stroke='%2300f3ff' stroke-width='3' stroke-linecap='round'/><line x1='24' y1='34' x2='15' y2='42' stroke='%23ff0055' stroke-width='2'/><line x1='40' y1='34' x2='49' y2='42' stroke='%23ff0055' stroke-width='2'/></svg>">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/ui.css">
+  <link rel="stylesheet" href="css/game.css">
+  <link rel="stylesheet" href="css/editor.css">
+  <link rel="stylesheet" href="css/codex.css">
+</head>
+<body>
+
+    <!-- Hub Navigation Overlay -->
+    <div style="position: fixed; top: 12px; left: 12px; z-index: 9999; display: flex; gap: 8px;">
+      <button onclick="returnToHub()" style="display:inline-flex;align-items:center;gap:6px;background:rgba(10,13,20,0.85);backdrop-filter:blur(8px);border:1px solid #00f3ff;color:#00f3ff;padding:6px 14px;border-radius:6px;font-family:monospace;font-size:11px;font-weight:bold;cursor:pointer;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        HUB
+      </button>
+      <button onclick="toggleHubFullscreen()" style="display:inline-flex;align-items:center;gap:6px;background:rgba(10,13,20,0.85);backdrop-filter:blur(8px);border:1px solid #00f3ff;color:#00f3ff;padding:6px 14px;border-radius:6px;font-family:monospace;font-size:11px;font-weight:bold;cursor:pointer;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        FULLSCREEN
+      </button>
+    </div>
+    <script>
+      function returnToHub() {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ action: 'closeGame' }, '*');
+        } else {
+          window.location.href = '../index.html';
+        }
+      }
+      function toggleHubFullscreen() {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ action: 'toggleFullscreen' }, '*');
+        } else {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
+        }
+      }
+    </script>
+
+
+  <div id="game-container">
+    <div class="scanline-overlay"></div>
+
+    <!-- SCREEN 1: MAIN MENU -->
+    <div id="screen-main-menu" class="game-screen active">
+      <div class="menu-center-box">
+        <div class="game-title-group">
+          <div class="game-title">AEGIS PROTOCOL</div>
+          <div class="game-subtitle">VECTOR DEFENSE SYSTEM</div>
+        </div>
+
+        <div class="menu-buttons-list">
+          <button id="btn-play-tutorial" class="btn-cyber" style="background: rgba(255, 183, 3, 0.15); border-color: var(--amber); color: var(--amber);">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+            TACTICAL BOOT CAMP (TUTORIAL)
+          </button>
+          <button id="btn-play-campaign" class="btn-cyber primary">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+            DEPLOY CAMPAIGN (8 SECTORS)
+          </button>
+          <button id="btn-play-endless" class="btn-cyber">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+            ENDLESS SURVIVAL
+          </button>
+          <button id="btn-open-tech-tree" class="btn-cyber">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+            RESEARCH LAB
+          </button>
+          <button id="btn-open-codex" class="btn-cyber">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+            VECTOR CODEX
+          </button>
+          <button id="btn-open-editor" class="btn-cyber">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
+            SECTOR EDITOR
+          </button>
+          <button id="btn-open-achievements" class="btn-cyber">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span>
+            ACHIEVEMENTS
+          </button>
+          <button id="btn-open-settings" class="btn-cyber">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+            SETTINGS
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: CAMPAIGN SELECTION -->
+    <div id="screen-campaign-select" class="game-screen">
+      <div class="screen-header">
+        <div class="screen-header-title">
+          <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg></span>
+          CAMPAIGN THEATERS
+        </div>
+        <button class="btn-cyber btn-back-menu">
+          <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></span>
+          RETURN TO BASE
+        </button>
+      </div>
+      <div class="screen-body-scrollable">
+        <div id="campaign-mission-grid" class="campaign-grid"></div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: GAMEPLAY ARENA & HUD -->
+    <div id="screen-gameplay" class="game-screen">
+      <!-- Top HUD Header -->
+      <div class="game-top-hud">
+        <div class="hud-left-group">
+          <div class="hud-pill credits">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M15 9.5a2.5 2.5 0 0 0-5 0c0 3 5 2 5 5a2.5 2.5 0 0 1-5 0"/></svg></span>
+            <span id="hud-credits-val">500</span>
+          </div>
+          <div class="hud-pill lives">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
+            <span id="hud-lives-val">20</span>
+          </div>
+          <div class="hud-pill">
+            <div class="hud-energy-container">
+              <span style="font-size: 10px; color: var(--cyan);">ENERGY GRID: <span id="hud-energy-val">100/100</span></span>
+              <div class="hud-energy-bar"><div id="hud-energy-bar-fill"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-center-group">
+          <div class="hud-pill">
+            <span>WAVE <b id="hud-wave-val">0/20</b></span>
+          </div>
+          <button id="btn-wave-start" class="hud-btn primary">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4" fill="currentColor"/><line x1="19" y1="5" x2="19" y2="19"/></svg></span>
+            NEXT WAVE (N)
+          </button>
+          <button id="btn-autonomous-ai-toggle" class="hud-btn ai-toggle-btn">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15 8 22 12 15 16 12 22 9 16 2 12 9 8 12 2"/><circle cx="12" cy="12" r="3"/></svg></span>
+            AUTONOMOUS AI (A)
+          </button>
+          <button id="btn-toggle-ai-log" class="hud-btn ai-log-btn" title="View AI Thinking Steps & Decision History (L)">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+            AI TIMELINE (L)
+          </button>
+
+          <!-- AI Target Wave Control -->
+          <div id="ai-target-wave-control" class="ai-target-wave-control" title="Set a target wave — the AI will play autonomously until that wave is completed, then pause.">
+            <label class="ai-target-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              RUN TO WAVE
+            </label>
+            <input id="input-ai-target-wave" class="ai-target-wave-input" type="number" min="1" max="99" placeholder="--" title="AI will play until this wave is completed, then pause.">
+            <button id="btn-ai-target-set" class="ai-target-set-btn" title="Engage AI until target wave">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+            </button>
+            <button id="btn-ai-target-clear" class="ai-target-clear-btn" title="Cancel target wave">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="hud-right-group">
+          <div class="hud-pill score">
+            <span>SCORE: <b id="hud-score-val">0</b> (<span id="hud-streak-multiplier" style="color: var(--cyan);">1.0x</span>)</span>
+          </div>
+          <button id="btn-speed-toggle" class="hud-btn">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg></span>
+            1x
+          </button>
+          <button id="btn-pause-toggle" class="hud-btn">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></span>
+            PAUSE
+          </button>
+          <button class="hud-btn btn-back-menu">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></span>
+            EXIT
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Autonomous AI Decision Ticker -->
+      <div id="ai-decision-ticker" class="ai-decision-ticker">
+        <span class="ai-ticker-badge">AI AGENT</span>
+        <span id="ai-ticker-text" class="ai-ticker-text">AUTONOMOUS COMMANDER STANDBY // PRESS [A] TO ENGAGE</span>
+      </div>
+
+      <!-- Canvas Wrapper -->
+      <div id="canvas-wrapper">
+        <canvas id="game-canvas"></canvas>
+      </div>
+
+      <!-- Commander Abilities Left Dock -->
+      <div id="commander-abilities-dock" class="commander-dock"></div>
+
+      <!-- Bottom Tower Purchase Dock -->
+      <div class="tower-dock-wrapper">
+        <div id="tower-build-dock" class="tower-build-dock"></div>
+      </div>
+
+      <!-- Live Tower Inspector Drawer -->
+      <div id="tower-inspector-drawer" class="tower-inspector-drawer"></div>
+
+      <!-- AI Thinking Steps & Decision History Drawer -->
+      <div id="ai-timeline-drawer" class="ai-timeline-drawer">
+        <div class="ai-timeline-header">
+          <div class="ai-timeline-title">
+            <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+            AI COMMANDER // REASONING TIMELINE
+          </div>
+          <div class="ai-timeline-actions">
+            <button id="btn-clear-ai-timeline" class="icon-btn" title="Clear Timeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+            <button id="btn-close-ai-timeline" class="icon-btn" title="Close Drawer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          </div>
+        </div>
+
+        <div class="ai-filter-bar">
+          <button class="ai-filter-chip active" data-filter="ALL">ALL</button>
+          <button class="ai-filter-chip" data-filter="CONSTRUCTION">CONSTRUCTION</button>
+          <button class="ai-filter-chip" data-filter="ROI_UPGRADE">UPGRADES</button>
+          <button class="ai-filter-chip" data-filter="APEX_PROMOTION">APEX</button>
+          <button class="ai-filter-chip" data-filter="COMMANDER_POWER">ABILITIES</button>
+          <button class="ai-filter-chip" data-filter="WAVE_PACING">WAVES</button>
+        </div>
+
+        <div id="ai-timeline-entries" class="ai-timeline-entries"></div>
+      </div>
+
+      <!-- Tactical Boss Alert Banner -->
+      <div id="tactical-alert-banner"></div>
+    </div>
+
+    <!-- SCREEN 4: RESEARCH LAB / TECH TREE -->
+    <div id="screen-tech-tree" class="game-screen">
+      <div class="screen-header">
+        <div class="screen-header-title">
+          <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+          AEGIS RESEARCH & ENGINEERING LAB
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <span id="tech-points-counter" class="hud-pill" style="color: var(--amber);"></span>
+          <button id="btn-reset-techs" class="btn-cyber">RESPEC POINTS</button>
+          <button class="btn-cyber btn-back-menu">RETURN TO BASE</button>
+        </div>
+      </div>
+      <div class="screen-body-scrollable">
+        <div id="tech-tree-grid" class="tech-tree-container"></div>
+      </div>
+    </div>
+
+    <!-- SCREEN 5: VECTOR CODEX / BESTIARY -->
+    <div id="screen-codex" class="game-screen">
+      <div class="screen-header">
+        <div class="screen-header-title">
+          <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+          TACTICAL CODEX & FIELD MANUAL
+        </div>
+        <button class="btn-cyber btn-back-menu">RETURN TO BASE</button>
+      </div>
+      <div class="screen-body-scrollable">
+        <div class="codex-tab-bar">
+          <button class="codex-tab-btn active" data-tab="towers">DEFENSE BATTERIES</button>
+          <button class="codex-tab-btn" data-tab="enemies">HOSTILE INTRUDERS</button>
+        </div>
+        <div id="codex-content-container" class="codex-grid"></div>
+      </div>
+    </div>
+
+    <!-- SCREEN 6: MAP EDITOR -->
+    <div id="screen-map-editor" class="game-screen">
+      <div class="editor-toolbar">
+        <div class="editor-brush-palette">
+          <button class="editor-brush-btn active" data-brush="PATH">ROAD / PATH</button>
+          <button class="editor-brush-btn" data-brush="HIGH_GROUND">HIGH GROUND (+15% RNG)</button>
+          <button class="editor-brush-btn" data-brush="POWER_GRID">POWER GRID (-25% CD)</button>
+          <button class="editor-brush-btn" data-brush="AMPLIFIER">AMPLIFIER (+25% CRIT)</button>
+          <button class="editor-brush-btn" data-brush="BLOCKED">WALL / OBSTACLE</button>
+          <button class="editor-brush-btn" data-brush="EMPTY">ERASER</button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-editor-clear" class="btn-cyber">CLEAR</button>
+          <button id="btn-editor-save" class="btn-cyber">SAVE SECTOR</button>
+          <button id="btn-editor-play" class="btn-cyber primary">PLAYTEST</button>
+          <button class="btn-cyber btn-back-menu">EXIT</button>
+        </div>
+      </div>
+      <div class="editor-canvas-container">
+        <canvas id="editor-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- SCREEN 7: ACHIEVEMENTS -->
+    <div id="screen-achievements" class="game-screen">
+      <div class="screen-header">
+        <div class="screen-header-title">
+          <span class="svg-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg></span>
+          SERVICE ACHIEVEMENTS
+        </div>
+        <button class="btn-cyber btn-back-menu">RETURN TO BASE</button>
+      </div>
+      <div class="screen-body-scrollable">
+        <div id="achievements-grid" class="achievements-list-grid"></div>
+      </div>
+    </div>
+
+    <!-- SCREEN 8: SETTINGS -->
+    <div id="screen-settings" class="game-screen">
+      <div class="screen-header">
+        <div class="screen-header-title">SYSTEM CONFIGURATION</div>
+        <button class="btn-cyber btn-back-menu">RETURN TO BASE</button>
+      </div>
+      <div class="screen-body-scrollable">
+        <div class="menu-center-box" style="max-width: 550px;">
+          <div style="width: 100%; display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span>MASTER AUDIO:</span>
+              <input id="slider-master-volume" type="range" min="0" max="1" step="0.05" value="0.8">
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span>SOUND EFFECTS (SYNTH SFX):</span>
+              <input id="slider-sfx-volume" type="range" min="0" max="1" step="0.05" value="0.8">
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span>CYBERPUNK SYNTH MUSIC:</span>
+              <input id="slider-music-volume" type="range" min="0" max="1" step="0.05" value="0.5">
+            </div>
+            <hr style="border: 0; border-top: 1px solid var(--border-dim); margin: 10px 0;">
+            <button id="btn-wipe-data" class="btn-cyber" style="color: var(--crimson); border-color: var(--crimson);">
+              RESET ALL CAMPAIGN PROGRESS
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: MISSION VICTORY -->
+    <div id="victory-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-title victory">SECTOR DEFENDED</div>
+        <div class="modal-stats">
+          <div class="modal-stat-row">
+            <span>FINAL SCORE:</span>
+            <b id="victory-score-val" style="color: #ffffff;">0</b>
+          </div>
+          <div class="modal-stat-row">
+            <span>RATING:</span>
+            <b id="victory-stars-val" style="color: var(--amber);">3 / 3</b>
+          </div>
+        </div>
+        <button id="btn-victory-continue" class="btn-cyber primary">CONTINUE TO CAMPAIGN</button>
+      </div>
+    </div>
+
+    <!-- MODAL: MISSION DEFEAT -->
+    <div id="defeat-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-title defeat">CORE COMPROMISED</div>
+        <div class="modal-stats">
+          <div class="modal-stat-row">
+            <span>WAVE REACHED:</span>
+            <b id="defeat-wave-val" style="color: #ffffff;">0</b>
+          </div>
+          <div class="modal-stat-row">
+            <span>FINAL SCORE:</span>
+            <b id="defeat-score-val" style="color: #ffffff;">0</b>
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button id="btn-defeat-retry" class="btn-cyber primary" style="flex: 1;">RETRY MISSION</button>
+          <button id="btn-defeat-menu" class="btn-cyber" style="flex: 1;">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLOBAL TOAST NOTIFICATIONS -->
+    <div id="toast-container"></div>
+
+    <!-- GLOBAL TOOLTIP -->
+    <div id="global-tooltip"></div>
+
+  </div>
+
+  <!-- Entry Script -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

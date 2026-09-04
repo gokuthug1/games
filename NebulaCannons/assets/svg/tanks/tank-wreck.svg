@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 30">
+  <defs>
+    <linearGradient id="tw-hull" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#23262e"/>
+      <stop offset="0.5" stop-color="#16181f"/>
+      <stop offset="1" stop-color="#0c0d13"/>
+    </linearGradient>
+  </defs>
+
+  <!-- broken track block -->
+  <rect x="3" y="21" width="58" height="9" rx="4.5" fill="#05060a" stroke="#10131c" stroke-width="1"/>
+  <g stroke="#191d28" stroke-width="1.1">
+    <line x1="9" y1="22" x2="9" y2="25"/>
+    <line x1="15" y1="22" x2="15" y2="25"/>
+    <line x1="21" y1="22" x2="21" y2="25"/>
+    <line x1="33" y1="22" x2="33" y2="25"/>
+    <line x1="45" y1="22" x2="45" y2="25"/>
+    <line x1="57" y1="22" x2="57" y2="25"/>
+  </g>
+  <!-- detached wheel -->
+  <circle cx="50" cy="25.5" r="3.2" fill="#0d0f16" stroke="#1a1e2b" stroke-width="1"/>
+  <circle cx="26" cy="25" r="3.2" fill="#0d0f16" stroke="#1a1e2b" stroke-width="1"/>
+
+  <!-- charred hull -->
+  <path d="M8 21 L8 13 Q8 9.5 11.5 9.5 L44 9.5 Q49.5 9.5 52 12.5 L56 21 Z" fill="url(#tw-hull)" stroke="#05060a" stroke-width="1.4"/>
+  <!-- scorch marks -->
+  <g fill="#0a0c12" fill-opacity="0.9">
+    <ellipse cx="22" cy="14" rx="8" ry="4.5" transform="rotate(-14 22 14)"/>
+    <ellipse cx="42" cy="16" rx="7" ry="4" transform="rotate(10 42 16)"/>
+  </g>
+  <!-- cracks -->
+  <g stroke="#0a0c12" stroke-width="1.1" stroke-linecap="round">
+    <path d="M30 10.5 L33 14 L31 17"/>
+    <path d="M33 14 L38 13.5"/>
+    <path d="M14 12 L17 15 L15 18"/>
+  </g>
+  <!-- sheared turret stub -->
+  <path d="M27 12.5 L32 10 L37 12.5 L35 15.5 L29 15.5 Z" fill="#0d0f16" stroke="#1a1e2b" stroke-width="1"/>
+  <!-- scorch glow embers -->
+  <g fill="#ff7a3d" fill-opacity="0.5">
+    <circle cx="21" cy="13.5" r="1"/>
+    <circle cx="40" cy="15.5" r="0.8"/>
+    <circle cx="30" cy="12.5" r="0.9"/>
+  </g>
+</svg>

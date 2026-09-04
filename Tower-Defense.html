@@ -784,7 +784,7 @@
                             <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
                             <span style="font-weight:800; font-size:0.95rem; letter-spacing:0.04em;">AEGIS PROTOCOL // COMMANDER AI</span>
                         </div>
-                        <button type="button" class="control-btn" onclick="Game.toggleAIPanel()" aria-label="Close AI Console">✕</button>
+                        <button type="button" class="control-btn" onclick="Game.toggleAIPanel()" aria-label="Close AI Console">&times;</button>
                     </div>
 
                     <div class="ai-panel-body">
@@ -885,7 +885,7 @@
                 <div class="help-box" onclick="event.stopPropagation()">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
                         <h3 style="margin:0; font-size:1.2rem; color:#1e293b;">Keyboard Controls</h3>
-                        <button type="button" class="control-btn" style="padding:4px 8px;" onclick="Game.toggleHelp()" aria-label="Close help">✕</button>
+                        <button type="button" class="control-btn" style="padding:4px 8px;" onclick="Game.toggleHelp()" aria-label="Close help">&times;</button>
                     </div>
                     <div class="help-grid">
                         <span class="key-badge">1 – 8</span><span>Select tower type to build</span>
@@ -3317,7 +3317,7 @@ const Game = {
             }
 
             document.getElementById('final-score').innerText = `Score: ${this.score.toLocaleString()} | Wave: ${this.wave}`;
-            document.getElementById('final-record').innerText = isRecord ? "★ NEW PERSONAL RECORD! ★" : `Best: ${Math.max(prevHigh, this.score).toLocaleString()} pts`;
+            document.getElementById('final-record').innerText = isRecord ? " NEW PERSONAL RECORD! " : `Best: ${Math.max(prevHigh, this.score).toLocaleString()} pts`;
             document.getElementById('game-over-screen').style.display = 'flex';
         }
 

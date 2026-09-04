@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <!-- sky beam -->
+  <path d="M14 2 V26" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M14 2 V26" stroke="#0b0e16" stroke-width="1" stroke-opacity="0.4"/>
+  <!-- beam flare -->
+  <path d="M14 2 l-3.5 3.5 M14 2 l3.5 3.5 M10.5 5.5 h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- impact ring -->
+  <ellipse cx="14" cy="24" rx="6.5" ry="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <!-- satellite above -->
+  <path d="M8 2 h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+  <circle cx="14" cy="0.6" r="1.6" fill="currentColor"/>
+</svg>

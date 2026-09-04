@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <!-- rails -->
+  <path d="M4 21 L12 14 M24 21 L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <!-- bolt -->
+  <path d="M15 3.5 L10 12 h4.5 L12.5 17.5 L17.5 9 h-4.5 l2 -5.5 z" fill="currentColor"/>
+  <!-- base -->
+  <path d="M2.5 23 h23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M6 26 h16" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.5"/>
+</svg>

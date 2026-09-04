@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Classic Klondike Solitaire — Instant Web Arcade</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23059669'/><path d='M16 6 L24 16 L16 26 L8 16 Z' fill='%23ffffff'/></svg>">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #064e3b;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    #game-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at 50% 30%, #065f46 0%, #064e3b 60%, #022c22 100%);
+      position: relative;
+    }
+    /* Top Header */
+    .top-bar {
+      height: 54px;
+      background: rgba(2, 44, 34, 0.85);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 100;
+    }
+    .cluster {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hud-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(6, 78, 59, 0.8);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      color: #6ee7b7;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .hud-btn:hover {
+      background: #059669;
+      color: #ffffff;
+      border-color: #34d399;
+    }
+    .hud-stats {
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #a7f3d0;
+      display: flex;
+      gap: 16px;
+    }
+
+    /* Solitaire Playfield */
+    #playfield {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top Row: Stock, Waste, and Foundations */
+    .table-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      width: 100%;
+    }
+    .deck-group, .foundation-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Card Piles & Slots */
+    .pile-slot {
+      width: 12vw;
+      height: 17vw;
+      max-width: 90px;
+      max-height: 126px;
+      min-width: 44px;
+      min-height: 62px;
+      border: 2px dashed rgba(52, 211, 153, 0.3);
+      border-radius: 8px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .pile-slot.foundation-slot svg {
+      width: 24px;
+      height: 24px;
+      fill: rgba(52, 211, 153, 0.25);
+    }
+
+    /* Bottom Row: 7 Tableau Columns */
+    .table-bottom-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      flex: 1;
+    }
+    .tableau-column {
+      width: 12vw;
+      max-width: 90px;
+      min-width: 44px;
+      position: relative;
+      min-height: 200px;
+      flex-shrink: 0;
+    }
+
+    /* Vector SVG Cards */
+    .card {
+      width: 12vw;
+      height: 17vw;
+      max-width: 90px;
+      max-height: 126px;
+      min-width: 44px;
+      min-height: 62px;
+      border-radius: 7px;
+      position: absolute;
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0,0,0,0.1);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 4px 5px;
+    }
+    .card:hover {
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+    }
+    .card.red {
+      color: #dc2626;
+    }
+    .card.black {
+      color: #0f172a;
+    }
+    .card-top, .card-bot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+    }
+    .card-bot {
+      transform: rotate(180deg);
+    }
+    .card-rank {
+      font-size: 13px;
+      font-weight: 800;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .suit-icon {
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+    }
+    .card-center-suit {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 26px;
+      height: 26px;
+      fill: currentColor;
+      opacity: 0.9;
+    }
+
+    /* Card Back (Facedown) */
+    .card.face-down {
+      background: repeating-linear-gradient(
+        45deg,
+        #1e3a8a,
+        #1e3a8a 6px,
+        #172554 6px,
+        #172554 12px
+      );
+      border: 2px solid #ffffff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    .card.face-down * {
+      display: none;
+    }
+
+    /* Card Dragging */
+    .card.dragging {
+      opacity: 0.95;
+      z-index: 1000 !important;
+      pointer-events: none;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6);
+      transform: scale(1.05);
+    }
+
+    /* Victory Banner & Auto Complete */
+    #auto-complete-btn {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      color: #000000;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.5);
+      display: none;
+      z-index: 200;
+    }
+    #victory-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 44, 34, 0.88);
+      backdrop-filter: blur(8px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 500;
+    }
+    #victory-overlay.active { display: flex; }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    
+    <!-- Header -->
+    <div class="top-bar">
+      <div class="cluster">
+        <button class="hud-btn" onclick="returnToHub()" title="Return to Arcade Hub">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>HUB</span>
+        </button>
+        <button class="hud-btn" onclick="toggleHubFullscreen()" title="Fullscreen">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
+      </div>
+
+      <div class="hud-stats">
+        <span>SCORE: <span id="val-score" style="color: #38bdf8;">0</span></span>
+        <span>MOVES: <span id="val-moves" style="color: #fbbf24;">0</span></span>
+        <span>TIME: <span id="val-time" style="color: #ffffff;">00:00</span></span>
+      </div>
+
+      <div class="cluster">
+        <button class="hud-btn" onclick="undoMove()" title="Undo Last Move">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 10h10a5 5 0 0 1 5 5v2"/><polyline points="7 6 3 10 7 14"/></svg>
+          <span>UNDO</span>
+        </button>
+        <button class="hud-btn" onclick="newGame()" title="Start New Deal">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          <span>DEAL</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Playfield Area -->
+    <div id="playfield">
+      <!-- Top Row: Stock, Waste, and 4 Foundations -->
+      <div class="table-top-row">
+        <div class="deck-group">
+          <div class="pile-slot" id="stock-pile" onclick="drawStock()" title="Draw Card"></div>
+          <div class="pile-slot" id="waste-pile"></div>
+        </div>
+
+        <div class="foundation-group">
+          <div class="pile-slot foundation-slot" data-suit="spades" id="found-0">
+            <svg viewBox="0 0 24 24"><path d="M12 2C10.2 4.8 6.5 8.7 6.5 12.3c0 2.4 1.9 4.2 4.2 4.2.7 0 1.3-.2 1.8-.5-.3 1.3-.9 2.7-2.3 3.5h3.6c-1.4-.8-2-2.2-2.3-3.5.5.3 1.1.5 1.8.5 2.3 0 4.2-1.8 4.2-4.2C17.5 8.7 13.8 4.8 12 2z"/></svg>
+          </div>
+          <div class="pile-slot foundation-slot" data-suit="hearts" id="found-1">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </div>
+          <div class="pile-slot foundation-slot" data-suit="clubs" id="found-2">
+            <svg viewBox="0 0 24 24"><path d="M12 2a4.2 4.2 0 0 0-4.2 4.2c0 1.2.5 2.3 1.3 3.1A4.2 4.2 0 0 0 5.5 13a4.2 4.2 0 0 0 4.2 4.2c.7 0 1.3-.2 1.8-.5-.3 1.3-.9 2.7-2.3 3.5h5.6c-1.4-.8-2-2.2-2.3-3.5.5.3 1.1.5 1.8.5a4.2 4.2 0 0 0 4.2-4.2 4.2 4.2 0 0 0-3.6-3.7c.8-.8 1.3-1.9 1.3-3.1A4.2 4.2 0 0 0 12 2z"/></svg>
+          </div>
+          <div class="pile-slot foundation-slot" data-suit="diamonds" id="found-3">
+            <svg viewBox="0 0 24 24"><path d="M12 2L3 12l9 10 9-10-9-10z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: 7 Tableau Columns -->
+      <div class="table-bottom-row">
+        <div class="tableau-column" data-col="0" id="tab-0"></div>
+        <div class="tableau-column" data-col="1" id="tab-1"></div>
+        <div class="tableau-column" data-col="2" id="tab-2"></div>
+        <div class="tableau-column" data-col="3" id="tab-3"></div>
+        <div class="tableau-column" data-col="4" id="tab-4"></div>
+        <div class="tableau-column" data-col="5" id="tab-5"></div>
+        <div class="tableau-column" data-col="6" id="tab-6"></div>
+      </div>
+    </div>
+
+    <!-- Auto Complete Button -->
+    <button id="auto-complete-btn" onclick="runAutoComplete()">AUTO FINISH</button>
+
+    <!-- Victory Overlay -->
+    <div id="victory-overlay">
+      <h1 style="font-size: 36px; font-weight: 900; color: #fbbf24; text-transform: uppercase;">VICTORY!</h1>
+      <p id="victory-stats" style="font-size: 16px; color: #a7f3d0; font-family: monospace;"></p>
+      <button class="hud-btn" style="font-size: 14px; padding: 12px 28px; background: #059669;" onclick="newGame()">PLAY AGAIN</button>
+    </div>
+
+  </div>
+
+  <script>
+    /* ==========================================================================
+       Sound Synthesizer Engine
+       ========================================================================== */
+    class SoundEngine {
+      constructor() { this.ctx = null; }
+      ensureContext() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playCardFlip() {
+        try {
+          this.ensureContext();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          const now = this.ctx.currentTime;
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(220, now + 0.06);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.06);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        } catch(e) {}
+      }
+      playCardPlace() {
+        try {
+          this.ensureContext();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          const now = this.ctx.currentTime;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.exponentialRampToValueAtTime(120, now + 0.08);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } catch(e) {}
+      }
+      playCheer() {
+        try {
+          this.ensureContext();
+          const now = this.ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+            gain.gain.linearRampToValueAtTime(0.01, now + (idx + 1) * 0.08);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + (idx + 1) * 0.08);
+          });
+        } catch(e) {}
+      }
+    }
+    const sound = new SoundEngine();
+
+    /* ==========================================================================
+       SVG Suit Assets
+       ========================================================================== */
+    const SUIT_SVGS = {
+      spades: '<svg class="suit-icon" viewBox="0 0 24 24"><path d="M12 2C10.2 4.8 6.5 8.7 6.5 12.3c0 2.4 1.9 4.2 4.2 4.2.7 0 1.3-.2 1.8-.5-.3 1.3-.9 2.7-2.3 3.5h3.6c-1.4-.8-2-2.2-2.3-3.5.5.3 1.1.5 1.8.5 2.3 0 4.2-1.8 4.2-4.2C17.5 8.7 13.8 4.8 12 2z"/></svg>',
+      hearts: '<svg class="suit-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>',
+      diamonds: '<svg class="suit-icon" viewBox="0 0 24 24"><path d="M12 2L3 12l9 10 9-10-9-10z"/></svg>',
+      clubs: '<svg class="suit-icon" viewBox="0 0 24 24"><path d="M12 2a4.2 4.2 0 0 0-4.2 4.2c0 1.2.5 2.3 1.3 3.1A4.2 4.2 0 0 0 5.5 13a4.2 4.2 0 0 0 4.2 4.2c.7 0 1.3-.2 1.8-.5-.3 1.3-.9 2.7-2.3 3.5h5.6c-1.4-.8-2-2.2-2.3-3.5.5.3 1.1.5 1.8.5a4.2 4.2 0 0 0 4.2-4.2 4.2 4.2 0 0 0-3.6-3.7c.8-.8 1.3-1.9 1.3-3.1A4.2 4.2 0 0 0 12 2z"/></svg>'
+    };
+
+    const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    const SUITS = ['spades', 'hearts', 'clubs', 'diamonds'];
+
+    /* ==========================================================================
+       Solitaire State Engine
+       ========================================================================== */
+    let stock = [];
+    let waste = [];
+    let foundations = [[], [], [], []];
+    let tableau = [[], [], [], [], [], [], []];
+    let undoStack = [];
+
+    let score = 0;
+    let moves = 0;
+    let secondsElapsed = 0;
+    let timerInterval = null;
+
+    function saveState() {
+      undoStack.push(JSON.stringify({
+        stock, waste, foundations, tableau, score, moves
+      }));
+      if (undoStack.length > 30) undoStack.shift();
+    }
+
+    function undoMove() {
+      if (undoStack.length === 0) return;
+      const prev = JSON.parse(undoStack.pop());
+      stock = prev.stock;
+      waste = prev.waste;
+      foundations = prev.foundations;
+      tableau = prev.tableau;
+      score = prev.score;
+      moves = prev.moves;
+      sound.playCardPlace();
+      renderAll();
+      updateStats();
+    }
+
+    function newGame() {
+      sound.ensureContext();
+      document.getElementById('victory-overlay').classList.remove('active');
+      document.getElementById('auto-complete-btn').style.display = 'none';
+
+      // Build 52 card deck
+      let deck = [];
+      let id = 1;
+      for (const suit of SUITS) {
+        for (let r = 0; r < 13; r++) {
+          deck.push({
+            id: id++,
+            suit,
+            rank: r + 1,
+            rankText: RANKS[r],
+            isRed: suit === 'hearts' || suit === 'diamonds',
+            faceUp: false
+          });
+        }
+      }
+
+      // Fisher-Yates Shuffle
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+
+      // Deal into tableau
+      tableau = [[], [], [], [], [], [], []];
+      for (let col = 0; col < 7; col++) {
+        for (let r = 0; r <= col; r++) {
+          const card = deck.pop();
+          card.faceUp = (r === col);
+          tableau[col].push(card);
+        }
+      }
+
+      stock = deck;
+      waste = [];
+      foundations = [[], [], [], []];
+      undoStack = [];
+
+      score = 0;
+      moves = 0;
+      secondsElapsed = 0;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        updateTimeDisplay();
+      }, 1000);
+
+      renderAll();
+      updateStats();
+      sound.playCardFlip();
+    }
+
+    function updateTimeDisplay() {
+      const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+      const s = String(secondsElapsed % 60).padStart(2, '0');
+      document.getElementById('val-time').textContent = `${m}:${s}`;
+    }
+
+    function updateStats() {
+      document.getElementById('val-score').textContent = score;
+      document.getElementById('val-moves').textContent = moves;
+    }
+
+    /* ==========================================================================
+       Draw Stock Card
+       ========================================================================== */
+    function drawStock() {
+      sound.ensureContext();
+      saveState();
+      moves++;
+
+      if (stock.length > 0) {
+        const card = stock.pop();
+        card.faceUp = true;
+        waste.push(card);
+        sound.playCardFlip();
+      } else {
+        // Recycle waste back to stock
+        if (waste.length === 0) return;
+        stock = waste.reverse().map(c => { c.faceUp = false; return c; });
+        waste = [];
+        score = Math.max(0, score - 15);
+        sound.playCardFlip();
+      }
+      renderAll();
+      updateStats();
+    }
+
+    /* ==========================================================================
+       Auto Move on Card Tap / Click
+       ========================================================================== */
+    function autoMoveCard(card, sourceLocation, colIndex, cardIndex) {
+      if (!card.faceUp) return;
+      saveState();
+
+      // 1. Try Foundation First
+      for (let f = 0; f < 4; f++) {
+        const topF = foundations[f][foundations[f].length - 1];
+        if (!topF) {
+          if (card.rank === 1) { // Ace
+            executeMove(card, sourceLocation, colIndex, cardIndex, 'foundation', f);
+            score += 15;
+            sound.playCardPlace();
+            return;
+          }
+        } else if (topF.suit === card.suit && topF.rank === card.rank - 1) {
+          executeMove(card, sourceLocation, colIndex, cardIndex, 'foundation', f);
+          score += 10;
+          sound.playCardPlace();
+          return;
+        }
+      }
+
+      // 2. Try Tableau
+      for (let t = 0; t < 7; t++) {
+        if (sourceLocation === 'tableau' && colIndex === t) continue;
+        const col = tableau[t];
+        const topT = col[col.length - 1];
+
+        if (!topT) {
+          if (card.rank === 13) { // King
+            executeMove(card, sourceLocation, colIndex, cardIndex, 'tableau', t);
+            sound.playCardPlace();
+            return;
+          }
+        } else if (topT.isRed !== card.isRed && topT.rank === card.rank + 1) {
+          executeMove(card, sourceLocation, colIndex, cardIndex, 'tableau', t);
+          score += 5;
+          sound.playCardPlace();
+          return;
+        }
+      }
+
+      // No move found: cancel state
+      undoStack.pop();
+    }
+
+    function executeMove(card, srcLoc, srcCol, srcIdx, destLoc, destIdx) {
+      moves++;
+      let movingCards = [];
+
+      if (srcLoc === 'waste') {
+        movingCards = [waste.pop()];
+      } else if (srcLoc === 'tableau') {
+        movingCards = tableau[srcCol].splice(srcIdx);
+        // Reveal next card in tableau
+        if (tableau[srcCol].length > 0) {
+          const last = tableau[srcCol][tableau[srcCol].length - 1];
+          if (!last.faceUp) {
+            last.faceUp = true;
+            score += 5;
+          }
+        }
+      }
+
+      if (destLoc === 'foundation') {
+        foundations[destIdx].push(...movingCards);
+      } else if (destLoc === 'tableau') {
+        tableau[destIdx].push(...movingCards);
+      }
+
+      renderAll();
+      updateStats();
+      checkAutoComplete();
+    }
+
+    function checkAutoComplete() {
+      // Check if all tableau cards are face-up
+      const allFaceUp = tableau.every(col => col.every(c => c.faceUp)) && stock.length === 0 && waste.length === 0;
+      if (allFaceUp) {
+        document.getElementById('auto-complete-btn').style.display = 'block';
+      }
+
+      // Check Full Victory
+      const totalInFoundations = foundations.reduce((acc, f) => acc + f.length, 0);
+      if (totalInFoundations === 52) {
+        victory();
+      }
+    }
+
+    function runAutoComplete() {
+      const interval = setInterval(() => {
+        let moved = false;
+        for (let t = 0; t < 7; t++) {
+          const col = tableau[t];
+          if (col.length > 0) {
+            const card = col[col.length - 1];
+            for (let f = 0; f < 4; f++) {
+              const topF = foundations[f][foundations[f].length - 1];
+              if ((!topF && card.rank === 1) || (topF && topF.suit === card.suit && topF.rank === card.rank - 1)) {
+                foundations[f].push(col.pop());
+                score += 10;
+                sound.playCardPlace();
+                moved = true;
+                break;
+              }
+            }
+          }
+        }
+        renderAll();
+        updateStats();
+        if (!moved) {
+          clearInterval(interval);
+          checkAutoComplete();
+        }
+      }, 70);
+    }
+
+    function victory() {
+      clearInterval(timerInterval);
+      sound.playCheer();
+      document.getElementById('auto-complete-btn').style.display = 'none';
+      const stats = document.getElementById('victory-stats');
+      stats.textContent = `Score: ${score} | Moves: ${moves} | Time: ${document.getElementById('val-time').textContent}`;
+      document.getElementById('victory-overlay').classList.add('active');
+    }
+
+    /* ==========================================================================
+       DOM Rendering
+       ========================================================================== */
+    function createCardElement(card, sourceLocation, colIndex, cardIndex) {
+      const el = document.createElement('div');
+      el.className = `card ${card.isRed ? 'red' : 'black'} ${!card.faceUp ? 'face-down' : ''}`;
+      
+      if (card.faceUp) {
+        el.innerHTML = `
+          <div class="card-top">
+            <span class="card-rank">${card.rankText}</span>
+            ${SUIT_SVGS[card.suit]}
+          </div>
+          <div class="card-center-suit">${SUIT_SVGS[card.suit]}</div>
+          <div class="card-bot">
+            <span class="card-rank">${card.rankText}</span>
+            ${SUIT_SVGS[card.suit]}
+          </div>
+        `;
+
+        el.addEventListener('click', () => {
+          autoMoveCard(card, sourceLocation, colIndex, cardIndex);
+        });
+      }
+
+      return el;
+    }
+
+    function renderAll() {
+      // Stock
+      const stockSlot = document.getElementById('stock-pile');
+      stockSlot.innerHTML = '';
+      if (stock.length > 0) {
+        const c = createCardElement(stock[stock.length - 1], 'stock');
+        c.style.top = '0';
+        c.style.left = '0';
+        stockSlot.appendChild(c);
+      }
+
+      // Waste
+      const wasteSlot = document.getElementById('waste-pile');
+      wasteSlot.innerHTML = '';
+      if (waste.length > 0) {
+        const c = createCardElement(waste[waste.length - 1], 'waste');
+        c.style.top = '0';
+        c.style.left = '0';
+        wasteSlot.appendChild(c);
+      }
+
+      // Foundations
+      for (let f = 0; f < 4; f++) {
+        const foundSlot = document.getElementById(`found-${f}`);
+        // Remove existing cards
+        foundSlot.querySelectorAll('.card').forEach(c => c.remove());
+        if (foundations[f].length > 0) {
+          const topCard = foundations[f][foundations[f].length - 1];
+          const c = createCardElement(topCard, 'foundation', f, foundations[f].length - 1);
+          c.style.top = '0';
+          c.style.left = '0';
+          foundSlot.appendChild(c);
+        }
+      }
+
+      // Tableau
+      const isMobile = window.innerWidth < 640;
+      const verticalOffset = isMobile ? 16 : 24;
+
+      for (let t = 0; t < 7; t++) {
+        const colSlot = document.getElementById(`tab-${t}`);
+        colSlot.innerHTML = '';
+        tableau[t].forEach((card, idx) => {
+          const c = createCardElement(card, 'tableau', t, idx);
+          c.style.top = `${idx * verticalOffset}px`;
+          c.style.left = '0';
+          c.style.zIndex = idx + 1;
+          colSlot.appendChild(c);
+        });
+      }
+    }
+
+    // Start Deal
+    newGame();
+
+    /* ==========================================================================
+       Hub Protocol
+       ========================================================================== */
+    function returnToHub() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ action: 'closeGame' }, '*');
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function toggleHubFullscreen() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ action: 'toggleFullscreen' }, '*');
+      } else {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    }
+
+    window.addEventListener('message', (e) => {
+      if (!e.data) return;
+      if (e.data.action === 'parentFullscreenChange') {
+        renderAll();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 30">
+  <defs>
+    <linearGradient id="tb-hull" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#50322b"/>
+      <stop offset="0.55" stop-color="#38201d"/>
+      <stop offset="1" stop-color="#2b1414"/>
+    </linearGradient>
+    <radialGradient id="tb-light" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffe14d" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ffe14d" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- track block -->
+  <rect x="3" y="21" width="58" height="9" rx="4.5" fill="#070a12" stroke="#1c2336" stroke-width="1"/>
+  <!-- tread notches -->
+  <g stroke="#2a3349" stroke-width="1.1">
+    <line x1="9" y1="21.5" x2="9" y2="24.5"/>
+    <line x1="15" y1="21.5" x2="15" y2="24.5"/>
+    <line x1="21" y1="21.5" x2="21" y2="24.5"/>
+    <line x1="27" y1="21.5" x2="27" y2="24.5"/>
+    <line x1="33" y1="21.5" x2="33" y2="24.5"/>
+    <line x1="39" y1="21.5" x2="39" y2="24.5"/>
+    <line x1="45" y1="21.5" x2="45" y2="24.5"/>
+    <line x1="51" y1="21.5" x2="51" y2="24.5"/>
+    <line x1="57" y1="21.5" x2="57" y2="24.5"/>
+  </g>
+  <!-- wheels -->
+  <g fill="#111827" stroke="#2e3850" stroke-width="1.1">
+    <circle cx="12" cy="25" r="3.4"/>
+    <circle cx="24" cy="25" r="3.4"/>
+    <circle cx="40" cy="25" r="3.4"/>
+    <circle cx="52" cy="25" r="3.4"/>
+  </g>
+  <g fill="#39435e">
+    <circle cx="12" cy="25" r="1.2"/>
+    <circle cx="24" cy="25" r="1.2"/>
+    <circle cx="40" cy="25" r="1.2"/>
+    <circle cx="52" cy="25" r="1.2"/>
+  </g>
+
+  <!-- hull body -->
+  <path d="M8 21 L8 13 Q8 9.5 11.5 9.5 L44 9.5 Q49.5 9.5 52 12.5 L56 21 Z" fill="url(#tb-hull)" stroke="#0a0f1c" stroke-width="1.2"/>
+  <path d="M10.5 12.5 L43.5 12.5 Q48 12.5 50 15" fill="none" stroke="#7d5a4d" stroke-width="1" stroke-opacity="0.6"/>
+
+  <!-- accent stripe -->
+  <rect x="11" y="15.5" width="40" height="2.8" rx="1.4" fill="#ff7a3d"/>
+  <rect x="11" y="19" width="40" height="1.2" rx="0.6" fill="#ff7a3d" fill-opacity="0.35"/>
+
+  <!-- turret seat -->
+  <circle cx="32" cy="12.5" r="10" fill="#2b1414" stroke="#502a2a" stroke-width="1.2"/>
+  <circle cx="32" cy="12.5" r="7.6" fill="#381a1a" stroke="#ff7a3d" stroke-opacity="0.45" stroke-width="0.9"/>
+
+  <!-- headlight -->
+  <circle cx="7.5" cy="15" r="5" fill="url(#tb-light)"/>
+  <circle cx="7.5" cy="15" r="1.7" fill="#ffe14d"/>
+
+  <!-- antenna -->
+  <line x1="45" y1="10" x2="51" y2="3" stroke="#ff7a3d" stroke-width="1.1" stroke-linecap="round"/>
+  <circle cx="51" cy="2.6" r="1.4" fill="#ff7a3d"/>
+
+  <!-- hull vents -->
+  <g stroke="#7d5a4d" stroke-width="1">
+    <line x1="10" y1="20" x2="13" y2="20"/>
+    <line x1="10" y1="19" x2="13" y2="19"/>
+  </g>
+</svg>

@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Animal Stack — Remastered Arcade Physics</title>
+  
+  <!-- Modern Chunky Geometric Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700;800&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Matter.js 2D Physics Engine -->
+  <script src="libs/matter.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       1. DESIGN SYSTEM TOKENS & RESET
+       ========================================================================== */
+    :root {
+      --font-display: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-ui: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+
+      /* Primary Theme Palette */
+      --color-sky-top: #fed8ca;
+      --color-sky-bottom: #f8a892;
+      --color-surface: #ffffff;
+      --color-surface-soft: #fff6f2;
+      --color-surface-card: #ffffff;
+      --color-ink: #1e2022;
+      --color-ink-muted: #676e76;
+      --color-border: #23272a;
+
+      /* Brand Accents */
+      --brand-coral: #ff5745;
+      --brand-coral-dark: #cc3929;
+      --brand-yellow: #ffb703;
+      --brand-yellow-dark: #d49500;
+      --brand-teal: #06d6a0;
+      --brand-teal-dark: #00a87c;
+      --brand-purple: #795290;
+      --brand-purple-dark: #57336d;
+      --brand-blue: #3a86ff;
+      --brand-blue-dark: #1d5ec4;
+      --brand-green: #70b838;
+      --brand-green-dark: #4f8524;
+
+      /* Shadow & Elevation Tokens */
+      --shadow-border: 0 0 0 3px var(--color-border);
+      --shadow-btn-coral: 0 5px 0 var(--brand-coral-dark), 0 8px 16px rgba(255, 87, 69, 0.35);
+      --shadow-btn-purple: 0 5px 0 var(--brand-purple-dark), 0 8px 16px rgba(121, 82, 144, 0.35);
+      --shadow-btn-yellow: 0 5px 0 var(--brand-yellow-dark), 0 8px 16px rgba(255, 183, 3, 0.35);
+      --shadow-btn-teal: 0 5px 0 var(--brand-teal-dark), 0 8px 16px rgba(6, 214, 160, 0.35);
+      --shadow-card: 0 10px 0 var(--color-border), 0 18px 32px rgba(0, 0, 0, 0.15);
+      --shadow-icon-btn: 0 4px 0 var(--color-border), 0 6px 12px rgba(0, 0, 0, 0.08);
+
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 26px;
+      --radius-xl: 34px;
+      --radius-full: 9999px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #18191c;
+      font-family: var(--font-display);
+      color: var(--color-ink);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* Outer Device Shell / Desktop Frame */
+    #device-wrapper {
+      width: 100vw;
+      height: 100vh;
+      max-width: 440px;
+      max-height: 920px;
+      background: linear-gradient(180deg, var(--color-sky-top) 0%, var(--color-sky-bottom) 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 3px solid var(--color-border);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+    }
+
+    @media (min-width: 480px) {
+      #device-wrapper {
+        border-radius: var(--radius-xl);
+        height: 94vh;
+      }
+    }
+
+    /* Screen Reader Only Utility */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Focus Visible Styling (A11y) */
+    button:focus-visible, 
+    [role="slider"]:focus-visible,
+    [tabindex="0"]:focus-visible {
+      outline: 3px solid var(--brand-blue) !important;
+      outline-offset: 3px !important;
+    }
+
+    /* ==========================================================================
+       2. SCREEN MANAGEMENT & TRANSITIONS
+       ========================================================================== */
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+      z-index: 10;
+      background: transparent;
+    }
+
+    .screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.96) translateY(8px);
+    }
+
+    /* ==========================================================================
+       3. REUSABLE TACTILE UI BUTTONS & CONTROLS
+       ========================================================================== */
+    .icon-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      border: 3px solid var(--color-border);
+      box-shadow: var(--shadow-icon-btn);
+      color: var(--color-ink);
+      font-size: 20px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s;
+    }
+
+    .icon-btn:hover {
+      background: var(--color-surface-soft);
+    }
+
+    .icon-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 var(--color-border), 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn-3d {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px 20px;
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #ffffff;
+      background: var(--brand-coral);
+      border: 3px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-btn-coral);
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.15s ease;
+    }
+
+    .btn-3d:hover {
+      filter: brightness(1.05);
+    }
+
+    .btn-3d:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 var(--color-border), 0 3px 6px rgba(0,0,0,0.15) !important;
+    }
+
+    .btn-3d.btn-purple {
+      background: var(--brand-purple);
+      box-shadow: var(--shadow-btn-purple);
+    }
+    .btn-3d.btn-yellow {
+      background: var(--brand-yellow);
+      color: var(--color-ink);
+      box-shadow: var(--shadow-btn-yellow);
+    }
+    .btn-3d.btn-teal {
+      background: var(--brand-teal);
+      color: var(--color-ink);
+      box-shadow: var(--shadow-btn-teal);
+    }
+    .btn-3d:disabled {
+      background: #c7cdd4 !important;
+      border-color: #838d96 !important;
+      box-shadow: 0 4px 0 #838d96 !important;
+      color: #68727d !important;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* ==========================================================================
+       4. MENU SCREEN STYLING
+       ========================================================================== */
+    #menu-screen {
+      background: linear-gradient(180deg, #fef5f0 0%, #fae2d7 100%);
+      padding: 20px 20px 24px;
+      justify-content: space-between;
+      overflow-y: auto;
+    }
+
+    .menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stats-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--color-surface);
+      border: 3px solid var(--color-border);
+      border-radius: var(--radius-full);
+      padding: 6px 14px;
+      font-size: 15px;
+      font-weight: 800;
+      box-shadow: var(--shadow-icon-btn);
+    }
+    .stats-pill .trophy-icon {
+      color: var(--brand-yellow);
+      font-size: 18px;
+    }
+
+    .brand-hero {
+      text-align: center;
+      margin: 6px 0 10px;
+    }
+
+    .game-logo-title {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--color-ink);
+      text-shadow: 0 3px 0 #fff;
+    }
+
+    .game-tagline {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-ink-muted);
+      margin-top: 6px;
+    }
+
+    /* Center Character Showcase Box */
+    .mascot-stage {
+      position: relative;
+      margin: 8px auto 14px;
+      width: 140px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mascot-backdrop {
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      background: var(--color-surface);
+      border: 3px solid var(--color-border);
+      box-shadow: 0 8px 0 var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .mascot-avatar {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: var(--brand-coral);
+      border: 3px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      position: relative;
+      box-shadow: inset 0 -5px 0 rgba(0,0,0,0.18);
+      transition: background-color 0.25s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: floatMascot 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatMascot {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-8px) rotate(4deg); }
+    }
+
+    .mascot-ears {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: var(--color-border);
+      border-radius: 50%;
+      top: -6px;
+    }
+    .mascot-ears.left { left: 4px; }
+    .mascot-ears.right { right: 4px; }
+
+    .star-ribbon {
+      position: absolute;
+      bottom: -6px;
+      right: 0px;
+      background: var(--brand-yellow);
+      border: 3px solid var(--color-border);
+      border-radius: var(--radius-full);
+      padding: 3px 8px;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 3px 0 var(--color-border);
+    }
+
+    /* Modern Accessible Difficulty Selector */
+    .difficulty-panel {
+      background: var(--color-surface);
+      border: 3px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 0 var(--color-border);
+    }
+
+    .diff-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .diff-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--color-ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .diff-current-badge {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      background: var(--brand-coral);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-full);
+      padding: 2px 10px;
+      text-transform: uppercase;
+    }
+
+    .segmented-control {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background: #ebedf0;
+      border: 3px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 4px;
+    }
+
+    .seg-item {
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 8px 4px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--color-ink-muted);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .seg-item:hover {
+      color: var(--color-ink);
+    }
+
+    .seg-item.active {
+      background: var(--color-surface);
+      color: var(--color-ink);
+      border: 2px solid var(--color-border);
+      box-shadow: 0 3px 0 var(--color-border);
+      transform: translateY(-2px);
+    }
+
+    /* Menu Game Mode List */
+    .mode-actions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ==========================================================================
+       5. GAME SCREEN & HUD
+       ========================================================================== */
+    #game-screen {
+      background: linear-gradient(180deg, var(--color-sky-top) 0%, var(--color-sky-bottom) 100%);
+    }
+
+    .game-top-bar {
+      padding: 16px 18px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 25;
+    }
+
+    .hud-center-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--color-surface);
+      border: 3px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 4px 18px;
+      box-shadow: var(--shadow-icon-btn);
+    }
+
+    .hud-mode-text {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--color-ink-muted);
+    }
+
+    .hud-score-text {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--brand-coral);
+    }
+
+    /* Floating Turn & Helper Banner */
+    .turn-chip {
+      position: absolute;
+      top: 76px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-surface);
+      border: 3px solid var(--color-border);
+      border-radius: var(--radius-full);
+      padding: 6px 18px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      box-shadow: var(--shadow-icon-btn);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .turn-chip.bot-chip {
+      background: var(--brand-blue);
+      color: #fff;
+    }
+
+    /* Canvas Stage Container */
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      touch-action: none;
+      overflow: hidden;
+    }
+
+    canvas#game-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Interactive Instruction Badge */
+    .control-guide-banner {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(4px);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-full);
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--color-ink);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: opacity 0.2s ease;
+      white-space: nowrap;
+      z-index: 15;
+    }
+
+    /* Bottom Tactile Action Toolbar */
+    .game-bottom-toolbar {
+      padding: 12px 18px 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(0,0,0,0.08) 100%);
+      z-index: 25;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-action-rotate {
+      width: 58px;
+      height: 56px;
+      border-radius: var(--radius-lg);
+      background: var(--color-surface);
+      border: 3px solid var(--color-border);
+      box-shadow: var(--shadow-icon-btn);
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--color-ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .btn-action-rotate:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 var(--color-border);
+    }
+
+    .btn-action-drop {
+      flex: 1;
+      height: 56px;
+      font-size: 20px;
+    }
+
+    /* ==========================================================================
+       6. MODALS & DIALOGS (WCAG ARIA MODALS)
+       ========================================================================== */
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(24, 25, 28, 0.65);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card-box {
+      background: var(--color-surface);
+      border: 4px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-card);
+      width: 100%;
+      max-width: 360px;
+      padding: 26px 22px;
+      text-align: center;
+      transform: translateY(20px) scale(0.94);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.active .modal-card-box {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-trophy-hero {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 12px;
+      background: #fff8e5;
+      border: 3px solid var(--color-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      box-shadow: 0 6px 0 var(--color-border);
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0); }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .modal-headline {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--color-ink);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .modal-lead {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-ink-muted);
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    /* Score Comparison Grid */
+    .stat-comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      background: var(--color-surface-soft);
+      border: 3px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-item h4 {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--color-ink-muted);
+    }
+
+    .stat-item p {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--brand-coral);
+      line-height: 1.1;
+    }
+
+    .stat-item.stat-best p {
+      color: var(--brand-yellow-dark);
+    }
+
+    /* Rules & Info Modal Layout */
+    .rules-list {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 16px 0 22px;
+    }
+
+    .rule-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-ink);
+      line-height: 1.35;
+    }
+
+    .rule-badge {
+      width: 28px;
+      height: 28px;
+      background: var(--brand-coral);
+      color: #fff;
+      border: 2px solid var(--color-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .key-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      background: #e4e7eb;
+      border: 2px solid var(--color-border);
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      margin: 0 2px;
+    }
+
+    /* ==========================================================================
+       7. ACCESSIBILITY REDUCED MOTION PREFERENCE
+       ========================================================================== */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  
+    .hub-bar {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .hub-btn {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(30, 32, 34, 0.85);
+      border: 2px solid var(--color-border);
+      color: #38bdf8;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: all 0.15s ease;
+      font-family: var(--font-ui);
+    }
+    .hub-btn:hover {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #38bdf8;
+      transform: translateY(-1px);
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Screen Reader Live Status Announcer (A11y) -->
+  <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Primary Application Wrapper -->
+  <main id="device-wrapper">
+
+    <!-- ==========================================================================
+         SCREEN 1: MODERNIZED MENU SCREEN
+         ========================================================================== -->
+    <section id="menu-screen" class="screen" aria-label="Main Menu">
+      
+      <!-- Top Navigation & Stats -->
+      <header class="menu-header">
+        <button class="icon-btn" id="btn-sound" aria-label="Toggle Audio Sound Effects" title="Toggle Sound">
+          <span id="sound-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></span>
+        </button>
+
+        <div class="stats-pill" aria-label="Current High Score Record">
+          <span class="trophy-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:inline-block;vertical-align:middle;"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg></span>
+          <span>BEST: <strong id="menu-best-record">0</strong></span>
+        </div>
+
+        <button class="icon-btn" id="btn-help" aria-label="How to play and keyboard shortcuts" title="Game Rules">
+          <span aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+        </button>
+      </header>
+
+      <!-- Brand Identity Hero -->
+      <div class="brand-hero">
+        <h1 class="game-logo-title">Animal Stack</h1>
+        <p class="game-tagline">Physics Stacking Arcade &bull; Drop &amp; Balance</p>
+      </div>
+
+      <!-- Mascot Character Showcase Stage -->
+      <div class="mascot-stage" aria-hidden="true">
+        <div class="mascot-backdrop">
+          <div class="mascot-avatar" id="mascot-face">
+            <div class="mascot-ears left"></div>
+            <div class="mascot-ears right"></div>
+            <span id="mascot-emoji"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></span>
+          </div>
+          <div class="star-ribbon"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="display:inline-block;vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> PRO</div>
+        </div>
+      </div>
+
+      <!-- Accessible Segmented Difficulty Selector -->
+      <div class="difficulty-panel">
+        <div class="diff-header">
+          <span class="diff-title">Physics Difficulty</span>
+          <span class="diff-current-badge" id="diff-badge-name">HARD</span>
+        </div>
+        
+        <div class="segmented-control" role="radiogroup" aria-label="Select Game Difficulty">
+          <button class="seg-item" role="radio" aria-checked="false" data-diff="easy" id="diff-opt-easy">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> EASY
+          </button>
+          <button class="seg-item" role="radio" aria-checked="false" data-diff="medium" id="diff-opt-med">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M4 10h16M7 10c0 1.5 1 2.5 2.5 2.5S12 11.5 12 10m0 0c0 1.5 1 2.5 2.5 2.5S17 11.5 17 10"/></svg> MED
+          </button>
+          <button class="seg-item active" role="radio" aria-checked="true" data-diff="hard" id="diff-opt-hard">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> HARD
+          </button>
+        </div>
+      </div>
+
+      <!-- Game Mode Action List -->
+      <nav class="mode-actions-list" aria-label="Select Game Mode">
+        <button class="btn-3d" id="btn-play-solo" aria-label="Play Solo High Score Challenge">
+          <span aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:inline-block;vertical-align:middle;"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg></span> Play Solo Challenge
+        </button>
+        <button class="btn-3d btn-teal" id="btn-play-bot" aria-label="Play Turn-based versus Smart Bot">
+          <span aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4m-4 5h.01m8 0h.01"/></svg></span> Play vs. Smart Bot
+        </button>
+        <button class="btn-3d btn-purple" id="btn-play-friend" aria-label="Play Local Pass and Play versus Friend">
+          <span aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span> Pass &amp; Play vs. Friend
+        </button>
+      </nav>
+    </section>
+
+    <!-- ==========================================================================
+         SCREEN 2: GAMEPLAY & INTERACTION CANVAS
+         ========================================================================== -->
+    <section id="game-screen" class="screen hidden" aria-label="Game Board">
+      
+      <!-- In-Game Top Bar -->
+      <header class="game-top-bar">
+        <button class="icon-btn" id="btn-in-game-back" aria-label="Exit back to main menu" title="Back to Menu">
+          <span aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><polyline points="15 18 9 12 15 6"/></svg></span>
+        </button>
+
+        <div class="hud-center-card">
+          <span class="hud-mode-text" id="hud-mode-label">VS SMART BOT</span>
+          <span class="hud-score-text" id="hud-score-counter">0</span>
+        </div>
+
+        <button class="icon-btn" id="btn-in-game-restart" aria-label="Restart current match" title="Restart Match">
+          <span aria-hidden="true">↺</span>
+        </button>
+      </header>
+
+      <!-- Active Turn Banner -->
+      <div class="turn-chip" id="turn-chip-banner" role="status">
+        <span id="turn-chip-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        <span id="turn-chip-text">YOUR TURN</span>
+      </div>
+
+      <!-- Physics Canvas Container -->
+      <div id="canvas-container" role="region" aria-label="Stacking Arena Canvas">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Dynamic Control Guide Banner -->
+        <div class="control-guide-banner" id="guide-banner" aria-hidden="true">
+          <span>Drag to aim &bull; Tap to spin</span>
+        </div>
+      </div>
+
+      <!-- Bottom Interactive Controls Bar -->
+      <footer class="game-bottom-toolbar">
+        <button class="btn-action-rotate" id="btn-rotate-ccw" aria-label="Rotate animal 45 degrees counter-clockwise" title="Rotate Counter-Clockwise">
+          <span aria-hidden="true">↺</span>
+        </button>
+        
+        <button class="btn-3d btn-action-drop" id="btn-drop-action" aria-label="Drop animal into stack">
+          DROP ANIMAL
+        </button>
+
+        <button class="btn-action-rotate" id="btn-rotate-cw" aria-label="Rotate animal 45 degrees clockwise" title="Rotate Clockwise">
+          <span aria-hidden="true">↻</span>
+        </button>
+      </footer>
+    </section>
+
+    <!-- ==========================================================================
+         MODAL 1: GAME OVER & ROUND SUMMARY (A11y Dialog)
+         ========================================================================== -->
+    <div class="modal-backdrop" id="modal-gameover" role="dialog" aria-modal="true" aria-labelledby="modal-gov-title">
+      <div class="modal-card-box">
+        <div class="modal-trophy-hero" id="modal-gov-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#ffb703" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M19 15l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></svg></div>
+        <h2 class="modal-headline" id="modal-gov-title">Match Ended!</h2>
+        <p class="modal-lead" id="modal-gov-desc">An animal slipped off the platform!</p>
+
+        <div class="stat-comparison-grid">
+          <div class="stat-item">
+            <h4>Animals Stacked</h4>
+            <p id="modal-stat-placed">0</p>
+          </div>
+          <div class="stat-item stat-best">
+            <h4>Best Record</h4>
+            <p id="modal-stat-record">0</p>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button class="btn-3d btn-teal" id="modal-btn-playagain">Play Again</button>
+          <button class="btn-3d btn-yellow" id="modal-btn-homemenu">Main Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODAL 2: HOW TO PLAY & KEYBOARD SHORTCUTS
+         ========================================================================== -->
+    <div class="modal-backdrop" id="modal-help" role="dialog" aria-modal="true" aria-labelledby="modal-help-title">
+      <div class="modal-card-box">
+        <div class="modal-trophy-hero" aria-hidden="true"><svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#3a86ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <h2 class="modal-headline" id="modal-help-title">How To Play</h2>
+        <p class="modal-lead">Stack cute animals as high as you can without letting any fall off!</p>
+
+        <div class="rules-list">
+          <div class="rule-row">
+            <div class="rule-badge">1</div>
+            <div><strong>Aim &amp; Move:</strong> Drag horizontally or use keys <span class="key-badge">←</span> <span class="key-badge">→</span> / <span class="key-badge">A</span> <span class="key-badge">D</span>.</div>
+          </div>
+          <div class="rule-row">
+            <div class="rule-badge">2</div>
+            <div><strong>Rotate:</strong> Tap screen, press <span class="key-badge">R</span> or <span class="key-badge">↑</span>, or use the rotation buttons.</div>
+          </div>
+          <div class="rule-row">
+            <div class="rule-badge">3</div>
+            <div><strong>Drop:</strong> Tap <strong>DROP</strong> or press <span class="key-badge">Space</span> / <span class="key-badge">↓</span>.</div>
+          </div>
+          <div class="rule-row">
+            <div class="rule-badge">4</div>
+            <div><strong>Win Condition:</strong> In Bot or Friend mode, the player who causes any animal to tumble off loses!</div>
+          </div>
+        </div>
+
+        <button class="btn-3d" id="modal-btn-closehelp">Got It!</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==========================================================================
+       8. JAVASCRIPT: ENGINE, ARTWORK, A11Y & LOGIC
+       ========================================================================== -->
+  <script>
+
+  function returnToHub() {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ action: 'closeGame' }, '*');
+    } else {
+      window.location.href = 'index.html';
+    }
+  }
+
+  function toggleHubFullscreen() {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ action: 'toggleFullscreen' }, '*');
+    } else {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+  }
+
+  window.addEventListener('message', (e) => {
+    if (!e.data) return;
+    if (e.data.action === 'parentFullscreenChange') {
+      window.dispatchEvent(new Event('resize'));
+    }
+  });
+
+    /* ==========================================================================
+       A. SOUND SYNTHESIZER (Polyphonic Web Audio API)
+       ========================================================================== */
+    const AudioManager = {
+      ctx: null,
+      muted: false,
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+        const savedMute = localStorage.getItem('animal_stack_muted');
+        if (savedMute !== null) this.muted = savedMute === 'true';
+        this.updateIcon();
+      },
+
+      toggle() {
+        this.muted = !this.muted;
+        localStorage.setItem('animal_stack_muted', this.muted);
+        this.updateIcon();
+        if (!this.muted) this.play('click');
+      },
+
+      updateIcon() {
+        const icon = document.getElementById('sound-icon');
+        if (icon) icon.innerHTML = this.muted ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>' : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+      },
+
+      play(soundName) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        switch (soundName) {
+          case 'click':
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(520, t);
+            osc.frequency.exponentialRampToValueAtTime(800, t + 0.05);
+            gain.gain.setValueAtTime(0.2, t);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05);
+            osc.start(t);
+            osc.stop(t + 0.05);
+            break;
+
+          case 'rotate':
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(320, t);
+            osc.frequency.exponentialRampToValueAtTime(640, t + 0.09);
+            gain.gain.setValueAtTime(0.22, t);
+            gain.gain.linearRampToValueAtTime(0.01, t + 0.09);
+            osc.start(t);
+            osc.stop(t + 0.09);
+            break;
+
+          case 'drop':
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(440, t);
+            osc.frequency.exponentialRampToValueAtTime(140, t + 0.16);
+            gain.gain.setValueAtTime(0.28, t);
+            gain.gain.linearRampToValueAtTime(0.01, t + 0.16);
+            osc.start(t);
+            osc.stop(t + 0.16);
+            break;
+
+          case 'land':
+            // Juicy Boing + Harmonic Chime
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(200, t);
+            osc.frequency.exponentialRampToValueAtTime(100, t + 0.14);
+            gain.gain.setValueAtTime(0.35, t);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.14);
+            osc.start(t);
+            osc.stop(t + 0.14);
+
+            const o2 = this.ctx.createOscillator();
+            const g2 = this.ctx.createGain();
+            o2.connect(g2);
+            g2.connect(this.ctx.destination);
+            o2.type = 'triangle';
+            o2.frequency.setValueAtTime(600, t);
+            o2.frequency.exponentialRampToValueAtTime(950, t + 0.12);
+            g2.gain.setValueAtTime(0.2, t);
+            g2.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+            o2.start(t);
+            o2.stop(t + 0.12);
+            break;
+
+          case 'win':
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+              const o = this.ctx.createOscillator();
+              const g = this.ctx.createGain();
+              o.connect(g);
+              g.connect(this.ctx.destination);
+              o.type = 'triangle';
+              o.frequency.setValueAtTime(freq, t + idx * 0.09);
+              g.gain.setValueAtTime(0, t);
+              g.gain.setValueAtTime(0.22, t + idx * 0.09);
+              g.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.09 + 0.3);
+              o.start(t + idx * 0.09);
+              o.stop(t + idx * 0.09 + 0.32);
+            });
+            break;
+
+          case 'lose':
+            [360, 300, 240, 160].forEach((freq, idx) => {
+              const o = this.ctx.createOscillator();
+              const g = this.ctx.createGain();
+              o.connect(g);
+              g.connect(this.ctx.destination);
+              o.type = 'sawtooth';
+              o.frequency.setValueAtTime(freq, t + idx * 0.14);
+              g.gain.setValueAtTime(0.16, t + idx * 0.14);
+              g.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.14 + 0.22);
+              o.start(t + idx * 0.14);
+              o.stop(t + idx * 0.14 + 0.24);
+            });
+            break;
+        }
+      }
+    };
+
+    /* ==========================================================================
+       B. VECTOR CARTOON ANIMAL ASSETS & EXPRESSIONS
+       ========================================================================== */
+    const ANIMAL_ROSTER = [
+      {
+        id: 'kangaroo',
+        name: 'Kangaroo',
+        w: 80,
+        h: 56,
+        color: '#c4452a',
+        accentColor: '#f7c297',
+        draw(ctx, w, h, mood = 'normal') {
+          // Body
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.ellipse(w * 0.1, h * 0.1, w * 0.32, h * 0.3, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Tail
+          ctx.beginPath();
+          ctx.moveTo(w * 0.25, h * 0.15);
+          ctx.quadraticCurveTo(w * 0.52, h * 0.35, w * 0.5, h * 0.1);
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = this.color;
+          ctx.stroke();
+          ctx.lineWidth = 3.5;
+          ctx.strokeStyle = '#1e2022';
+          ctx.stroke();
+
+          // Head & Long Ears
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(-w * 0.32, -h * 0.15, 14, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.ellipse(-w * 0.35, -h * 0.38, 5, 13, -0.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Chunky Feet
+          ctx.strokeStyle = '#1e2022';
+          ctx.lineWidth = 6;
+          ctx.beginPath();
+          ctx.moveTo(-w * 0.1, h * 0.2);
+          ctx.lineTo(-w * 0.2, h * 0.45);
+          ctx.lineTo(-w * 0.05, h * 0.45);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(w * 0.15, h * 0.2);
+          ctx.lineTo(w * 0.05, h * 0.45);
+          ctx.lineTo(w * 0.2, h * 0.45);
+          ctx.stroke();
+
+          // Paws
+          ctx.beginPath();
+          ctx.moveTo(-w * 0.25, h * 0.05);
+          ctx.lineTo(-w * 0.35, h * 0.25);
+          ctx.lineWidth = 5;
+          ctx.stroke();
+
+          // Expressive Eyes
+          drawEyes(ctx, -w * 0.34, -h * 0.18, mood);
+        }
+      },
+      {
+        id: 'tapir',
+        name: 'Tapir',
+        w: 84,
+        h: 54,
+        color: '#2a2d34',
+        accentColor: '#ffffff',
+        draw(ctx, w, h, mood = 'normal') {
+          // Dark Body
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.roundRect(-w*0.4, -h*0.35, w*0.8, h*0.7, 20);
+          ctx.fill();
+          ctx.stroke();
+
+          // White Saddle
+          ctx.fillStyle = this.accentColor;
+          ctx.beginPath();
+          ctx.roundRect(-w*0.2, -h*0.35, w*0.45, h*0.7, 6);
+          ctx.fill();
+          ctx.stroke();
+
+          // Snout
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.ellipse(-w*0.42, 0, 14, 10, -0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // 4 Stubby Legs
+          [-w*0.28, -w*0.12, w*0.12, w*0.28].forEach(x => {
+            ctx.beginPath();
+            ctx.roundRect(x - 5, h*0.25, 10, 14, 4);
+            ctx.fill();
+            ctx.stroke();
+          });
+
+          drawEyes(ctx, -w*0.36, -h*0.12, mood);
+        }
+      },
+      {
+        id: 'gorilla',
+        name: 'Gorilla',
+        w: 86,
+        h: 68,
+        color: '#434955',
+        accentColor: '#22252c',
+        draw(ctx, w, h, mood = 'normal') {
+          // Massive Torso
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.ellipse(w*0.05, -h*0.05, w*0.38, h*0.36, 0.1, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Gorilla Head
+          ctx.beginPath();
+          ctx.ellipse(-w*0.28, -h*0.18, 16, 20, -0.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Heavy Knuckles
+          ctx.fillStyle = '#313640';
+          ctx.beginPath();
+          ctx.roundRect(-w*0.44, -h*0.02, 18, 38, 8);
+          ctx.fill();
+          ctx.stroke();
+
+          // Back Foot
+          ctx.beginPath();
+          ctx.roundRect(w*0.18, h*0.08, 18, 28, 8);
+          ctx.fill();
+          ctx.stroke();
+
+          // Mask
+          ctx.fillStyle = this.accentColor;
+          ctx.beginPath();
+          ctx.ellipse(-w*0.32, -h*0.15, 10, 12, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          drawEyes(ctx, -w*0.34, -h*0.18, mood);
+        }
+      },
+      {
+        id: 'peacock',
+        name: 'Peacock',
+        w: 76,
+        h: 66,
+        color: '#1a759f',
+        accentColor: '#52b788',
+        draw(ctx, w, h, mood = 'normal') {
+          // Fan Feathers
+          ctx.fillStyle = this.accentColor;
+          for (let angle = -Math.PI * 0.8; angle <= -Math.PI * 0.2; angle += 0.35) {
+            ctx.save();
+            ctx.translate(w * 0.05, -h * 0.05);
+            ctx.rotate(angle);
+            ctx.beginPath();
+            ctx.ellipse(24, 0, 16, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Eye of feather
+            ctx.fillStyle = '#f9c74f';
+            ctx.beginPath();
+            ctx.arc(28, 0, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#1a759f';
+            ctx.beginPath();
+            ctx.arc(29, 0, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#52b788';
+            ctx.restore();
+          }
+
+          // Blue Body & Head
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.ellipse(-w*0.05, h*0.08, 16, 18, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.ellipse(-w*0.18, -h*0.1, 10, 14, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Beak
+          ctx.fillStyle = '#f8961e';
+          ctx.beginPath();
+          ctx.moveTo(-w*0.28, -h*0.12);
+          ctx.lineTo(-w*0.4, -h*0.08);
+          ctx.lineTo(-w*0.28, -h*0.04);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Legs
+          ctx.strokeStyle = '#f8961e';
+          ctx.lineWidth = 4;
+          [-w*0.12, 0].forEach(x => {
+            ctx.beginPath();
+            ctx.moveTo(x, h*0.22);
+            ctx.lineTo(x, h*0.46);
+            ctx.stroke();
+          });
+
+          drawEyes(ctx, -w*0.2, -h*0.15, mood);
+        }
+      },
+      {
+        id: 'turtle',
+        name: 'Turtle',
+        w: 80,
+        h: 46,
+        color: '#40916c',
+        accentColor: '#2d6a4f',
+        draw(ctx, w, h, mood = 'normal') {
+          // Curved Dome Shell
+          ctx.fillStyle = this.accentColor;
+          ctx.beginPath();
+          ctx.arc(0, h*0.1, w*0.38, Math.PI, 0, false);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Shell Segments
+          ctx.strokeStyle = '#1b4332';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(-w*0.15, h*0.05, 8, 0, Math.PI*2);
+          ctx.arc(w*0.15, h*0.05, 8, 0, Math.PI*2);
+          ctx.stroke();
+
+          // Head
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.ellipse(-w*0.4, h*0.05, 12, 9, -0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Flippers
+          [-w*0.25, w*0.22].forEach(x => {
+            ctx.beginPath();
+            ctx.roundRect(x - 6, h*0.1, 14, 14, 4);
+            ctx.fill();
+            ctx.stroke();
+          });
+
+          drawEyes(ctx, -w*0.42, 0, mood);
+        }
+      },
+      {
+        id: 'elephant',
+        name: 'Elephant',
+        w: 90,
+        h: 68,
+        color: '#8d99ae',
+        accentColor: '#7a8599',
+        draw(ctx, w, h, mood = 'normal') {
+          // Massive Body
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.roundRect(-w*0.35, -h*0.35, w*0.75, h*0.7, 22);
+          ctx.fill();
+          ctx.stroke();
+
+          // Ear
+          ctx.fillStyle = this.accentColor;
+          ctx.beginPath();
+          ctx.ellipse(-w*0.15, -h*0.1, 14, 20, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Trunk
+          ctx.beginPath();
+          ctx.moveTo(-w*0.32, -h*0.1);
+          ctx.quadraticCurveTo(-w*0.55, h*0.1, -w*0.4, h*0.35);
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = this.color;
+          ctx.stroke();
+          ctx.lineWidth = 3.5;
+          ctx.strokeStyle = '#1e2022';
+          ctx.stroke();
+
+          // 4 Sturdy Feet
+          ctx.fillStyle = this.color;
+          [-w*0.22, -w*0.05, w*0.15, w*0.3].forEach(x => {
+            ctx.beginPath();
+            ctx.roundRect(x-6, h*0.25, 12, 14, 3);
+            ctx.fill();
+            ctx.stroke();
+          });
+
+          drawEyes(ctx, -w*0.28, -h*0.2, mood);
+        }
+      }
+    ];
+
+    function drawEyes(ctx, x, y, mood) {
+      if (mood === 'shocked') {
+        // Spiral / X dizzy eyes
+        ctx.strokeStyle = '#1e2022';
+        ctx.lineWidth = 2.5;
+        [-4, 4].forEach(offset => {
+          ctx.beginPath();
+          ctx.moveTo(x + offset - 3, y - 3);
+          ctx.lineTo(x + offset + 3, y + 3);
+          ctx.moveTo(x + offset + 3, y - 3);
+          ctx.lineTo(x + offset - 3, y + 3);
+          ctx.stroke();
+        });
+        return;
+      }
+
+      // Normal Cute Cartoon Eye
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#1e2022';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#1e2022';
+      ctx.beginPath();
+      ctx.arc(x - 1, y, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eye glimmer highlight
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(x - 1.8, y - 1, 0.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    /* ==========================================================================
+       C. APPLICATION STATE & ENGINE ARCHITECTURE
+       ========================================================================== */
+    const App = {
+      // Configuration
+      mode: 'bot', // 'solo', 'bot', 'friend'
+      difficulty: 'hard', // 'easy', 'medium', 'hard'
+
+      // Matter Physics
+      engine: null,
+      world: null,
+      platform: null,
+      stackedBodies: [],
+      particles: [],
+
+      // Active Animal Dropper State
+      currentAnimal: null,
+      floatingX: 0,
+      floatingY: 80,
+      rotationAngle: 0,
+      isDropping: false,
+      settleTimer: 0,
+      cameraY: 0,
+
+      // Match Turn & Score
+      turn: 'player', // 'player', 'bot', 'player1', 'player2'
+      score: 0,
+      bestScore: 0,
+      gameOver: false,
+
+      // Canvas / Viewport
+      canvas: null,
+      ctx: null,
+      width: 0,
+      height: 0,
+      isDragging: false,
+      lastAnnouncedScore: 0,
+
+      init() {
+        this.canvas = document.getElementById('game-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.bestScore = parseInt(localStorage.getItem('animal_stack_best') || '0', 10);
+        document.getElementById('menu-best-record').innerText = this.bestScore;
+
+        this.setupPhysics();
+        this.bindEvents();
+        this.setDifficulty('hard');
+        this.resize();
+        this.runLoop();
+      },
+
+      setupPhysics() {
+        const { Engine } = Matter;
+        this.engine = Engine.create({
+          enableSleeping: false,
+          positionIterations: 8,
+          velocityIterations: 8
+        });
+        this.world = this.engine.world;
+        this.engine.world.gravity.y = 1.25;
+      },
+
+      announce(msg) {
+        const el = document.getElementById('sr-announcer');
+        if (el) el.innerText = msg;
+      },
+
+      setDifficulty(diff) {
+        this.difficulty = diff;
+        ['easy', 'med', 'hard'].forEach(d => {
+          const btn = document.getElementById(`diff-opt-${d}`);
+          const isSelected = (d === 'med' ? 'medium' : d) === diff;
+          btn.classList.toggle('active', isSelected);
+          btn.setAttribute('aria-checked', isSelected.toString());
+        });
+
+        const badge = document.getElementById('diff-badge-name');
+        const mascot = document.getElementById('mascot-face');
+        const emoji = document.getElementById('mascot-emoji');
+
+        badge.innerText = diff.toUpperCase();
+
+        if (diff === 'easy') {
+          badge.style.background = 'var(--brand-teal)';
+          mascot.style.background = 'var(--brand-teal)';
+          emoji.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>';
+        } else if (diff === 'medium') {
+          badge.style.background = 'var(--brand-yellow)';
+          mascot.style.background = 'var(--brand-yellow)';
+          emoji.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M4 10h16M7 10c0 1.5 1 2.5 2.5 2.5S12 11.5 12 10m0 0c0 1.5 1 2.5 2.5 2.5S17 11.5 17 10"/></svg>';
+        } else {
+          badge.style.background = 'var(--brand-coral)';
+          mascot.style.background = 'var(--brand-coral)';
+          emoji.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>';
+        }
+        this.announce(`Difficulty set to ${diff}`);
+      },
+
+      getFriction() {
+        if (this.difficulty === 'easy') return 0.95;
+        if (this.difficulty === 'medium') return 0.65;
+        return 0.38; // Hard is wobbly and demands balance!
+      },
+
+      bindEvents() {
+        window.addEventListener('resize', () => this.resize());
+
+        // Audio Toggle
+        document.getElementById('btn-sound').onclick = () => AudioManager.toggle();
+
+        // Help Modal
+        document.getElementById('btn-help').onclick = () => {
+          AudioManager.play('click');
+          document.getElementById('modal-help').classList.add('active');
+        };
+        document.getElementById('modal-btn-closehelp').onclick = () => {
+          AudioManager.play('click');
+          document.getElementById('modal-help').classList.remove('active');
+        };
+
+        // Difficulty Selector Clicks
+        document.querySelectorAll('.seg-item').forEach(btn => {
+          btn.onclick = () => {
+            AudioManager.play('click');
+            const targetDiff = btn.dataset.diff === 'med' ? 'medium' : btn.dataset.diff;
+            this.setDifficulty(targetDiff);
+          };
+        });
+
+        // Mode Starts
+        document.getElementById('btn-play-solo').onclick = () => this.startGame('solo');
+        document.getElementById('btn-play-bot').onclick = () => this.startGame('bot');
+        document.getElementById('btn-play-friend').onclick = () => this.startGame('friend');
+
+        // Navigation
+        document.getElementById('btn-in-game-back').onclick = () => this.showMenu();
+        document.getElementById('btn-in-game-restart').onclick = () => this.restartGame();
+
+        // In-Game Action Bar Buttons
+        document.getElementById('btn-rotate-ccw').onclick = () => this.rotateAnimal(-Math.PI / 4);
+        document.getElementById('btn-rotate-cw').onclick = () => this.rotateAnimal(Math.PI / 4);
+        document.getElementById('btn-drop-action').onclick = () => this.dropAnimal();
+
+        // Modal Replay/Menu
+        document.getElementById('modal-btn-playagain').onclick = () => {
+          document.getElementById('modal-gameover').classList.remove('active');
+          this.restartGame();
+        };
+        document.getElementById('modal-btn-homemenu').onclick = () => {
+          document.getElementById('modal-gameover').classList.remove('active');
+          this.showMenu();
+        };
+
+        // Drag & Aim on Canvas
+        const container = document.getElementById('canvas-container');
+        let dragActive = false;
+        let startX = 0;
+        let dragMoved = false;
+        let touchStartTimestamp = 0;
+
+        container.addEventListener('pointerdown', (e) => {
+          if (this.isDropping || this.isBotTurn() || this.gameOver) return;
+          dragActive = true;
+          dragMoved = false;
+          startX = e.clientX;
+          touchStartTimestamp = Date.now();
+        });
+
+        window.addEventListener('pointermove', (e) => {
+          if (!dragActive || this.isDropping || this.isBotTurn()) return;
+          const rect = this.canvas.getBoundingClientRect();
+          const targetX = e.clientX - rect.left;
+          const margin = 45;
+          this.floatingX = Math.max(margin, Math.min(this.width - margin, targetX));
+          dragMoved = true;
+        });
+
+        window.addEventListener('pointerup', (e) => {
+          if (!dragActive) return;
+          dragActive = false;
+          // Quick Tap on Canvas rotates 45 degrees
+          if (!dragMoved || (Date.now() - touchStartTimestamp < 180)) {
+            this.rotateAnimal(Math.PI / 4);
+          }
+        });
+
+        // Keyboard Controls (Accessibility)
+        window.addEventListener('keydown', (e) => {
+          if (document.getElementById('game-screen').classList.contains('hidden') || this.gameOver) return;
+          if (this.isBotTurn()) return;
+
+          switch (e.key) {
+            case 'ArrowLeft':
+            case 'a':
+            case 'A':
+              this.floatingX = Math.max(45, this.floatingX - 25);
+              break;
+
+            case 'ArrowRight':
+            case 'd':
+            case 'D':
+              this.floatingX = Math.min(this.width - 45, this.floatingX + 25);
+              break;
+
+            case 'ArrowUp':
+            case 'w':
+            case 'W':
+            case 'r':
+            case 'R':
+              this.rotateAnimal(Math.PI / 4);
+              break;
+
+            case 'ArrowDown':
+            case 's':
+            case 'S':
+            case ' ':
+              e.preventDefault();
+              this.dropAnimal();
+              break;
+
+            case 'Escape':
+              this.showMenu();
+              break;
+          }
+        });
+      },
+
+      resize() {
+        const container = document.getElementById('canvas-container');
+        if (!container) return;
+        this.width = container.clientWidth;
+        this.height = container.clientHeight;
+        this.canvas.width = this.width * window.devicePixelRatio;
+        this.canvas.height = this.height * window.devicePixelRatio;
+        this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+        // Rebuild Platform
+        if (this.platform) Matter.World.remove(this.world, this.platform);
+
+        const pw = this.width * 0.88;
+        const ph = 24;
+        const py = this.height - 68;
+
+        this.platform = Matter.Bodies.rectangle(this.width / 2, py, pw, ph, {
+          isStatic: true,
+          friction: this.getFriction(),
+          restitution: 0.08
+        });
+        Matter.World.add(this.world, this.platform);
+      },
+
+      startGame(mode) {
+        AudioManager.play('click');
+        this.mode = mode;
+        this.gameOver = false;
+        this.score = 0;
+        this.cameraY = 0;
+        this.turn = (mode === 'friend') ? 'player1' : 'player';
+
+        // Clear existing bodies
+        this.stackedBodies.forEach(b => Matter.World.remove(this.world, b));
+        this.stackedBodies = [];
+        this.particles = [];
+
+        document.getElementById('menu-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+
+        const modeTag = document.getElementById('hud-mode-label');
+        if (mode === 'solo') modeTag.innerText = 'SOLO CHALLENGE';
+        else if (mode === 'bot') modeTag.innerText = 'VS SMART BOT';
+        else modeTag.innerText = 'PASS & PLAY';
+
+        this.updateHUD();
+        this.spawnAnimal();
+      },
+
+      restartGame() {
+        AudioManager.play('click');
+        this.startGame(this.mode);
+      },
+
+      showMenu() {
+        AudioManager.play('click');
+        document.getElementById('menu-screen').classList.remove('hidden');
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('modal-gameover').classList.remove('active');
+        document.getElementById('menu-best-record').innerText = this.bestScore;
+      },
+
+      spawnAnimal() {
+        this.currentAnimal = ANIMAL_ROSTER[Math.floor(Math.random() * ANIMAL_ROSTER.length)];
+        this.floatingX = this.width / 2;
+        this.floatingY = 82;
+        this.rotationAngle = 0;
+        this.isDropping = false;
+        this.settleTimer = 0;
+
+        document.getElementById('btn-drop-action').disabled = false;
+        document.getElementById('guide-banner').style.opacity = '1';
+
+        this.announce(`Ready to drop ${this.currentAnimal.name}`);
+
+        if (this.isBotTurn()) {
+          this.executeBotTurn();
+        }
+      },
+
+      rotateAnimal(delta) {
+        if (this.isDropping || this.isBotTurn() || this.gameOver) return;
+        this.rotationAngle = (this.rotationAngle + delta) % (Math.PI * 2);
+        AudioManager.play('rotate');
+      },
+
+      dropAnimal() {
+        if (this.isDropping || this.isBotTurn() || this.gameOver) return;
+        this.isDropping = true;
+        document.getElementById('btn-drop-action').disabled = true;
+        document.getElementById('guide-banner').style.opacity = '0';
+        AudioManager.play('drop');
+
+        const { Bodies, World, Body } = Matter;
+        const spec = this.currentAnimal;
+
+        const body = Bodies.rectangle(
+          this.floatingX,
+          this.floatingY - this.cameraY,
+          spec.w,
+          spec.h,
+          {
+            chamfer: { radius: 10 },
+            friction: this.getFriction(),
+            frictionAir: 0.015,
+            restitution: 0.06,
+            density: 0.002
+          }
+        );
+
+        Body.setAngle(body, this.rotationAngle);
+        body.animalSpec = spec;
+        body.dropTimestamp = Date.now();
+        body.isSettled = false;
+
+        this.stackedBodies.push(body);
+        World.add(this.world, body);
+      },
+
+      isBotTurn() {
+        return this.mode === 'bot' && this.turn === 'bot';
+      },
+
+      executeBotTurn() {
+        document.getElementById('btn-drop-action').disabled = true;
+
+        let targetX = this.width / 2;
+        let targetRot = (Math.floor(Math.random() * 4) * Math.PI) / 2;
+
+        if (this.stackedBodies.length > 0) {
+          const topBody = this.stackedBodies[this.stackedBodies.length - 1];
+          targetX = topBody.position.x;
+
+          if (this.difficulty === 'easy') {
+            targetX += (Math.random() - 0.5) * 90;
+          } else if (this.difficulty === 'medium') {
+            targetX += (Math.random() - 0.5) * 40;
+          } else {
+            // Hard: Calculated precision placement
+            targetX += (Math.random() - 0.5) * 12;
+            targetRot = 0;
+          }
+        }
+
+        targetX = Math.max(45, Math.min(this.width - 45, targetX));
+
+        const startX = this.floatingX;
+        const startTime = Date.now();
+        const duration = 850;
+
+        const botStep = () => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(1, elapsed / duration);
+          const ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
+
+          this.floatingX = startX + (targetX - startX) * ease;
+          this.rotationAngle = targetRot * ease;
+
+          if (progress < 1) {
+            requestAnimationFrame(botStep);
+          } else {
+            setTimeout(() => {
+              this.isDropping = true;
+              AudioManager.play('drop');
+
+              const { Bodies, World, Body } = Matter;
+              const spec = this.currentAnimal;
+              const body = Bodies.rectangle(
+                this.floatingX,
+                this.floatingY - this.cameraY,
+                spec.w,
+                spec.h,
+                {
+                  chamfer: { radius: 10 },
+                  friction: this.getFriction(),
+                  frictionAir: 0.015,
+                  restitution: 0.06,
+                  density: 0.002
+                }
+              );
+
+              Body.setAngle(body, this.rotationAngle);
+              body.animalSpec = spec;
+              body.dropTimestamp = Date.now();
+              body.isSettled = false;
+
+              this.stackedBodies.push(body);
+              World.add(this.world, body);
+            }, 380);
+          }
+        };
+
+        requestAnimationFrame(botStep);
+      },
+
+      updateHUD() {
+        document.getElementById('hud-score-counter').innerText = this.score;
+
+        const chip = document.getElementById('turn-chip-banner');
+        const icon = document.getElementById('turn-chip-icon');
+        const text = document.getElementById('turn-chip-text');
+
+        if (this.mode === 'solo') {
+          chip.className = 'turn-chip';
+          icon.innerText = '⭐';
+          text.innerText = `TOWER SCORE: ${this.score}`;
+        } else if (this.mode === 'bot') {
+          if (this.turn === 'player') {
+            chip.className = 'turn-chip';
+            icon.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+            text.innerText = 'YOUR TURN';
+          } else {
+            chip.className = 'turn-chip bot-chip';
+            icon.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4m-4 5h.01m8 0h.01"/></svg>';
+            text.innerText = 'BOT THINKING...';
+          }
+        } else {
+          chip.className = 'turn-chip';
+          icon.innerHTML = this.turn === 'player1' ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+          text.innerText = this.turn === 'player1' ? "PLAYER 1'S TURN" : "PLAYER 2'S TURN";
+        }
+      },
+
+      checkPhysicsState() {
+        if (!this.isDropping || this.gameOver) return;
+
+        const currentBody = this.stackedBodies[this.stackedBodies.length - 1];
+        if (!currentBody) return;
+
+        // Fall Threshold Check
+        const fallLine = this.height + 150 - this.cameraY;
+        for (let b of this.stackedBodies) {
+          if (b.position.y > fallLine) {
+            this.handleRoundFinish(b);
+            return;
+          }
+        }
+
+        // Settled Check
+        const speed = currentBody.speed;
+        const angularSpeed = currentBody.angularSpeed;
+        const timeAlive = Date.now() - currentBody.dropTimestamp;
+
+        if ((speed < 0.22 && angularSpeed < 0.12 && timeAlive > 750) || timeAlive > 3400) {
+          currentBody.isSettled = true;
+          this.isDropping = false;
+          this.score++;
+
+          if (this.score > this.bestScore) {
+            this.bestScore = this.score;
+            localStorage.setItem('animal_stack_best', this.bestScore.toString());
+          }
+
+          AudioManager.play('land');
+          this.createLandingStars(currentBody.position.x, currentBody.position.y);
+
+          // Pan camera upward smoothly in Solo mode
+          if (currentBody.position.y + this.cameraY < 210) {
+            this.cameraY += 58;
+          }
+
+          // Turn Transition
+          if (this.mode === 'bot') {
+            this.turn = (this.turn === 'player') ? 'bot' : 'player';
+          } else if (this.mode === 'friend') {
+            this.turn = (this.turn === 'player1') ? 'player2' : 'player1';
+          }
+
+          this.updateHUD();
+          this.spawnAnimal();
+        }
+      },
+
+      createLandingStars(x, y) {
+        for (let i = 0; i < 16; i++) {
+          const angle = (Math.PI * 2 * i) / 16;
+          const speed = 2.5 + Math.random() * 3.5;
+          this.particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: 4 + Math.random() * 4,
+            color: ['#fff', '#ffb703', '#ff5745', '#06d6a0', '#3a86ff'][Math.floor(Math.random() * 5)],
+            alpha: 1
+          });
+        }
+      },
+
+      handleRoundFinish(fallenBody) {
+        this.gameOver = true;
+        AudioManager.play('lose');
+
+        let title = 'Round Ended!';
+        let subtitle = 'An animal fell off the platform!';
+        let icon = '<svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#ffb703" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M19 15l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></svg>';
+
+        if (this.mode === 'solo') {
+          title = 'Tower Collapsed!';
+          subtitle = `Great effort! You successfully balanced ${this.score} animals.`;
+          icon = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="display:inline-block;vertical-align:middle;"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>';
+        } else if (this.mode === 'bot') {
+          if (this.turn === 'player') {
+            title = 'Bot Wins!';
+            subtitle = 'You accidentally knocked the animal stack over!';
+            icon = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4m-4 5h.01m8 0h.01"/></svg>';
+          } else {
+            title = 'You Won!';
+            subtitle = 'The bot miscalculated and toppled the tower!';
+            icon = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:inline-block;vertical-align:middle;"><polygon points="5 18 19 18 21 9 16 12 12 6 8 12 3 9 5 18"/></svg>';
+            AudioManager.play('win');
+          }
+        } else {
+          title = this.turn === 'player1' ? 'Player 2 Wins!' : 'Player 1 Wins!';
+          subtitle = `${this.turn === 'player1' ? 'Player 1' : 'Player 2'} dropped an animal off the edge!`;
+          icon = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:inline-block;vertical-align:middle;"><polygon points="5 18 19 18 21 9 16 12 12 6 8 12 3 9 5 18"/></svg>';
+        }
+
+        document.getElementById('modal-gov-icon').innerText = icon;
+        document.getElementById('modal-gov-title').innerText = title;
+        document.getElementById('modal-gov-desc').innerText = subtitle;
+        document.getElementById('modal-stat-placed').innerText = this.score;
+        document.getElementById('modal-stat-record').innerText = this.bestScore;
+
+        document.getElementById('modal-gameover').classList.add('active');
+        this.announce(`${title} ${subtitle}`);
+      },
+
+      /* ==========================================================================
+         D. RENDER LOOP & AIMING GUIDE
+         ========================================================================== */
+      runLoop() {
+        Matter.Engine.update(this.engine, 1000 / 60);
+
+        this.checkPhysicsState();
+        this.renderCanvas();
+
+        requestAnimationFrame(() => this.runLoop());
+      },
+
+      renderCanvas() {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+
+        this.ctx.save();
+        this.ctx.translate(0, this.cameraY);
+
+        // 1. Draw Aiming Plumb Line
+        if (!this.isDropping && this.currentAnimal && !this.gameOver) {
+          this.ctx.save();
+          this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+          this.ctx.lineWidth = 2.5;
+          this.ctx.setLineDash([6, 6]);
+          this.ctx.beginPath();
+          this.ctx.moveTo(this.floatingX, this.floatingY - this.cameraY);
+          this.ctx.lineTo(this.floatingX, this.height - 68);
+          this.ctx.stroke();
+          this.ctx.restore();
+        }
+
+        // 2. Draw Platform with Bevel & Grass Cap
+        if (this.platform) {
+          const { min, max } = this.platform.bounds;
+          const pw = max.x - min.x;
+          const ph = max.y - min.y;
+          const px = this.platform.position.x;
+          const py = this.platform.position.y;
+
+          // Platform Base
+          this.ctx.fillStyle = '#70b838';
+          this.ctx.strokeStyle = '#1e2022';
+          this.ctx.lineWidth = 3.5;
+          this.ctx.beginPath();
+          this.ctx.roundRect(px - pw / 2, py - ph / 2, pw, ph, 12);
+          this.ctx.fill();
+          this.ctx.stroke();
+
+          // Highlight Grass Cap
+          this.ctx.fillStyle = '#9ef01a';
+          this.ctx.beginPath();
+          this.ctx.roundRect(px - pw / 2 + 3, py - ph / 2 + 2, pw - 6, 6, 4);
+          this.ctx.fill();
+        }
+
+        // 3. Draw Stacked Physics Bodies
+        for (let body of this.stackedBodies) {
+          this.ctx.save();
+          this.ctx.translate(body.position.x, body.position.y);
+          this.ctx.rotate(body.angle);
+
+          this.ctx.lineWidth = 3.5;
+          this.ctx.strokeStyle = '#1e2022';
+          this.ctx.lineJoin = 'round';
+          this.ctx.lineCap = 'round';
+
+          const isTilted = Math.abs(body.angle) > 0.45;
+          const mood = isTilted ? 'shocked' : 'normal';
+
+          if (body.animalSpec && body.animalSpec.draw) {
+            body.animalSpec.draw(this.ctx, body.animalSpec.w, body.animalSpec.h, mood);
+          }
+
+          this.ctx.restore();
+        }
+
+        // 4. Draw Floating Current Animal (Pre-drop)
+        if (!this.isDropping && this.currentAnimal && !this.gameOver) {
+          this.ctx.save();
+          this.ctx.translate(this.floatingX, this.floatingY - this.cameraY);
+          this.ctx.rotate(this.rotationAngle);
+
+          this.ctx.lineWidth = 3.5;
+          this.ctx.strokeStyle = '#1e2022';
+          this.ctx.lineJoin = 'round';
+          this.ctx.lineCap = 'round';
+
+          this.currentAnimal.draw(this.ctx, this.currentAnimal.w, this.currentAnimal.h, 'normal');
+          this.ctx.restore();
+        }
+
+        // 5. Draw Particle Bursts
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha -= 0.035;
+
+          this.ctx.fillStyle = p.color;
+          this.ctx.globalAlpha = Math.max(0, p.alpha);
+          this.ctx.beginPath();
+          this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          this.ctx.fill();
+
+          if (p.alpha <= 0) this.particles.splice(i, 1);
+        }
+        this.ctx.globalAlpha = 1;
+
+        this.ctx.restore();
+      }
+    };
+
+    // Bootstrap Remaster on DOM Ready
+    window.addEventListener('DOMContentLoaded', () => App.init());
+  </script>
+</body>
+</html>

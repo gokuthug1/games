@@ -1,0 +1,72 @@
+/**
+ * AEGIS PROTOCOL: VECTOR DEFENSE
+ * Map Editor Layout & Brush Controls Stylesheet
+ */
+
+#screen-map-editor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.editor-toolbar {
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-bright);
+}
+
+.editor-brush-palette {
+  display: flex;
+  gap: 8px;
+}
+
+.editor-brush-btn {
+  padding: 6px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 4px;
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.editor-brush-btn:hover {
+  border-color: var(--cyan);
+}
+
+.editor-brush-btn.active {
+  background: var(--cyan);
+  color: #050811;
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-glow);
+}
+
+.editor-canvas-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #050711;
+  padding: 20px;
+}
+
+#editor-canvas {
+  max-width: 1200px;
+  max-height: 800px;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border: 1px solid var(--border-bright);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+}

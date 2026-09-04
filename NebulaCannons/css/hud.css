@@ -1,0 +1,802 @@
+/* ==========================================================================
+   Nebula Cannons — hud.css
+   In-match overlay: player cards, wind, readouts, weapon chips, power
+   slider, fire button, turn banner and touch controls.
+   ========================================================================== */
+
+#hud-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  font-size: calc(14px * var(--ui-scale, 1));
+  transition: opacity 0.25s ease;
+}
+
+#hud-root.hud-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#hud-root.no-control .hud-fire-btn {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Top bar
+   ========================================================================== */
+
+.hud-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 12px 14px;
+  gap: 10px;
+}
+
+/* Player cards live on opposite sides: human left, enemy right. */
+
+.hud-cards {
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+}
+
+.hud-cards-right {
+  justify-content: flex-end;
+}
+
+.hud-card {
+  width: 178px;
+  padding: 8px 11px 7px;
+  border-radius: 12px;
+  background: var(--ui-bg, rgba(10, 14, 28, 0.82));
+  border: 1px solid rgba(143, 160, 192, 0.25);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.4s ease;
+}
+
+.hud-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(62, 242, 255, 0.35), 0 6px 22px rgba(0, 0, 0, 0.4);
+}
+
+.hud-card.destroyed {
+  opacity: 0.45;
+  filter: grayscale(0.8);
+}
+
+.hud-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.hud-card-name {
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud-card-hp {
+  font-size: 12px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text);
+  flex: none;
+}
+
+.hud-bar {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.hud-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  border-radius: 5px;
+  transition: width 0.35s ease, left 0.35s ease;
+}
+
+.health-bar .hud-bar-fill {
+  background: linear-gradient(90deg, #59e6a8, #3ef2a0);
+}
+
+.health-bar .hud-bar-fill.low {
+  background: linear-gradient(90deg, #ffe14d, #ffb04d);
+}
+
+.health-bar .hud-bar-fill.crit {
+  background: linear-gradient(90deg, #ff5a5a, #ff2d2d);
+  animation: crit-blink 0.7s ease infinite;
+}
+
+@keyframes crit-blink {
+  50% { opacity: 0.55; }
+}
+
+.fuel-bar .hud-bar-fill {
+  background: linear-gradient(90deg, #6ea8ff, #3ef2ff);
+}
+
+.hud-bar-fuel-label {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.75);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+.hud-bar-fuel-val {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8.5px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Right-side card mirrors the bars (fuel drains from the right). */
+.hud-card.side-right .fuel-bar .hud-bar-fill {
+  right: 0;
+  left: auto;
+}
+
+/* Center: wind */
+
+.hud-center {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-wind {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--ui-bg, rgba(10, 14, 28, 0.82));
+  border: 1px solid rgba(143, 160, 192, 0.25);
+  transition: opacity 0.2s ease;
+}
+
+.hud-wind-arrows {
+  display: flex;
+  gap: 1px;
+  color: var(--accent);
+}
+
+.hud-wind-value {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--accent);
+  min-width: 20px;
+  text-align: center;
+  font-family: var(--font-mono);
+}
+
+.hud-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.hud-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(143, 160, 192, 0.3);
+  background: var(--ui-bg, rgba(10, 14, 28, 0.82));
+  color: var(--text);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: border-color 0.15s ease, transform 0.12s ease;
+}
+
+.hud-btn:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Bottom bar
+   ========================================================================== */
+
+.hud-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  pointer-events: auto;
+}
+
+.hud-readouts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hud-readout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: var(--ui-bg, rgba(10, 14, 28, 0.82));
+  border: 1px solid rgba(143, 160, 192, 0.25);
+  font-weight: 800;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  min-width: 92px;
+}
+
+.hud-readout-icon {
+  color: var(--accent);
+  flex: none;
+}
+
+.hud-power-slider {
+  flex: 0 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hud-slider-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  color: var(--text-dim);
+}
+
+.hud-weapons {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.hud-weapon-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 52px;
+  height: 52px;
+  border-radius: 11px;
+  border: 1px solid rgba(143, 160, 192, 0.28);
+  background: var(--ui-bg, rgba(10, 14, 28, 0.82));
+  color: var(--text);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+}
+
+.hud-weapon-chip:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.hud-weapon-chip.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(62, 242, 255, 0.45);
+  background: rgba(62, 242, 255, 0.1);
+}
+
+.hud-weapon-chip.empty {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.hud-weapon-icon { color: var(--accent); }
+
+.hud-weapon-ammo {
+  font-size: 9.5px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+}
+
+.hud-fire-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 74px;
+  height: 62px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 122, 61, 0.7);
+  background: linear-gradient(180deg, rgba(255, 122, 61, 0.28), rgba(120, 40, 10, 0.4));
+  color: #ffd9c2;
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 0 22px rgba(255, 122, 61, 0.25);
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.hud-fire-btn:hover {
+  box-shadow: 0 0 34px rgba(255, 122, 61, 0.5);
+  transform: translateY(-2px);
+}
+
+.hud-fire-btn:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================================================
+   Weapon tooltip
+   ========================================================================== */
+
+.weapon-tooltip {
+  position: fixed;
+  z-index: 70;
+  min-width: 200px;
+  max-width: 260px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(22, 30, 52, 0.97), rgba(12, 16, 30, 0.97));
+  border: 1px solid rgba(62, 242, 255, 0.45);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(62, 242, 255, 0.18);
+  color: var(--text);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px) scale(0.97);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+
+.weapon-tooltip.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.weapon-tooltip .wt-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.weapon-tooltip .wt-head svg {
+  color: var(--accent);
+  flex: none;
+}
+
+.weapon-tooltip .wt-name {
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.weapon-tooltip .wt-desc {
+  color: var(--text-dim);
+  font-size: 11.5px;
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+.weapon-tooltip .wt-stats,
+.weapon-tooltip .wt-range {
+  display: flex;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+
+.weapon-tooltip .wt-stats b,
+.weapon-tooltip .wt-range b {
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+.weapon-tooltip .wt-range {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(143, 160, 192, 0.18);
+}
+
+.weapon-tooltip .wt-mastery {
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(143, 160, 192, 0.14);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.weapon-tooltip .wt-mastery-badge {
+  font-size: 9px;
+  line-height: 1;
+}
+
+.weapon-tooltip .wt-mastery.bronze { color: #e8a06a; }
+.weapon-tooltip .wt-mastery.silver { color: #cfd6e6; }
+.weapon-tooltip .wt-mastery.gold { color: #ffd166; }
+
+/* ==========================================================================
+   Turn banner
+   ========================================================================== */
+
+.hud-banner {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.hud-banner.show {
+  opacity: 1;
+  animation: banner-pop 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@keyframes banner-pop {
+  from { transform: translateX(-50%) scale(0.7); opacity: 0; }
+  to { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+.hud-banner-inner {
+  font-size: clamp(22px, 4vw, 38px);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.8), 0 0 30px currentColor;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   One-time portrait rotation hint
+   ========================================================================== */
+
+.hud-rotate-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(128px + var(--safe-bottom));
+  transform: translateX(-50%) translateY(8px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: var(--ui-bg, rgba(10, 14, 28, 0.86));
+  border: 1px solid rgba(62, 242, 255, 0.45);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5), 0 0 18px rgba(62, 242, 255, 0.18);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  z-index: 6;
+}
+
+.hud-rotate-hint.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.hud-rotate-hint .rotate-hint-icon {
+  display: flex;
+  color: var(--accent);
+  animation: rotate-hint-spin 2.4s ease-in-out infinite;
+}
+
+.hud-rotate-hint .rotate-hint-text b {
+  color: var(--accent);
+}
+
+@keyframes rotate-hint-spin {
+  0%, 55% { transform: rotate(0deg); }
+  80% { transform: rotate(-100deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* ==========================================================================
+   Touch controls
+   ========================================================================== */
+
+.hud-touch {
+  position: absolute;
+  inset: 0;
+  display: none;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.hud-touch.disabled,
+.hud-touch.no-control {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Clusters are individually positioned so the persisted mobile layout can
+   move them (Settings → Touch layout); the responsive defaults below keep
+   them on the bottom corners, and portrait mode hugs them to the edges. */
+
+.touch-cluster {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.touch-cluster-left {
+  left: 16px;
+  bottom: 86px;
+}
+
+.touch-cluster-right {
+  right: 16px;
+  bottom: 86px;
+  align-items: flex-end;
+}
+
+.touch-group {
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.touch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  border: 1px solid rgba(62, 242, 255, 0.4);
+  background: rgba(10, 14, 28, 0.75);
+  color: var(--accent);
+  font-size: 22px;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch-btn:active {
+  background: rgba(62, 242, 255, 0.25);
+  transform: scale(0.94);
+}
+
+.touch-btn.touch-small {
+  width: 48px;
+  height: 48px;
+  font-size: 18px;
+}
+
+.touch-aim { flex-direction: row; }
+.touch-power { flex-direction: row; }
+
+/* Horizontal movement joystick (replaces the move buttons). */
+
+.touch-joystick {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  border: 1px solid rgba(62, 242, 255, 0.45);
+  background: radial-gradient(circle at 50% 45%, rgba(62, 242, 255, 0.1), rgba(10, 14, 28, 0.78) 72%);
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.touch-joystick.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 18px rgba(62, 242, 255, 0.45);
+}
+
+.touch-joystick-base {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-joystick-knob {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #7ef2ff, #0e4d5e 72%);
+  box-shadow: 0 0 14px rgba(62, 242, 255, 0.55);
+  will-change: transform;
+}
+
+.joy-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(62, 242, 255, 0.5);
+  pointer-events: none;
+}
+
+.joy-arrow-left { left: 13px; }
+.joy-arrow-right { right: 13px; }
+
+/* ==========================================================================
+   Aim-lock badge (right-click on desktop)
+   ========================================================================== */
+
+.hud-aimlock {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+  box-shadow: 0 0 16px rgba(255, 225, 77, 0.35);
+  min-width: 0;
+  padding: 7px 10px;
+  animation: aimlock-pulse 1.1s ease infinite;
+}
+
+.hud-aimlock[hidden] {
+  display: none;
+}
+
+@keyframes aimlock-pulse {
+  50% { box-shadow: 0 0 24px rgba(255, 225, 77, 0.6); }
+}
+
+/* ==========================================================================
+   Corner mini-map
+   ========================================================================== */
+
+.hud-minimap {
+  position: absolute;
+  top: calc(64px + var(--safe-top));
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hud-minimap-toggle {
+  pointer-events: auto;
+}
+
+.hud-minimap-canvas {
+  display: none;
+  width: 176px;
+  height: 99px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0a0e22;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.hud-minimap.open .hud-minimap-canvas {
+  display: block;
+}
+
+/* ==========================================================================
+   Touch weapon wheel
+   ========================================================================== */
+
+.weapon-radial {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 210px;
+  height: 210px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.weapon-radial.open {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.weapon-radial-item {
+  --i: 0;
+  --n: 6;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 52px;
+  height: 52px;
+  margin: -26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border-radius: 50%;
+  border: 1px solid rgba(62, 242, 255, 0.5);
+  background: rgba(10, 14, 28, 0.9);
+  color: var(--text);
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  transform: rotate(calc(var(--i) * 360deg / var(--n))) translateY(-72px) rotate(calc(var(--i) * -360deg / var(--n)));
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.weapon-radial-item.active {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 16px rgba(255, 122, 61, 0.5);
+}
+
+.weapon-radial-item .wri-icon {
+  color: var(--accent);
+}
+
+.weapon-radial-item .wri-ammo {
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .radial-trigger { display: flex; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .radial-trigger { display: none; }
+}

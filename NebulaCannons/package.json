@@ -1,0 +1,17 @@
+{
+  "name": "nebula-cannons",
+  "version": "1.0.0",
+  "description": "Nebula Cannons — a neon 2D turn-based artillery duel. Offline-first vanilla JS + Canvas, no external assets.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "check": "node scripts/syntax-check.js",
+    "test": "node --test tests/sanity.test.js tests/server.test.js",
+    "start": "python3 server/server.py",
+    "serve": "python3 -m http.server 8080",
+    "assets": "python3 scripts/generate-audio.py"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
