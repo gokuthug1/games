@@ -95,10 +95,10 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 12px;
-            gap: 12px;
+            padding: 16px;
+            gap: 14px;
             width: 100%;
-            max-width: 800px;
+            max-width: 1140px;
         }
 
         /* Top HUD */
@@ -107,7 +107,7 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 10px 20px;
+            padding: 12px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -129,9 +129,10 @@
 
         .hud-val {
             font-family: monospace;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 800;
             color: var(--accent-cyan);
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
         }
 
         /* Canvas Arena */
@@ -141,8 +142,8 @@
             aspect-ratio: 16 / 10;
             background: #060913;
             border: 2px solid var(--border);
-            border-radius: 12px;
-            box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+            border-radius: 16px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.7), 0 0 35px rgba(56, 189, 248, 0.1);
             overflow: hidden;
         }
 
@@ -383,6 +384,24 @@
         const btnStart = document.getElementById('btn-start');
         const mobileInput = document.getElementById('mobile-input');
 
+        const WIDTH = 960;
+        const HEIGHT = 600;
+        let dpr = 1;
+        let screenShake = 0;
+        let floatingTexts = [];
+        let turretRecoil = 0;
+
+        function resizeCanvas() {
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            canvas.width = Math.round(WIDTH * dpr);
+            canvas.height = Math.round(HEIGHT * dpr);
+        }
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            draw();
+        });
+        resizeCanvas();
+
         let isRunning = false;
         let score = 0;
         let hull = 100;
@@ -398,16 +417,20 @@
         let spawnTimer = 0;
         let spawnInterval = 140;
 
+        function addFloatingText(x, y, text, color) {
+            floatingTexts.push({ x, y, text, color, life: 1.0, decay: 0.025 });
+        }
+
         function spawnWord() {
             const text = WORDS[Math.floor(Math.random() * WORDS.length)];
-            const textWidth = ctx.measureText(text).width || 80;
-            const x = Math.random() * (canvas.width - 160) + 80;
+            const textWidth = ctx.measureText(text).width || 90;
+            const x = Math.random() * (WIDTH - 200) + 100;
             activeWords.push({
                 text,
                 typedIndex: 0,
                 x,
                 y: 20,
-                speed: 0.6 + Math.min(1.2, score / 1500)
+                speed: 0.7 + Math.min(1.4, score / 1500)
             });
         }
 
@@ -457,9 +480,10 @@
         }
 
         function fireLaserAt(w) {
+            turretRecoil = 8;
             lasers.push({
-                x1: canvas.width / 2,
-                y1: canvas.height - 20,
+                x1: WIDTH / 2,
+                y1: HEIGHT - 20,
                 x2: w.x,
                 y2: w.y,
                 life: 1.0
@@ -467,19 +491,22 @@
         }
 
         function destroyWord(w) {
-            score += w.text.length * 10;
+            const earned = w.text.length * 10;
+            score += earned;
             wordsTyped++;
             Sound.explode();
+            screenShake = 6;
+            addFloatingText(w.x, w.y - 12, `+${earned}`, '#38bdf8');
 
             // Spawn explosion particles
-            for (let i = 0; i < 16; i++) {
+            for (let i = 0; i < 20; i++) {
                 particles.push({
                     x: w.x,
                     y: w.y,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.5) * 8,
+                    vx: (Math.random() - 0.5) * 9,
+                    vy: (Math.random() - 0.5) * 9,
                     life: 1.0,
-                    color: Math.random() > 0.5 ? '#38bdf8' : '#f43f5e'
+                    color: Math.random() > 0.5 ? '#38bdf8' : Math.random() > 0.3 ? '#fbbf24' : '#f43f5e'
                 });
             }
 
@@ -519,9 +546,11 @@
                 w.y += w.speed;
 
                 // Breach defense perimeter
-                if (w.y >= canvas.height - 40) {
+                if (w.y >= HEIGHT - 45) {
                     hull -= 20;
                     Sound.hullHit();
+                    screenShake = 16;
+                    addFloatingText(w.x, HEIGHT - 45, '-20 HULL!', '#f43f5e');
                     if (w === activeTarget) activeTarget = null;
                     activeWords.splice(i, 1);
 
@@ -541,12 +570,15 @@
                 if (l.life <= 0) lasers.splice(i, 1);
             }
 
+            // Turret recoil decay
+            if (turretRecoil > 0) turretRecoil -= 1;
+
             // Particles
             for (let i = particles.length - 1; i >= 0; i--) {
                 const p = particles[i];
                 p.x += p.vx;
                 p.y += p.vy;
-                p.life -= 0.04;
+                p.life -= 0.035;
                 if (p.life <= 0) particles.splice(i, 1);
             }
 
@@ -554,51 +586,106 @@
         }
 
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            ctx.save();
+            if (screenShake > 0) {
+                const sx = (Math.random() - 0.5) * screenShake;
+                const sy = (Math.random() - 0.5) * screenShake;
+                ctx.translate(sx, sy);
+                screenShake *= 0.85;
+                if (screenShake < 0.2) screenShake = 0;
+            }
+
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+            // Radar Grid Background
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.05)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < WIDTH; x += 40) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, HEIGHT); ctx.stroke();
+            }
+            for (let y = 0; y < HEIGHT; y += 40) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(WIDTH, y); ctx.stroke();
+            }
 
             // Defense Perimeter Line
             ctx.strokeStyle = '#f43f5e';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 2.5;
             ctx.shadowColor = '#f43f5e';
-            ctx.shadowBlur = 8;
+            ctx.shadowBlur = 10;
             ctx.beginPath();
-            ctx.moveTo(0, canvas.height - 40);
-            ctx.lineTo(canvas.width, canvas.height - 40);
+            ctx.moveTo(0, HEIGHT - 45);
+            ctx.lineTo(WIDTH, HEIGHT - 45);
             ctx.stroke();
-            ctx.shadowBlur = 0;
 
-            // Turret Base
-            ctx.fillStyle = '#1e293b';
+            // Turret Cannon Tracking Active Target
+            let turretAngle = -Math.PI / 2;
+            if (activeTarget) {
+                turretAngle = Math.atan2(activeTarget.y - (HEIGHT - 20), activeTarget.x - WIDTH / 2);
+            }
+
+            ctx.save();
+            ctx.translate(WIDTH / 2, HEIGHT - 20);
+            ctx.rotate(turretAngle);
+            ctx.fillStyle = '#38bdf8';
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 10;
+            // Barrel with recoil
+            ctx.fillRect(0, -5, Math.max(10, 32 - turretRecoil), 10);
+            ctx.restore();
+
+            // Turret Base Dome
+            ctx.save();
+            ctx.fillStyle = '#0f172a';
             ctx.strokeStyle = '#38bdf8';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 12;
             ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height - 15, 24, Math.PI, 0, false);
+            ctx.arc(WIDTH / 2, HEIGHT - 15, 28, Math.PI, 0, false);
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
 
+            // Inner Turret Core
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.arc(WIDTH / 2, HEIGHT - 16, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
             // Lasers
             lasers.forEach(l => {
+                ctx.save();
                 ctx.strokeStyle = '#38bdf8';
-                ctx.lineWidth = 3 * l.life;
+                ctx.lineWidth = 3.5 * l.life;
                 ctx.shadowColor = '#38bdf8';
-                ctx.shadowBlur = 12;
+                ctx.shadowBlur = 16;
                 ctx.beginPath();
                 ctx.moveTo(l.x1, l.y1);
                 ctx.lineTo(l.x2, l.y2);
                 ctx.stroke();
-                ctx.shadowBlur = 0;
+
+                // Bright core
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5 * l.life;
+                ctx.stroke();
+                ctx.restore();
             });
 
             // Particles
             particles.forEach(p => {
+                ctx.save();
                 ctx.fillStyle = p.color;
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = 8;
                 ctx.globalAlpha = p.life;
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, 3 * p.life, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.restore();
             });
-            ctx.globalAlpha = 1.0;
 
             // Words
             ctx.font = 'bold 20px monospace';
@@ -608,11 +695,30 @@
 
                 // Word background pill
                 const width = ctx.measureText(w.text).width;
-                ctx.fillStyle = isTarget ? 'rgba(56, 189, 248, 0.2)' : 'rgba(15, 23, 42, 0.8)';
-                ctx.strokeStyle = isTarget ? '#38bdf8' : '#2a374f';
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(w.x - width / 2 - 8, w.y - 18, width + 16, 26);
-                ctx.fillRect(w.x - width / 2 - 8, w.y - 18, width + 16, 26);
+                ctx.save();
+                ctx.fillStyle = isTarget ? 'rgba(56, 189, 248, 0.22)' : 'rgba(15, 23, 42, 0.85)';
+                ctx.strokeStyle = isTarget ? '#38bdf8' : 'rgba(56, 189, 248, 0.3)';
+                ctx.lineWidth = isTarget ? 2.5 : 1.5;
+                if (isTarget) {
+                    ctx.shadowColor = '#38bdf8';
+                    ctx.shadowBlur = 14;
+                }
+                ctx.beginPath();
+                ctx.roundRect(w.x - width / 2 - 10, w.y - 18, width + 20, 28, 6);
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+
+                // Target indicator reticle
+                if (isTarget) {
+                    ctx.save();
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.lineWidth = 1.8;
+                    ctx.beginPath();
+                    ctx.arc(w.x - width / 2 - 18, w.y - 4, 6, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                }
 
                 // Word letters
                 let curX = w.x - width / 2;
@@ -623,14 +729,36 @@
                     if (i < w.typedIndex) {
                         ctx.fillStyle = '#10b981'; // Typed letter (green)
                     } else if (isTarget && i === w.typedIndex) {
-                        ctx.fillStyle = '#f59e0b'; // Next letter to type (gold)
+                        ctx.fillStyle = '#fbbf24'; // Next letter to type (gold)
                     } else {
                         ctx.fillStyle = '#f8fafc'; // Untyped
                     }
-                    ctx.fillText(char, curX + charW / 2, w.y + 2);
+                    ctx.fillText(char, curX + charW / 2, w.y + 3);
                     curX += charW;
                 }
             });
+
+            // Draw Floating Texts
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                const ft = floatingTexts[i];
+                ft.y -= 1.0;
+                ft.life -= ft.decay;
+                if (ft.life <= 0) {
+                    floatingTexts.splice(i, 1);
+                    continue;
+                }
+                ctx.save();
+                ctx.globalAlpha = ft.life;
+                ctx.font = 'bold 16px monospace';
+                ctx.fillStyle = ft.color;
+                ctx.shadowColor = ft.color;
+                ctx.shadowBlur = 10;
+                ctx.textAlign = 'center';
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.restore();
+            }
+
+            ctx.restore();
         }
 
         function gameLoop() {

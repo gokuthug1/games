@@ -6,9 +6,9 @@
     <title>Neon Pac-Man Maze — GokuGames</title>
     <style>
         :root {
-            --bg-base: #0b0f19;
-            --bg-card: #131b2e;
-            --border: #2a374f;
+            --bg-base: #040711;
+            --bg-card: rgba(15, 23, 42, 0.85);
+            --border: #1e293b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --accent-cyan: #38bdf8;
@@ -27,88 +27,100 @@
 
         body {
             background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(30, 58, 138, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 90%, rgba(250, 204, 21, 0.05) 0%, transparent 40%),
+                linear-gradient(to bottom, #040711, #020409);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         /* Top Hub Bar */
         .hub-bar {
             width: 100%;
-            height: 48px;
-            background: rgba(19, 27, 46, 0.95);
-            border-bottom: 1px solid var(--border);
+            height: 52px;
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 16px;
+            padding: 0 20px;
             z-index: 100;
         }
 
         .hub-title {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 1px;
             color: var(--accent-yellow);
+            text-shadow: 0 0 12px rgba(250, 204, 21, 0.4);
         }
 
         .hub-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .btn-hub {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: #1e293b;
-            border: 1px solid var(--border);
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.3);
             color: var(--text-main);
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 7px 14px;
+            border-radius: 8px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.15s ease;
             text-decoration: none;
         }
 
         .btn-hub:hover {
-            background: #2a374f;
-            border-color: var(--accent-cyan);
+            background: #0284c7;
+            border-color: #38bdf8;
             color: #fff;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            transform: translateY(-1px);
         }
 
         /* Main Container */
         .game-wrapper {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             padding: 12px;
             gap: 12px;
             width: 100%;
-            max-width: 500px;
+            max-width: 900px;
         }
 
         /* HUD */
         .hud {
             width: 100%;
+            max-width: 680px;
             background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 8px 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 14px;
+            padding: 10px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
 
         .hud-stat {
@@ -118,81 +130,88 @@
 
         .hud-label {
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--text-muted);
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .hud-val {
             font-family: monospace;
-            font-size: 18px;
-            font-weight: 700;
+            font-size: 22px;
+            font-weight: 800;
             color: var(--accent-yellow);
+            text-shadow: 0 0 12px rgba(250, 204, 21, 0.4);
         }
 
         .lives-box {
             display: flex;
-            gap: 4px;
+            gap: 6px;
             align-items: center;
         }
 
         /* Canvas Frame */
         .canvas-frame {
             position: relative;
-            background: #000;
-            border: 2px solid #1e3a8a;
-            border-radius: 12px;
-            box-shadow: 0 0 25px rgba(30, 58, 138, 0.4);
+            background: #02040a;
+            border: 2px solid rgba(37, 99, 235, 0.5);
+            border-radius: 16px;
+            box-shadow: 0 0 45px rgba(37, 99, 235, 0.3), inset 0 0 30px rgba(0,0,0,0.8);
             line-height: 0;
             overflow: hidden;
-            touch-action: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         canvas {
             display: block;
+            border-radius: 14px;
         }
 
         /* Virtual D-pad for mobile */
         .dpad-container {
             display: none;
-            margin-top: 6px;
-            width: 180px;
-            height: 180px;
+            margin-top: 8px;
+            width: 170px;
+            height: 170px;
             position: relative;
         }
 
         .dpad-btn {
             position: absolute;
-            width: 54px;
-            height: 54px;
-            background: rgba(30, 41, 59, 0.9);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            width: 52px;
+            height: 52px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 14px;
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            backdrop-filter: blur(8px);
             touch-action: manipulation;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
         }
 
         .dpad-btn:active {
             background: rgba(56, 189, 248, 0.4);
             border-color: var(--accent-cyan);
-            transform: scale(0.95);
+            transform: scale(0.92);
         }
 
-        .dpad-up { top: 0; left: 63px; }
-        .dpad-down { bottom: 0; left: 63px; }
-        .dpad-left { top: 63px; left: 0; }
-        .dpad-right { top: 63px; right: 0; }
+        .dpad-up { top: 0; left: 59px; }
+        .dpad-down { bottom: 0; left: 59px; }
+        .dpad-left { top: 59px; left: 0; }
+        .dpad-right { top: 59px; right: 0; }
 
         /* Modal Overlay */
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(11, 15, 25, 0.88);
-            backdrop-filter: blur(4px);
+            background: rgba(4, 7, 17, 0.88);
+            backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -202,7 +221,7 @@
             transition: opacity 0.2s;
             z-index: 50;
             text-align: center;
-            padding: 20px;
+            padding: 24px;
         }
 
         .overlay.visible {
@@ -211,27 +230,33 @@
         }
 
         .overlay h2 {
-            font-size: 26px;
-            font-weight: 800;
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: 2px;
             color: var(--accent-yellow);
-            margin-bottom: 8px;
+            text-shadow: 0 0 20px rgba(250, 204, 21, 0.6);
+            margin-bottom: 10px;
         }
 
         .overlay p {
             font-size: 14px;
             color: var(--text-muted);
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            max-width: 300px;
+            line-height: 1.5;
         }
 
         .btn-play {
-            background: var(--accent-yellow);
-            color: #0b0f19;
-            font-size: 14px;
-            font-weight: 800;
+            background: linear-gradient(135deg, #f59e0b, #facc15);
+            color: #040711;
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 1px;
             border: none;
-            padding: 10px 24px;
-            border-radius: 8px;
+            padding: 12px 34px;
+            border-radius: 10px;
             cursor: pointer;
+            box-shadow: 0 0 25px rgba(250, 204, 21, 0.4);
             transition: transform 0.15s;
         }
 
@@ -240,14 +265,20 @@
         }
 
         .icon-svg {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             display: inline-block;
         }
 
         @media (max-width: 600px) {
             .dpad-container {
                 display: block;
+            }
+            .hud {
+                padding: 8px 16px;
+            }
+            .hud-val {
+                font-size: 18px;
             }
         }
     </style>
@@ -304,12 +335,12 @@
         </div>
 
         <!-- Canvas -->
-        <div class="canvas-frame">
-            <canvas id="pacman-canvas" width="380" height="420"></canvas>
+        <div class="canvas-frame" id="canvas-container">
+            <canvas id="pacman-canvas"></canvas>
             
             <div class="overlay" id="overlay">
                 <h2 id="overlay-title">NEON PAC-MAN</h2>
-                <p id="overlay-desc">Use Arrows or Swipe to navigate the cyber maze.</p>
+                <p id="overlay-desc">Arrows or Swipe to pilot Pac-Man through the glowing cyber maze.</p>
                 <button class="btn-play" id="btn-play" onclick="startGame()">START RUN</button>
             </div>
         </div>
@@ -428,9 +459,30 @@
         const overlayDesc = document.getElementById('overlay-desc');
         const btnPlay = document.getElementById('btn-play');
 
-        const TILE = 20;
         const COLS = 19;
         const ROWS = 21;
+        let TILE = 28;
+
+        function resizeGame() {
+            const isMobile = window.innerWidth < 600;
+            const availableH = window.innerHeight - (isMobile ? 290 : 150);
+            const availableW = window.innerWidth - 32;
+
+            const maxTileH = Math.floor(availableH / ROWS);
+            const maxTileW = Math.floor(availableW / COLS);
+            TILE = Math.max(16, Math.min(maxTileH, maxTileW, 34));
+
+            const width = TILE * COLS;
+            const height = TILE * ROWS;
+
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        window.addEventListener('resize', resizeGame);
 
         // 1: Wall, 2: Pellet, 3: Power Pellet, 0: Empty, 4: Ghost Gate
         const INITIAL_MAP = [
@@ -465,6 +517,7 @@
         let isRunning = false;
         let frightenedTimer = 0;
         let ghostsEatenInFright = 0;
+        let floatingScores = [];
 
         // Pacman State
         let pacman = {
@@ -477,10 +530,9 @@
             angle: 0,
             mouth: 0.2,
             mouthDir: 1,
-            speed: 0.12
+            speed: 0.125
         };
 
-        // Ghosts: Blinky (Red), Pinky (Pink), Inky (Cyan), Clyde (Orange)
         const GHOST_DEFS = [
             { name: 'blinky', color: '#ef4444', homeX: 9, homeY: 8 },
             { name: 'pinky',  color: '#f472b6', homeX: 9, homeY: 10 },
@@ -499,7 +551,7 @@
             for (let i = 0; i < lives; i++) {
                 const sv = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                 sv.setAttribute('class', 'icon-svg');
-                sv.setAttribute('style', 'fill: #facc15;');
+                sv.setAttribute('style', 'fill: #facc15; filter: drop-shadow(0 0 6px rgba(250,204,21,0.5));');
                 sv.setAttribute('viewBox', '0 0 24 24');
                 sv.innerHTML = '<path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10zm2 7a1.5 1.5 0 1 1-1.5-1.5A1.5 1.5 0 0 1 14 9zm2.7 6.4a8 8 0 0 1-9.4 0l4.7-3.4z"></path>';
                 livesBox.appendChild(sv);
@@ -521,13 +573,12 @@
                 y: g.homeY,
                 dirX: 0,
                 dirY: -1,
-                state: 'normal' // 'normal', 'frightened', 'eyes'
+                state: 'normal'
             }));
         }
 
         function isWall(col, row) {
             if (row < 0 || row >= ROWS) return false;
-            // Toroidal side wrap
             if (col < 0 || col >= COLS) return false;
             return map[row][col] === 1;
         }
@@ -535,14 +586,13 @@
         function canMove(x, y, dx, dy) {
             const nextX = Math.round(x + dx);
             const nextY = Math.round(y + dy);
-            if (nextX < 0 || nextX >= COLS) return true; // wrap tunnel
+            if (nextX < 0 || nextX >= COLS) return true;
             return !isWall(nextX, nextY);
         }
 
         function updatePacman() {
-            // Corner Turn Buffering
-            const nearGridX = Math.abs(pacman.x - Math.round(pacman.x)) < 0.1;
-            const nearGridY = Math.abs(pacman.y - Math.round(pacman.y)) < 0.1;
+            const nearGridX = Math.abs(pacman.x - Math.round(pacman.x)) < 0.12;
+            const nearGridY = Math.abs(pacman.y - Math.round(pacman.y)) < 0.12;
 
             if (nearGridX && nearGridY && (pacman.nextDirX !== 0 || pacman.nextDirY !== 0)) {
                 const rx = Math.round(pacman.x);
@@ -557,24 +607,20 @@
                 }
             }
 
-            // Move
             if (canMove(pacman.x, pacman.y, pacman.dirX * pacman.speed, pacman.dirY * pacman.speed)) {
                 pacman.x += pacman.dirX * pacman.speed;
                 pacman.y += pacman.dirY * pacman.speed;
 
-                // Angle update
                 if (pacman.dirX > 0) pacman.angle = 0;
                 else if (pacman.dirX < 0) pacman.angle = Math.PI;
                 else if (pacman.dirY > 0) pacman.angle = Math.PI / 2;
                 else if (pacman.dirY < 0) pacman.angle = -Math.PI / 2;
 
-                // Mouth animation
-                pacman.mouth += 0.03 * pacman.mouthDir;
+                pacman.mouth += 0.035 * pacman.mouthDir;
                 if (pacman.mouth >= 0.35) pacman.mouthDir = -1;
-                if (pacman.mouth <= 0.05) pacman.mouthDir = 1;
+                if (pacman.mouth <= 0.04) pacman.mouthDir = 1;
             }
 
-            // Wrap tunnels
             if (pacman.x < -0.5) pacman.x = COLS - 0.5;
             if (pacman.x > COLS - 0.5) pacman.x = -0.5;
 
@@ -591,7 +637,7 @@
                 } else if (cell === 3) {
                     map[gridY][gridX] = 0;
                     score += 50;
-                    frightenedTimer = 600; // ~10 seconds at 60fps
+                    frightenedTimer = 600;
                     ghostsEatenInFright = 0;
                     ghosts.forEach(g => {
                         if (g.state !== 'eyes') g.state = 'frightened';
@@ -620,20 +666,18 @@
             }
 
             ghosts.forEach((ghost) => {
-                const speed = ghost.state === 'frightened' ? 0.06 : (ghost.state === 'eyes' ? 0.18 : 0.09);
-                const nearX = Math.abs(ghost.x - Math.round(ghost.x)) < 0.1;
-                const nearY = Math.abs(ghost.y - Math.round(ghost.y)) < 0.1;
+                const speed = ghost.state === 'frightened' ? 0.065 : (ghost.state === 'eyes' ? 0.18 : 0.095);
+                const nearX = Math.abs(ghost.x - Math.round(ghost.x)) < 0.12;
+                const nearY = Math.abs(ghost.y - Math.round(ghost.y)) < 0.12;
 
                 if (nearX && nearY) {
                     const gx = Math.round(ghost.x);
                     const gy = Math.round(ghost.y);
 
-                    // Check respawn
                     if (ghost.state === 'eyes' && gx === ghost.homeX && gy === ghost.homeY) {
                         ghost.state = 'normal';
                     }
 
-                    // Choose directions at intersections
                     const dirs = [
                         { dx: 0, dy: -1 },
                         { dx: -1, dy: 0 },
@@ -641,14 +685,12 @@
                         { dx: 1, dy: 0 }
                     ];
 
-                    // Filter valid non-reverse moves
                     const validDirs = dirs.filter(d => {
                         if (d.dx === -ghost.dirX && d.dy === -ghost.dirY) return false;
                         return canMove(gx, gy, d.dx, d.dy);
                     });
 
                     if (validDirs.length > 0) {
-                        // AI Targeting
                         let targetX = pacman.x;
                         let targetY = pacman.y;
 
@@ -660,7 +702,6 @@
                             targetY = Math.random() * ROWS;
                         }
 
-                        // Pick best dir by distance
                         validDirs.sort((a, b) => {
                             const distA = Math.hypot(gx + a.dx - targetX, gy + a.dy - targetY);
                             const distB = Math.hypot(gx + b.dx - targetX, gy + b.dy - targetY);
@@ -675,7 +716,6 @@
                 ghost.x += ghost.dirX * speed;
                 ghost.y += ghost.dirY * speed;
 
-                // Collide with Pacman
                 const dist = Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y);
                 if (dist < 0.6) {
                     if (ghost.state === 'frightened') {
@@ -683,6 +723,12 @@
                         ghostsEatenInFright++;
                         const pts = 200 * Math.pow(2, ghostsEatenInFright - 1);
                         score += pts;
+                        floatingScores.push({
+                            text: `+${pts}`,
+                            x: ghost.x * TILE + TILE / 2,
+                            y: ghost.y * TILE,
+                            life: 1.0
+                        });
                         Sound.eatGhost();
                     } else if (ghost.state === 'normal') {
                         handleDeath();
@@ -742,22 +788,34 @@
                     const py = r * TILE;
 
                     if (cell === 1) {
+                        // Double Neon Wall
                         ctx.strokeStyle = '#1d4ed8';
-                        ctx.lineWidth = 2;
+                        ctx.lineWidth = 2.5;
+                        ctx.shadowColor = '#3b82f6';
+                        ctx.shadowBlur = 6;
                         ctx.strokeRect(px + 2, py + 2, TILE - 4, TILE - 4);
+                        ctx.shadowBlur = 0;
+
+                        ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(px + 4, py + 4, TILE - 8, TILE - 8);
                     } else if (cell === 2) {
-                        // Pellet
+                        // Regular Pellet
                         ctx.fillStyle = '#fef08a';
+                        ctx.shadowColor = '#fef08a';
+                        ctx.shadowBlur = 4;
                         ctx.beginPath();
-                        ctx.arc(px + TILE / 2, py + TILE / 2, 2.5, 0, Math.PI * 2);
+                        ctx.arc(px + TILE / 2, py + TILE / 2, TILE * 0.12, 0, Math.PI * 2);
                         ctx.fill();
+                        ctx.shadowBlur = 0;
                     } else if (cell === 3) {
-                        // Power Pellet
+                        // Animated Power Pellet
+                        const pulse = Math.sin(performance.now() / 150) * 2;
                         ctx.fillStyle = '#38bdf8';
                         ctx.shadowColor = '#38bdf8';
-                        ctx.shadowBlur = 8;
+                        ctx.shadowBlur = 12 + pulse * 2;
                         ctx.beginPath();
-                        ctx.arc(px + TILE / 2, py + TILE / 2, 6, 0, Math.PI * 2);
+                        ctx.arc(px + TILE / 2, py + TILE / 2, TILE * 0.28 + pulse, 0, Math.PI * 2);
                         ctx.fill();
                         ctx.shadowBlur = 0;
                     }
@@ -775,7 +833,7 @@
 
             ctx.fillStyle = '#facc15';
             ctx.shadowColor = '#facc15';
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 14;
             ctx.beginPath();
             ctx.arc(0, 0, TILE / 2 - 1, pacman.mouth * Math.PI, (2 - pacman.mouth) * Math.PI);
             ctx.lineTo(0, 0);
@@ -796,53 +854,76 @@
                 ctx.translate(px, py);
 
                 if (ghost.state === 'eyes') {
-                    // Just Eyes
+                    // Floating Retinal Eyes
                     ctx.fillStyle = '#ffffff';
                     ctx.beginPath();
-                    ctx.arc(-4, -2, 3, 0, Math.PI * 2);
-                    ctx.arc(4, -2, 3, 0, Math.PI * 2);
+                    ctx.arc(-r * 0.4, -2, r * 0.35, 0, Math.PI * 2);
+                    ctx.arc(r * 0.4, -2, r * 0.35, 0, Math.PI * 2);
                     ctx.fill();
 
-                    ctx.fillStyle = '#1d4ed8';
+                    ctx.fillStyle = '#2563eb';
                     ctx.beginPath();
-                    ctx.arc(-4 + ghost.dirX * 1.5, -2 + ghost.dirY * 1.5, 1.5, 0, Math.PI * 2);
-                    ctx.arc(4 + ghost.dirX * 1.5, -2 + ghost.dirY * 1.5, 1.5, 0, Math.PI * 2);
+                    ctx.arc(-r * 0.4 + ghost.dirX * 2, -2 + ghost.dirY * 2, r * 0.18, 0, Math.PI * 2);
+                    ctx.arc(r * 0.4 + ghost.dirX * 2, -2 + ghost.dirY * 2, r * 0.18, 0, Math.PI * 2);
                     ctx.fill();
                 } else {
-                    const color = ghost.state === 'frightened' ? (frightenedTimer < 120 && Math.floor(frightenedTimer / 10) % 2 ? '#ffffff' : '#3b82f6') : ghost.color;
+                    const isFright = ghost.state === 'frightened';
+                    const color = isFright ? (frightenedTimer < 120 && Math.floor(frightenedTimer / 10) % 2 ? '#ffffff' : '#2563eb') : ghost.color;
 
                     ctx.fillStyle = color;
                     ctx.shadowColor = color;
-                    ctx.shadowBlur = 8;
+                    ctx.shadowBlur = 10;
 
-                    // Ghost Body
+                    // Ghost Body with skirt
                     ctx.beginPath();
                     ctx.arc(0, -2, r, Math.PI, 0, false);
                     ctx.lineTo(r, r);
-                    ctx.lineTo(r / 2, r - 3);
+                    const wave = Math.sin(performance.now() / 80) * 2;
+                    ctx.lineTo(r / 2, r - 3 + wave);
                     ctx.lineTo(0, r);
-                    ctx.lineTo(-r / 2, r - 3);
+                    ctx.lineTo(-r / 2, r - 3 - wave);
                     ctx.lineTo(-r, r);
                     ctx.closePath();
                     ctx.fill();
                     ctx.shadowBlur = 0;
 
-                    // Ghost Eyes
-                    ctx.fillStyle = '#ffffff';
+                    // Eyes
+                    ctx.fillStyle = isFright ? '#fed7aa' : '#ffffff';
                     ctx.beginPath();
-                    ctx.arc(-4, -4, 2.5, 0, Math.PI * 2);
-                    ctx.arc(4, -4, 2.5, 0, Math.PI * 2);
+                    ctx.arc(-r * 0.35, -3, r * 0.3, 0, Math.PI * 2);
+                    ctx.arc(r * 0.35, -3, r * 0.3, 0, Math.PI * 2);
                     ctx.fill();
 
-                    ctx.fillStyle = ghost.state === 'frightened' ? '#ffedd5' : '#0f172a';
+                    ctx.fillStyle = isFright ? '#ea580c' : '#0f172a';
                     ctx.beginPath();
-                    ctx.arc(-4 + ghost.dirX, -4 + ghost.dirY, 1.2, 0, Math.PI * 2);
-                    ctx.arc(4 + ghost.dirX, -4 + ghost.dirY, 1.2, 0, Math.PI * 2);
+                    ctx.arc(-r * 0.35 + ghost.dirX * 1.5, -3 + ghost.dirY * 1.5, r * 0.15, 0, Math.PI * 2);
+                    ctx.arc(r * 0.35 + ghost.dirX * 1.5, -3 + ghost.dirY * 1.5, r * 0.15, 0, Math.PI * 2);
                     ctx.fill();
                 }
 
                 ctx.restore();
             });
+        }
+
+        function drawFloatingScores() {
+            for (let i = floatingScores.length - 1; i >= 0; i--) {
+                const fs = floatingScores[i];
+                fs.y -= 0.8;
+                fs.life -= 0.025;
+                if (fs.life <= 0) {
+                    floatingScores.splice(i, 1);
+                } else {
+                    ctx.font = 'bold 16px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.shadowColor = '#38bdf8';
+                    ctx.shadowBlur = 8;
+                    ctx.globalAlpha = fs.life;
+                    ctx.fillText(fs.text, fs.x, fs.y);
+                    ctx.shadowBlur = 0;
+                }
+            }
+            ctx.globalAlpha = 1.0;
         }
 
         function gameLoop() {
@@ -855,6 +936,7 @@
             drawMap();
             drawPacman();
             drawGhosts();
+            drawFloatingScores();
 
             requestAnimationFrame(gameLoop);
         }
@@ -864,12 +946,13 @@
             initMap();
             score = 0;
             lives = 3;
+            floatingScores = [];
             updateLivesUI();
             resetPositions();
             isRunning = true;
+            resizeGame();
         }
 
-        // Input
         function setDirection(dx, dy) {
             pacman.nextDirX = dx;
             pacman.nextDirY = dy;
@@ -908,6 +991,7 @@
             }
         }, { passive: true });
 
+        resizeGame();
         updateLivesUI();
         overlay.classList.add('visible');
         requestAnimationFrame(gameLoop);

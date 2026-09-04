@@ -6,9 +6,9 @@
     <title>Cyber Flappy Jet — GokuGames</title>
     <style>
         :root {
-            --bg-base: #0b0f19;
-            --bg-card: #131b2e;
-            --border: #2a374f;
+            --bg-base: #060913;
+            --bg-card: rgba(15, 23, 42, 0.85);
+            --border: #1e293b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --accent-cyan: #38bdf8;
@@ -27,6 +27,9 @@
 
         body {
             background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 60%),
+                linear-gradient(to bottom, #060913, #02040a);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             min-height: 100vh;
@@ -39,52 +42,56 @@
         /* Top Hub Bar */
         .hub-bar {
             width: 100%;
-            height: 48px;
-            background: rgba(19, 27, 46, 0.95);
-            border-bottom: 1px solid var(--border);
+            height: 52px;
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 16px;
+            padding: 0 20px;
             z-index: 100;
         }
 
         .hub-title {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 1px;
             color: var(--accent-cyan);
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
         }
 
         .hub-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .btn-hub {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: #1e293b;
-            border: 1px solid var(--border);
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.3);
             color: var(--text-main);
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 7px 14px;
+            border-radius: 8px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.15s ease;
             text-decoration: none;
         }
 
         .btn-hub:hover {
-            background: #2a374f;
-            border-color: var(--accent-cyan);
+            background: #0284c7;
+            border-color: #38bdf8;
             color: #fff;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+            transform: translateY(-1px);
         }
 
         /* Main Game Layout */
@@ -94,23 +101,26 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 12px;
+            padding: 16px;
             position: relative;
             width: 100%;
-            max-width: 440px;
+            max-width: 900px;
         }
 
         .canvas-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
-            aspect-ratio: 9 / 14;
+            max-width: 800px;
+            height: min(calc(100vh - 100px), 640px);
             background: #020617;
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+            border: 2px solid rgba(56, 189, 248, 0.35);
+            border-radius: 20px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.7), 0 0 35px rgba(56, 189, 248, 0.15);
             overflow: hidden;
             touch-action: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         canvas {
@@ -123,8 +133,8 @@
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(11, 15, 25, 0.85);
-            backdrop-filter: blur(6px);
+            background: rgba(6, 9, 19, 0.88);
+            backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -143,10 +153,12 @@
         }
 
         .overlay h2 {
-            font-size: 26px;
-            font-weight: 800;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 2px;
             color: var(--accent-cyan);
-            margin-bottom: 8px;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+            margin-bottom: 10px;
         }
 
         .overlay p {
@@ -154,19 +166,21 @@
             color: var(--text-muted);
             margin-bottom: 24px;
             line-height: 1.5;
+            max-width: 320px;
         }
 
         .btn-boost {
-            background: var(--accent-cyan);
-            color: #0b0f19;
-            font-size: 15px;
-            font-weight: 800;
-            padding: 12px 32px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            color: #040711;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            padding: 14px 40px;
+            border-radius: 12px;
             border: none;
             cursor: pointer;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.5);
             transition: transform 0.15s;
-            box-shadow: 0 4px 20px rgba(56, 189, 248, 0.4);
         }
 
         .btn-boost:hover {
@@ -174,8 +188,8 @@
         }
 
         .icon-svg {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             display: inline-block;
         }
     </style>
@@ -214,13 +228,13 @@
 
     <!-- Game Arena -->
     <main class="game-layout">
-        <div class="canvas-container">
-            <canvas id="flappy-canvas" width="360" height="560"></canvas>
+        <div class="canvas-container" id="canvas-wrapper">
+            <canvas id="flappy-canvas"></canvas>
             
             <div class="overlay" id="overlay">
                 <h2 id="overlay-title">CYBER JET</h2>
-                <p id="overlay-desc">Tap screen or press Spacebar to engage thrusters.</p>
-                <button class="btn-boost" id="btn-start" onclick="startGame()">ENGAGE</button>
+                <p id="overlay-desc">Tap screen or Spacebar to fire pulse thrusters through neon defense gates.</p>
+                <button class="btn-boost" id="btn-start" onclick="startGame()">ENGAGE THRUST</button>
             </div>
         </div>
     </main>
@@ -279,7 +293,7 @@
                     enabled = !enabled;
                     return enabled;
                 },
-                flap: () => tone(420, 0.08, 'triangle', 0.15),
+                flap: () => tone(440, 0.08, 'triangle', 0.15),
                 score: () => {
                     tone(600, 0.08, 'sine', 0.15);
                     setTimeout(() => tone(900, 0.12, 'sine', 0.15), 60);
@@ -304,6 +318,7 @@
         /* Game Mechanics */
         const canvas = document.getElementById('flappy-canvas');
         const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-wrapper');
         const overlay = document.getElementById('overlay');
         const overlayTitle = document.getElementById('overlay-title');
         const overlayDesc = document.getElementById('overlay-desc');
@@ -312,34 +327,55 @@
         let isRunning = false;
         let score = 0;
         let highScore = parseInt(localStorage.getItem('flappy_high_score') || '0');
+        let screenShake = 0;
+
+        function resizeGame() {
+            const rect = container.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        window.addEventListener('resize', resizeGame);
 
         // Drone / Jet
         const drone = {
-            x: 70,
+            x: 100,
             y: 250,
-            radius: 14,
+            radius: 16,
             vy: 0,
             gravity: 0.38,
-            jump: -6.8,
+            jump: -7.0,
             angle: 0
         };
 
         // Obstacles (Laser Gates)
         let gates = [];
         let gateTimer = 0;
-        const GATE_GAP = 135;
-        const GATE_WIDTH = 48;
-        const GATE_SPEED = 2.4;
+        const GATE_GAP = 160;
+        const GATE_WIDTH = 54;
+        const GATE_SPEED = 2.8;
 
-        // Particle Exhaust
+        // Background Cyber Skyline buildings
+        let buildings = [];
+        for (let i = 0; i < 15; i++) {
+            buildings.push({
+                x: i * 80,
+                w: 60 + Math.random() * 40,
+                h: 100 + Math.random() * 200,
+                color: Math.random() > 0.5 ? '#090e1f' : '#0c1328'
+            });
+        }
+
         let particles = [];
 
         function createGate() {
-            const minH = 60;
-            const maxH = canvas.height - GATE_GAP - minH;
+            const h = container.clientHeight || 500;
+            const minH = 70;
+            const maxH = h - GATE_GAP - minH;
             const topH = Math.floor(Math.random() * (maxH - minH + 1)) + minH;
             gates.push({
-                x: canvas.width,
+                x: container.clientWidth || 800,
                 top: topH,
                 bottom: topH + GATE_GAP,
                 passed: false
@@ -351,15 +387,15 @@
             drone.vy = drone.jump;
             Sound.flap();
 
-            // Emit particle burst
-            for (let i = 0; i < 6; i++) {
+            // Particle exhaust
+            for (let i = 0; i < 8; i++) {
                 particles.push({
-                    x: drone.x - 12,
+                    x: drone.x - 16,
                     y: drone.y + (Math.random() * 8 - 4),
-                    vx: -(Math.random() * 3 + 2),
+                    vx: -(Math.random() * 4 + 3),
                     vy: (Math.random() * 4 - 2),
                     life: 1.0,
-                    color: Math.random() > 0.5 ? '#38bdf8' : '#f59e0b'
+                    color: Math.random() > 0.4 ? '#38bdf8' : '#f59e0b'
                 });
             }
         }
@@ -367,16 +403,17 @@
         function update() {
             if (!isRunning) return;
 
+            const h = container.clientHeight || 500;
+            const w = container.clientWidth || 800;
+
             // Physics
             drone.vy += drone.gravity;
             drone.y += drone.vy;
-
-            // Calculate rotation angle
             drone.angle = Math.min(Math.PI / 4, Math.max(-Math.PI / 5, (drone.vy / 10)));
 
-            // Floor & Ceiling bounds
-            if (drone.y + drone.radius >= canvas.height - 10) {
-                drone.y = canvas.height - 10 - drone.radius;
+            // Bounds
+            if (drone.y + drone.radius >= h - 10) {
+                drone.y = h - 10 - drone.radius;
                 gameOver();
                 return;
             }
@@ -385,9 +422,15 @@
                 drone.vy = 0;
             }
 
+            // Move Skyline
+            buildings.forEach(b => {
+                b.x -= 0.6;
+                if (b.x + b.w < 0) b.x = w + 40;
+            });
+
             // Gates
             gateTimer++;
-            if (gateTimer > 95) {
+            if (gateTimer > 110) {
                 gateTimer = 0;
                 createGate();
             }
@@ -410,13 +453,13 @@
                 // Collision detection
                 if (drone.x + drone.radius > g.x && drone.x - drone.radius < g.x + GATE_WIDTH) {
                     if (drone.y - drone.radius < g.top || drone.y + drone.radius > g.bottom) {
+                        screenShake = 15;
                         gameOver();
                         return;
                     }
                 }
 
-                // Remove offscreen
-                if (g.x + GATE_WIDTH < -20) {
+                if (g.x + GATE_WIDTH < -30) {
                     gates.splice(i, 1);
                 }
             }
@@ -426,61 +469,78 @@
                 const p = particles[i];
                 p.x += p.vx;
                 p.y += p.vy;
-                p.life -= 0.04;
+                p.life -= 0.035;
                 if (p.life <= 0) particles.splice(i, 1);
             }
+
+            if (screenShake > 0) screenShake--;
         }
 
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const w = container.clientWidth || 800;
+            const h = container.clientHeight || 500;
 
-            // Background cyber grid lines
-            ctx.strokeStyle = 'rgba(30, 58, 138, 0.15)';
-            ctx.lineWidth = 1;
-            for (let x = 0; x < canvas.width; x += 30) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
-                ctx.stroke();
-            }
-            for (let y = 0; y < canvas.height; y += 30) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
+            ctx.save();
+            if (screenShake > 0) {
+                ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
             }
 
-            // Draw Gates
+            ctx.clearRect(0, 0, w, h);
+
+            // 1. Draw Parallax Skyline
+            buildings.forEach(b => {
+                ctx.fillStyle = b.color;
+                ctx.fillRect(b.x, h - b.h, b.w, b.h);
+
+                // Window lights
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+                for (let wy = h - b.h + 20; wy < h - 20; wy += 28) {
+                    for (let wx = b.x + 8; wx < b.x + b.w - 12; wx += 14) {
+                        ctx.fillRect(wx, wy, 6, 12);
+                    }
+                }
+            });
+
+            // Grid Floor
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, h - 8);
+            ctx.lineTo(w, h - 8);
+            ctx.stroke();
+
+            // 2. Draw Gates
             gates.forEach(g => {
-                // Top Gate
-                ctx.fillStyle = '#0f172a';
-                ctx.strokeStyle = '#38bdf8';
+                // Top Gate Conduit
+                ctx.fillStyle = '#0a0f1d';
+                ctx.strokeStyle = '#0284c7';
                 ctx.lineWidth = 2;
                 ctx.fillRect(g.x, 0, GATE_WIDTH, g.top);
                 ctx.strokeRect(g.x, 0, GATE_WIDTH, g.top);
 
-                // Top Gate Emitter Bar
+                // Top Emitter Cap
                 ctx.fillStyle = '#38bdf8';
                 ctx.shadowColor = '#38bdf8';
-                ctx.shadowBlur = 10;
-                ctx.fillRect(g.x - 4, g.top - 12, GATE_WIDTH + 8, 12);
+                ctx.shadowBlur = 12;
+                ctx.fillRect(g.x - 4, g.top - 16, GATE_WIDTH + 8, 16);
                 ctx.shadowBlur = 0;
 
-                // Bottom Gate
-                ctx.fillStyle = '#0f172a';
-                ctx.fillRect(g.x, g.bottom, GATE_WIDTH, canvas.height - g.bottom);
-                ctx.strokeRect(g.x, g.bottom, GATE_WIDTH, canvas.height - g.bottom);
+                // Bottom Gate Conduit
+                ctx.fillStyle = '#0a0f1d';
+                ctx.fillRect(g.x, g.bottom, GATE_WIDTH, h - g.bottom);
+                ctx.strokeRect(g.x, g.bottom, GATE_WIDTH, h - g.bottom);
 
-                // Bottom Gate Emitter Bar
+                // Bottom Emitter Cap
                 ctx.fillStyle = '#38bdf8';
                 ctx.shadowColor = '#38bdf8';
-                ctx.shadowBlur = 10;
-                ctx.fillRect(g.x - 4, g.bottom, GATE_WIDTH + 8, 12);
+                ctx.shadowBlur = 12;
+                ctx.fillRect(g.x - 4, g.bottom, GATE_WIDTH + 8, 16);
                 ctx.shadowBlur = 0;
 
-                // Laser Beam Preview inside gap
-                ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
-                ctx.setLineDash([4, 4]);
+                // Electric Laser Arc inside gap
+                const arcGlow = Math.sin(performance.now() / 100) * 0.1 + 0.2;
+                ctx.strokeStyle = `rgba(56, 189, 248, ${arcGlow})`;
+                ctx.setLineDash([6, 6]);
                 ctx.beginPath();
                 ctx.moveTo(g.x + GATE_WIDTH / 2, g.top);
                 ctx.lineTo(g.x + GATE_WIDTH / 2, g.bottom);
@@ -488,63 +548,68 @@
                 ctx.setLineDash([]);
             });
 
-            // Draw Particles
+            // 3. Draw Particles
             particles.forEach(p => {
                 ctx.fillStyle = p.color;
                 ctx.globalAlpha = p.life;
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, 3 * p.life, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, 3.5 * p.life, 0, Math.PI * 2);
                 ctx.fill();
             });
             ctx.globalAlpha = 1.0;
 
-            // Draw Drone
+            // 4. Draw Drone
             ctx.save();
             ctx.translate(drone.x, drone.y);
             ctx.rotate(drone.angle);
 
-            // Thruster Glow
+            // Plasma Thruster Flame
             ctx.fillStyle = '#f59e0b';
             ctx.shadowColor = '#f59e0b';
-            ctx.shadowBlur = 12;
+            ctx.shadowBlur = 15;
             ctx.beginPath();
-            ctx.moveTo(-12, 0);
-            ctx.lineTo(-20, -5);
-            ctx.lineTo(-24, 0);
-            ctx.lineTo(-20, 5);
+            ctx.moveTo(-16, 0);
+            ctx.lineTo(-26, -7);
+            ctx.lineTo(-32, 0);
+            ctx.lineTo(-26, 7);
             ctx.closePath();
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // Chassis
+            // Main Hull
             ctx.fillStyle = '#0284c7';
             ctx.strokeStyle = '#38bdf8';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 2.5;
             ctx.beginPath();
-            ctx.moveTo(14, 0);
-            ctx.lineTo(-10, -10);
-            ctx.lineTo(-6, 0);
-            ctx.lineTo(-10, 10);
+            ctx.moveTo(18, 0);
+            ctx.lineTo(-14, -12);
+            ctx.lineTo(-8, 0);
+            ctx.lineTo(-14, 12);
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
 
-            // Cockpit Canopy
+            // Cockpit Dome
             ctx.fillStyle = '#f8fafc';
+            ctx.shadowColor = '#38bdf8';
+            ctx.shadowBlur = 6;
             ctx.beginPath();
-            ctx.arc(2, 0, 4, 0, Math.PI * 2);
+            ctx.arc(2, 0, 4.5, 0, Math.PI * 2);
             ctx.fill();
+            ctx.shadowBlur = 0;
 
             ctx.restore();
 
-            // Draw Score HUD
+            // 5. Score HUD
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 36px monospace';
+            ctx.font = 'bold 44px monospace';
             ctx.textAlign = 'center';
-            ctx.shadowColor = 'rgba(0,0,0,0.8)';
-            ctx.shadowBlur = 6;
-            ctx.fillText(score, canvas.width / 2, 60);
+            ctx.shadowColor = 'rgba(0,0,0,0.9)';
+            ctx.shadowBlur = 8;
+            ctx.fillText(score, w / 2, 70);
             ctx.shadowBlur = 0;
+
+            ctx.restore();
         }
 
         function gameLoop() {
@@ -555,14 +620,17 @@
 
         function startGame() {
             overlay.classList.remove('visible');
-            drone.y = 250;
+            const h = container.clientHeight || 500;
+            drone.y = h / 2;
             drone.vy = 0;
             drone.angle = 0;
             gates = [];
             particles = [];
             gateTimer = 0;
             score = 0;
+            screenShake = 0;
             isRunning = true;
+            resizeGame();
             flap();
         }
 
@@ -571,7 +639,7 @@
             Sound.hit();
             overlayTitle.textContent = "HULL BREACHED";
             overlayTitle.style.color = "#f43f5e";
-            overlayDesc.textContent = `Gate Score: ${score} | Record: ${highScore}`;
+            overlayDesc.textContent = `Score: ${score} | High Score: ${highScore}`;
             btnStart.textContent = "RELAUNCH JET";
             overlay.classList.add('visible');
         }
@@ -591,6 +659,7 @@
             else flap();
         });
 
+        resizeGame();
         overlay.classList.add('visible');
         requestAnimationFrame(gameLoop);
     </script>

@@ -76,12 +76,12 @@
       flex: 1;
       position: relative;
       width: 100%;
-      max-width: 960px;
+      max-width: 1140px;
       margin: 0 auto;
-      padding: 16px 8px;
+      padding: 16px 12px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
     }
 
     /* Top Row: Stock, Waste, and Foundations */
@@ -89,33 +89,34 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 8px;
+      gap: 12px;
       width: 100%;
     }
     .deck-group, .foundation-group {
       display: flex;
-      gap: 8px;
+      gap: 12px;
     }
 
     /* Card Piles & Slots */
     .pile-slot {
-      width: 12vw;
-      height: 17vw;
-      max-width: 90px;
-      max-height: 126px;
+      width: clamp(46px, 11.5vw, 120px);
+      height: clamp(65px, 16.1vw, 168px);
+      max-width: 120px;
+      max-height: 168px;
       min-width: 44px;
       min-height: 62px;
-      border: 2px dashed rgba(52, 211, 153, 0.3);
-      border-radius: 8px;
+      border: 2px dashed rgba(52, 211, 153, 0.35);
+      border-radius: 10px;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
     }
     .pile-slot.foundation-slot svg {
-      width: 24px;
-      height: 24px;
+      width: clamp(24px, 3.2vw, 36px);
+      height: clamp(24px, 3.2vw, 36px);
       fill: rgba(52, 211, 153, 0.25);
     }
 
@@ -123,42 +124,43 @@
     .table-bottom-row {
       display: flex;
       justify-content: space-between;
-      gap: 8px;
+      gap: 12px;
       width: 100%;
       flex: 1;
     }
     .tableau-column {
-      width: 12vw;
-      max-width: 90px;
+      width: clamp(46px, 11.5vw, 120px);
+      max-width: 120px;
       min-width: 44px;
       position: relative;
-      min-height: 200px;
+      min-height: 250px;
       flex-shrink: 0;
     }
 
     /* Vector SVG Cards */
     .card {
-      width: 12vw;
-      height: 17vw;
-      max-width: 90px;
-      max-height: 126px;
+      width: clamp(46px, 11.5vw, 120px);
+      height: clamp(65px, 16.1vw, 168px);
+      max-width: 120px;
+      max-height: 168px;
       min-width: 44px;
       min-height: 62px;
-      border-radius: 7px;
+      border-radius: 9px;
       position: absolute;
       background: #ffffff;
       color: #0f172a;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0,0,0,0.12);
       cursor: pointer;
       user-select: none;
-      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 4px 5px;
+      padding: 6px 8px;
     }
     .card:hover {
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), 0 0 12px rgba(52, 211, 153, 0.3);
+      transform: translateY(-2px);
     }
     .card.red {
       color: #dc2626;
@@ -176,13 +178,13 @@
       transform: rotate(180deg);
     }
     .card-rank {
-      font-size: 13px;
-      font-weight: 800;
+      font-size: clamp(13px, 1.8vw, 18px);
+      font-weight: 900;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     .suit-icon {
-      width: 12px;
-      height: 12px;
+      width: clamp(12px, 1.6vw, 16px);
+      height: clamp(12px, 1.6vw, 16px);
       fill: currentColor;
     }
     .card-center-suit {
@@ -190,8 +192,8 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 26px;
-      height: 26px;
+      width: clamp(26px, 3.8vw, 42px);
+      height: clamp(26px, 3.8vw, 42px);
       fill: currentColor;
       opacity: 0.9;
     }
