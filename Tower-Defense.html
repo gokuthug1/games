@@ -1320,11 +1320,12 @@ class Tower {
 
     upgrade() {
         if (this.level >= this.maxLevel) return;
+        const currentCost = this.upgradeCost;
         this.level++; 
         this.damageMult *= 1.45;
         this.rangeMult *= 1.08;
         this.speedMult *= 0.88;
-        this.totalSpent += this.upgradeCost;
+        this.totalSpent += currentCost;
         
         Game.playSound('upgrade'); 
         Game.spawnParticles(this.pos.x, this.pos.y, '#f59e0b', 16, true);
@@ -2413,7 +2414,11 @@ const Game = {
         let incoming = 0;
         for (const p of this.projectiles) {
             if (p.active && p.target === enemy) {
-                incoming += p.dmg;
+                let d = p.dmg;
+                if (p.sourceTower && p.sourceTower.typeKey === 'SNIPER' && (enemy.isBoss || enemy.armor > 0)) {
+                    d *= 1.25;
+                }
+                incoming += d;
             }
         }
         return incoming;
@@ -2722,6 +2727,10 @@ const Game = {
 
     toggleFullscreen() {
         this.playSound('click');
+        if (window.self !== window.top) {
+            window.parent.postMessage({ action: 'toggleFullscreen' }, '*');
+            return;
+        }
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(() => {});
         } else {
