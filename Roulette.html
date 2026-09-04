@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Elite - European Roulette</title>
+    <style>
+        /* CSS Reset & Variable Definitions */
+        :root {
+            --casino-green: #023013;
+            --felt-green: #0c3c26;
+            --felt-hover: #145c3b;
+            --gold-accent: #d4af37;
+            --gold-light: #f3e5ab;
+            --roulette-red: #a60a0a;
+            --roulette-black: #1a1a1a;
+            --roulette-green: #015a1c;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #0c3c26 0%, #031c11 100%);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Container Layouts */
+        .casino-app {
+            width: 95%;
+            max-width: 1250px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--gold-accent);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 20px auto;
+            box-sizing: border-box;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 14px;
+        }
+
+        .brand {
+            font-family: 'Georgia', serif;
+            color: var(--gold-accent);
+            letter-spacing: 2px;
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .main-pane {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* Roulette Wheel Section */
+        .wheel-panel {
+            flex: 1;
+            min-width: 320px;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .wheel-bezel {
+            width: 100%;
+            aspect-ratio: 1;
+            background: radial-gradient(circle, #3d1c02 60%, #170a00 100%);
+            border: 8px solid var(--gold-accent);
+            border-radius: 50%;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.8), inset 0 5px 15px rgba(255,255,255,0.2);
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: block;
+        }
+
+        /* Betting Table Grid Layout */
+        .board-panel {
+            flex: 2;
+            min-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .board-scroll-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 6px;
+            padding-bottom: 5px;
+        }
+
+        .betting-board-container {
+            display: grid;
+            grid-template-columns: 50px repeat(12, 1fr) 60px;
+            grid-template-rows: repeat(3, 44px) 40px 40px;
+            gap: 2px;
+            background-color: var(--gold-accent);
+            padding: 2px;
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            min-width: 780px;
+            position: relative;
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+        .bet-cell {
+            background-color: var(--felt-green);
+            color: var(--gold-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.1s, box-shadow 0.1s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+            border-radius: 2px;
+            box-sizing: border-box;
+        }
+
+        .bet-cell:hover {
+            background-color: var(--felt-hover);
+        }
+
+        .bet-cell.highlight {
+            box-shadow: inset 0 0 15px rgba(255, 224, 102, 0.9);
+            outline: 2px solid var(--gold-light);
+            z-index: 10;
+        }
+
+        /* Specific Cell Configurations */
+        .bet-cell.red { background-color: var(--roulette-red); color: #fff; }
+        .bet-cell.black { background-color: var(--roulette-black); color: #fff; }
+        
+        .bet-cell.zero {
+            background-color: var(--roulette-green);
+            color: #fff;
+            grid-column: 1;
+            grid-row: 1 / span 3;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+            font-size: 18px;
+        }
+
+        .col-bet[data-value="0"] { grid-column: 14; grid-row: 1; border-top-right-radius: 4px; }
+        .col-bet[data-value="1"] { grid-column: 14; grid-row: 2; }
+        .col-bet[data-value="2"] { grid-column: 14; grid-row: 3; border-bottom-right-radius: 4px; }
+        
+        .dozen-bet[data-value="1"] { grid-column: 2 / span 4; grid-row: 4; }
+        .dozen-bet[data-value="2"] { grid-column: 6 / span 4; grid-row: 4; }
+        .dozen-bet[data-value="3"] { grid-column: 10 / span 4; grid-row: 4; }
+        
+        .outside-bet[data-value="low"] { grid-column: 2 / span 2; grid-row: 5; border-bottom-left-radius: 4px; }
+        .outside-bet[data-value="even"] { grid-column: 4 / span 2; grid-row: 5; }
+        .outside-bet[data-value="red"] { grid-column: 6 / span 2; grid-row: 5; background-color: var(--roulette-red); }
+        .outside-bet[data-value="black"] { grid-column: 8 / span 2; grid-row: 5; background-color: var(--roulette-black); }
+        .outside-bet[data-value="odd"] { grid-column: 10 / span 2; grid-row: 5; }
+        .outside-bet[data-value="high"] { grid-column: 12 / span 2; grid-row: 5; border-bottom-right-radius: 4px; }
+
+        .diamond {
+            font-size: 16px;
+            vertical-align: middle;
+            margin-right: 4px;
+            color: #fff;
+        }
+
+        /* Chip Placement System CSS */
+        .chips-overlay-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .placed-chip {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 8px;
+            color: white;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+            border: 2px dashed #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.6), inset 0 0 5px rgba(0,0,0,0.5);
+            transform: translate(-50%, -50%);
+            transition: top 0.2s ease, left 0.2s ease;
+        }
+
+        /* Hover Preview Chip */
+        .chip-preview {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 9px;
+            color: white;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+            border: 2px dashed rgba(255,255,255,0.8);
+            box-shadow: 0 0 8px rgba(255,224,102,0.8);
+            opacity: 0.65;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 25;
+        }
+
+        /* Clay Chip Denominations & Aesthetics */
+        .chip-1 { background-color: #1e3a8a; border-color: #60a5fa; }
+        .chip-5 { background-color: #7f1d1d; border-color: #f87171; }
+        .chip-25 { background-color: #064e3b; border-color: #34d399; }
+        .chip-100 { background-color: #111827; border-color: #9ca3af; }
+        .chip-500 { background-color: #581c87; border-color: #c084fc; }
+
+        /* HUD & Panels */
+        .dashboard {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .stat-box {
+            flex: 1;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 10px 15px;
+            border-radius: 6px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #8fa096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .stat-value.gold {
+            color: var(--gold-accent);
+        }
+
+        /* Result Alert Overlay */
+        .result-banner {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 800;
+            display: none;
+            box-sizing: border-box;
+            border: 2px solid;
+            animation: banner-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes banner-pop {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .result-banner.win {
+            background: linear-gradient(135deg, #0f5132 0%, #157347 100%);
+            border-color: var(--gold-accent);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .result-banner.lose {
+            background: linear-gradient(135deg, #212529 0%, #343a40 100%);
+            border-color: #495057;
+            color: #e0e0e0;
+        }
+
+        .result-highlight {
+            font-size: 26px;
+            color: var(--gold-accent);
+            text-shadow: 0 0 8px rgba(255,215,0,0.8);
+            margin: 0 6px;
+            vertical-align: middle;
+        }
+
+        .result-details {
+            font-size: 11px;
+            color: #ccc;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Controls Section */
+        .controls-pane {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            border-top: 1px solid var(--glass-border);
+            padding-top: 20px;
+        }
+
+        .chip-selector-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chip-selection {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 13px;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            border: 3px dashed #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 0 10px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .chip-selection:hover {
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.5);
+        }
+
+        .chip-selection.active {
+            transform: scale(1.15) translateY(-4px);
+            box-shadow: 0 0 15px var(--gold-accent);
+            border-style: solid;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .casino-btn {
+            background: linear-gradient(180deg, #ffd700 0%, #b8860b 100%);
+            border: 1px solid var(--gold-accent);
+            color: #000;
+            font-weight: 800;
+            padding: 12px 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            transition: transform 0.1s, box-shadow 0.1s, filter 0.2s;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        .casino-btn:hover:not(:disabled) {
+            filter: brightness(1.15);
+            transform: translateY(-1px);
+        }
+
+        .casino-btn:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .casino-btn:disabled {
+            background: linear-gradient(180deg, #444 0%, #222 100%);
+            border-color: #333;
+            color: #777;
+            cursor: not-allowed;
+            box-shadow: none;
+            text-shadow: none;
+        }
+
+        .btn-spin {
+            background: linear-gradient(180deg, #00e676 0%, #00a152 100%);
+            border-color: #00e676;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+            padding-left: 30px;
+            padding-right: 30px;
+        }
+
+        .btn-spin.pulsate:not(:disabled) {
+            animation: spin-pulse 1.6s infinite ease-in-out;
+        }
+
+        @keyframes spin-pulse {
+            0%, 100% { box-shadow: 0 4px 8px rgba(0,230,118,0.4); }
+            50% { box-shadow: 0 4px 20px rgba(0,230,118,0.8); }
+        }
+
+        /* History & Auxiliary Statistics Panels */
+        .meta-pane {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .meta-card {
+            flex: 1;
+            min-width: 250px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 11px;
+            color: #8fa096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .history-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            min-height: 32px;
+            align-items: center;
+        }
+
+        .history-pill {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            animation: slide-in-pill 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        @keyframes slide-in-pill {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .history-pill.red { background-color: var(--roulette-red); color: white; border: 1px solid var(--gold-accent); }
+        .history-pill.black { background-color: var(--roulette-black); color: white; border: 1px solid var(--gold-accent); }
+        .history-pill.green { background-color: var(--roulette-green); color: white; border: 1px solid var(--gold-accent); }
+
+        .stats-bar-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stats-bar-wrapper {
+            background-color: rgba(255,255,255,0.05);
+            height: 22px;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            font-size: 11px;
+            font-weight: 800;
+            line-height: 22px;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.6);
+        }
+
+        .bar-segment {
+            transition: width 0.3s ease;
+            text-align: center;
+        }
+
+        .bar-segment.red { background-color: var(--roulette-red); }
+        .bar-segment.black { background-color: var(--roulette-black); }
+        .bar-segment.green { background-color: var(--roulette-green); }
+
+        /* Animation utilities */
+        .spinning {
+            cursor: not-allowed !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @media(max-width: 1040px) {
+            .main-pane {
+                flex-direction: column;
+                align-items: center;
+            }
+            .board-panel {
+                width: 100%;
+                min-width: 0;
+            }
+        }
+    
+    /* Top Hub Bar */
+    .hub-bar {
+      width: 100%;
+      height: 48px;
+      background: rgba(12, 60, 38, 0.95);
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 100;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .hub-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #d4af37;
+    }
+    .hub-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-hub {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #f0f6fc;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .btn-hub:hover {
+      background: #30363d;
+      border-color: #58a6ff;
+      color: #fff;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Top Hub Navigation Bar -->
+  <header class="hub-bar">
+    <div class="hub-title" style="color: #d4af37;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      <span>ROYAL ELITE ROULETTE</span>
+    </div>
+    <div class="hub-actions">
+      <button class="btn-hub" onclick="toggleHubFullscreen()" title="Toggle Fullscreen">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+        </svg>
+      </button>
+      <button class="btn-hub" onclick="returnToHub()" title="Return to Arcade Hub">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>HUB</span>
+      </button>
+    </div>
+  </header>
+
+
+    <div class="casino-app">
+        <header>
+            <h1 class="brand">ROYAL ELITE CASINO</h1>
+            <div style="font-size: 11px; color: var(--gold-accent); border: 1px solid var(--gold-accent); padding: 4px 8px; border-radius: 4px;">
+                EUROPEAN RULES
+            </div>
+        </header>
+
+        <div class="main-pane">
+            <!-- Left Pane: Wheel & Real-Time Stats Banner -->
+            <div class="wheel-panel">
+                <div class="wheel-bezel">
+                    <canvas id="wheel-canvas"></canvas>
+                </div>
+                <div class="dashboard">
+                    <div class="stat-box" id="bankroll-display">
+                        <span class="stat-label">Bankroll</span>
+                        <span class="stat-value gold" id="bankroll-val">$1,000</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Active Bet</span>
+                        <span class="stat-value" id="bet-val">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Pane: Betting Board & Displays -->
+            <div class="board-panel">
+                <div class="result-banner" id="result-banner"></div>
+                
+                <div class="board-scroll-wrapper">
+                    <div class="betting-board-container" id="board-container">
+                        <!-- Zero Column -->
+                        <div class="bet-cell zero" data-num="0">0</div>
+                        
+                        <!-- Number Grid (Rows 1-3, Columns 1-12 generated dynamically) -->
+                        
+                        <!-- Column Bets -->
+                        <div class="bet-cell col-bet" data-type="column" data-value="0">2 to 1</div>
+                        <div class="bet-cell col-bet" data-type="column" data-value="1">2 to 1</div>
+                        <div class="bet-cell col-bet" data-type="column" data-value="2">2 to 1</div>
+
+                        <!-- Dozens -->
+                        <div class="bet-cell dozen-bet" data-type="dozen" data-value="1">1st 12</div>
+                        <div class="bet-cell dozen-bet" data-type="dozen" data-value="2">2nd 12</div>
+                        <div class="bet-cell dozen-bet" data-type="dozen" data-value="3">3rd 12</div>
+
+                        <!-- Outside Bets Row -->
+                        <div class="bet-cell outside-bet" data-type="lowhigh" data-value="low">1-18</div>
+                        <div class="bet-cell outside-bet" data-type="evenodd" data-value="even">Even</div>
+                        <div class="bet-cell outside-bet" data-type="color" data-value="red">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block; vertical-align:middle; margin-right:4px;"><polygon points="12 2 22 12 12 22 2 12"/></svg>Red
+                        </div>
+                        <div class="bet-cell outside-bet" data-type="color" data-value="black">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block; vertical-align:middle; margin-right:4px;"><polygon points="12 2 22 12 12 22 2 12"/></svg>Black
+                        </div>
+                        <div class="bet-cell outside-bet" data-type="evenodd" data-value="odd">Odd</div>
+                        <div class="bet-cell outside-bet" data-type="lowhigh" data-value="high">19-36</div>
+
+                        <!-- Graphics Containers Overlay -->
+                        <div class="chips-overlay-container" id="chips-overlay"></div>
+                        <div class="chip-preview" id="preview-chip"></div>
+                    </div>
+                </div>
+
+                <!-- Interface Navigation, Chips & Betting Buttons -->
+                <div class="controls-pane">
+                    <div class="chip-selector-group">
+                        <div class="chip-selection chip-1 active" data-val="1">1</div>
+                        <div class="chip-selection chip-5" data-val="5">5</div>
+                        <div class="chip-selection chip-25" data-val="25">25</div>
+                        <div class="chip-selection chip-100" data-val="100">100</div>
+                        <div class="chip-selection chip-500" data-val="500">500</div>
+                    </div>
+
+                    <div class="action-group">
+                        <button class="casino-btn" id="btn-undo">Undo</button>
+                        <button class="casino-btn" id="btn-double">Double</button>
+                        <button class="casino-btn" id="btn-rebet">Rebet</button>
+                        <button class="casino-btn" id="btn-clear">Clear</button>
+                        <button class="casino-btn btn-spin" id="btn-spin">Spin</button>
+                    </div>
+                </div>
+
+                <!-- History & Real-time Distribution Statistics -->
+                <div class="meta-pane">
+                    <div class="meta-card">
+                        <div class="card-title">Recent Result History</div>
+                        <div class="history-pills" id="history-container">
+                            <span style="font-size: 11px; color:#5c6f64;">No history recorded yet</span>
+                        </div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="card-title">Live Dynamic Distribution</div>
+                        <div class="stats-bar-group">
+                            <div class="stats-bar-wrapper">
+                                <div class="bar-segment red" id="pct-red" style="width: 48.6%">48.6%</div>
+                                <div class="bar-segment green" id="pct-green" style="width: 2.8%">2.8%</div>
+                                <div class="bar-segment black" id="pct-black" style="width: 48.6%">48.6%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+    /* Hub Navigation Protocol */
+    function returnToHub() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ action: 'closeGame' }, '*');
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function toggleHubFullscreen() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ action: 'toggleFullscreen' }, '*');
+      } else {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    }
+
+        /*************************************************************************
+         * MATHEMATICAL & PHYSICS ENGINE FOR WHEEL & SECTOR LANDING CALCULATIONS
+         *
+         * Pocket Placement Mapping:
+         * The European wheel contains 37 discrete pockets ordered sequentially:
+         *   [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 
+         *    10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26]
+         *
+         * Angle Calculations:
+         * - Given a pocket index (0 to 36), its angular placement offset on the 
+         *   wheel geometry is:
+         *     pocketAngle = idx * (2 * PI / 37)
+         *
+         * - A mechanical selector indicator is situated at the top axis of the wheel:
+         *     indicatorAngle = -PI / 2
+         *
+         * - When the wheel rotates by angle `theta`, the absolute angular coordinate of 
+         *   any pocket becomes:
+         *     absoluteAngle = theta + pocketAngle
+         *
+         * - To align the winning pocket perfectly with the physical indicator marker at 
+         *   the end of the animation:
+         *     ballAngle(T) = wheelAngle(T) + pocketAngle(winning_number_index)
+         *     Where ballAngle(T) must equal -PI / 2 (modulo 2*PI).
+         *
+         * Physics Modeling:
+         * We model wheel and ball rotational mechanics in opposite directions with distinct
+         * ease-out friction curves, combined with spiral radial decay and dynamic 
+         * multi-phase boundary collision bounding patterns to recreate organic mechanical bounce.
+         *************************************************************************/
+
+        const redNumbers = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
+        const wheelNumbers = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+
+        function getNumberColor(num) {
+            if (num === 0) return 'green';
+            return redNumbers.has(num) ? 'red' : 'black';
+        }
+
+        /* Pure CSS striped clay chip structure generator based on value */
+        const chipDenominations = [500, 100, 25, 5, 1];
+
+        // Web Audio Synthesizer Class
+        class AudioSynth {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playClink() {
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(2200, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1100, this.ctx.currentTime + 0.08);
+                
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.12);
+            }
+
+            playTick() {
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.03);
+                
+                gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.03);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.04);
+            }
+
+            playWin() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                    gain.gain.setValueAtTime(0.08, now + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.35);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.1);
+                    osc.stop(now + idx * 0.1 + 0.4);
+                });
+            }
+
+            playWarning() {
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(110, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.22);
+            }
+        }
+
+        const audio = new AudioSynth();
+
+        // Object-Oriented State Management
+        class RouletteState {
+            constructor() {
+                this.bankroll = 1000;
+                this.currentBetAmount = 0;
+                this.selectedChip = 5;
+                this.activeBets = new Map(); // betId -> { type, numbers, amount }
+                this.previousBets = null; // Stored map for rebet functionality
+                this.spinHistory = [];
+                this.undoStack = [];
+                this.redoStack = [];
+                this.isSpinning = false;
+                this.wheelAngle = 0;
+            }
+        }
+
+        const game = new RouletteState();
+
+        // DOM Elements
+        const canvas = document.getElementById('wheel-canvas');
+        const ctx = canvas.getContext('2d');
+        const boardContainer = document.getElementById('board-container');
+        const chipsOverlay = document.getElementById('chips-overlay');
+        const previewChip = document.getElementById('preview-chip');
+        const bankrollVal = document.getElementById('bankroll-val');
+        const betVal = document.getElementById('bet-val');
+        const lastWinVal = document.getElementById('last-win-val');
+        const resultBanner = document.getElementById('result-banner');
+        const historyContainer = document.getElementById('history-container');
+        
+        // Buttons
+        const btnSpin = document.getElementById('btn-spin');
+        const btnClear = document.getElementById('btn-clear');
+        const btnUndo = document.getElementById('btn-undo');
+        const btnDouble = document.getElementById('btn-double');
+        const btnRebet = document.getElementById('btn-rebet');
+
+        /*************************************************************************
+         * ROULETTE BOARD GENERATOR & HOVER DETECTION LOGIC
+         *
+         * Layout Matrix:
+         * Numbers are organized inside a 3x12 grid representing 1-36.
+         * Row 0 (Top): 3, 6, 9... 36
+         * Row 1 (Mid): 2, 5, 8... 35
+         * Row 2 (Low): 1, 4, 7... 34
+         *
+         * Grid Coordinates Hover Detection:
+         * To implement complex splitting overlays without thousands of DOM elements, 
+         * we evaluate relative normalized (fx, fy) cursor offsets within each numeric bounding cell.
+         * Let `t = 22%` represent the collision threshold near border vectors.
+         *
+         * - If fy > (1 - t) on row 2:
+         *     * If fx < t and col > 0: "Six Line" Bet (between col-1 and col)
+         *     * If fx > (1 - t) and col < 11: "Six Line" Bet (between col and col+1)
+         *     * Else: "Street" Bet (covers 3 numbers in current col)
+         * - If fx < t and fy < t and col > 0 and row > 0: "Corner" Bet (covers 4 cells)
+         * - If fx < t and col > 0: "Horizontal Split" Bet (covers 2 cells side-by-side)
+         * - If fy < t and row > 0: "Vertical Split" Bet (covers 2 cells stacked)
+         * - Else: "Straight Up" Bet (covers single cell)
+         *************************************************************************/
+
+        function generateBoard() {
+            // Generate standard 12 columns by 3 rows
+            for (let col = 0; col < 12; col++) {
+                for (let row = 0; row < 3; row++) {
+                    const num = col * 3 + (3 - row);
+                    const cell = document.createElement('div');
+                    cell.className = `bet-cell number ${getNumberColor(num)}`;
+                    cell.style.gridColumn = col + 2;
+                    cell.style.gridRow = row + 1;
+                    cell.dataset.num = num;
+                    cell.dataset.col = col;
+                    cell.dataset.row = row;
+                    cell.innerText = num;
+                    boardContainer.appendChild(cell);
+                }
+            }
+        }
+
+        function getBetForCell(cell, offsetX, offsetY) {
+            const rect = cell.getBoundingClientRect();
+            const fx = offsetX / rect.width;
+            const fy = offsetY / rect.height;
+            const col = parseInt(cell.dataset.col);
+            const row = parseInt(cell.dataset.row);
+            const num = parseInt(cell.dataset.num);
+            const t = 0.22; // Edge trigger boundary threshold
+
+            let type = 'straight';
+            let numbers = [num];
+            let betId = `straight_${num}`;
+
+            // 1. Bottom border evaluations (Row 2 checks: Street & Six Line)
+            if (row === 2 && fy > (1 - t)) {
+                if (fx < t && col > 0) {
+                    type = 'sixline';
+                    const c1 = col - 1;
+                    const c2 = col;
+                    numbers = [
+                        c1*3+1, c1*3+2, c1*3+3,
+                        c2*3+1, c2*3+2, c2*3+3
+                    ];
+                    betId = `sixline_${c1}_${c2}`;
+                } else if (fx > (1 - t) && col < 11) {
+                    type = 'sixline';
+                    const c1 = col;
+                    const c2 = col + 1;
+                    numbers = [
+                        c1*3+1, c1*3+2, c1*3+3,
+                        c2*3+1, c2*3+2, c2*3+3
+                    ];
+                    betId = `sixline_${c1}_${c2}`;
+                } else {
+                    type = 'street';
+                    numbers = [col*3+1, col*3+2, col*3+3];
+                    betId = `street_${col}`;
+                }
+                return { type, numbers, betId };
+            }
+
+            // 2. Corner Evaluations
+            if (fx < t && fy < t && col > 0 && row > 0) {
+                type = 'corner';
+                numbers = [
+                    (col-1)*3 + (3 - (row-1)),
+                    col*3 + (3 - (row-1)),
+                    (col-1)*3 + (3 - row),
+                    col*3 + (3 - row)
+                ];
+                betId = `corner_${col-1}_${row-1}`;
+            } else if (fx > (1 - t) && fy < t && col < 11 && row > 0) {
+                type = 'corner';
+                numbers = [
+                    col*3 + (3 - (row-1)),
+                    (col+1)*3 + (3 - (row-1)),
+                    col*3 + (3 - row),
+                    (col+1)*3 + (3 - row)
+                ];
+                betId = `corner_${col}_${row-1}`;
+            } else if (fx < t && fy > (1 - t) && col > 0 && row < 2) {
+                type = 'corner';
+                numbers = [
+                    (col-1)*3 + (3 - row),
+                    col*3 + (3 - row),
+                    (col-1)*3 + (3 - (row+1)),
+                    col*3 + (3 - (row+1))
+                ];
+                betId = `corner_${col-1}_${row}`;
+            } else if (fx > (1 - t) && fy > (1 - t) && col < 11 && row < 2) {
+                type = 'corner';
+                numbers = [
+                    col*3 + (3 - row),
+                    (col+1)*3 + (3 - row),
+                    col*3 + (3 - (row+1)),
+                    (col+1)*3 + (3 - (row+1))
+                ];
+                betId = `corner_${col}_${row}`;
+            }
+            // 3. Split Evaluations
+            else if (fx < t && col > 0) {
+                type = 'split';
+                numbers = [(col-1)*3 + (3 - row), col*3 + (3 - row)];
+                betId = `split_h_${col-1}_${col}_${row}`;
+            } else if (fx > (1 - t) && col < 11) {
+                type = 'split';
+                numbers = [col*3 + (3 - row), (col+1)*3 + (3 - row)];
+                betId = `split_h_${col}_${col+1}_${row}`;
+            } else if (fy < t && row > 0) {
+                type = 'split';
+                numbers = [col*3 + (3 - (row-1)), col*3 + (3 - row)];
+                betId = `split_v_${col}_${row-1}_${row}`;
+            } else if (fy > (1 - t) && row < 2) {
+                type = 'split';
+                numbers = [col*3 + (3 - row), col*3 + (3 - (row+1))];
+                betId = `split_v_${col}_${row}_${row+1}`;
+            }
+            
+            // Special Zero Splits
+            if (col === 0 && fx < t) {
+                type = 'split';
+                numbers = [0, num];
+                betId = `split_zero_${num}`;
+            }
+
+            return { type, numbers, betId };
+        }
+
+        // Resolves the center coordinates of any bet (including multi-cell and outside boundaries)
+        function getBetCenter(numbers, element, type) {
+            const boardRect = boardContainer.getBoundingClientRect();
+            
+            // Handle non-numeric block targets
+            if (type !== 'straight' && type !== 'split' && type !== 'corner' && type !== 'street' && type !== 'sixline') {
+                const rect = element.getBoundingClientRect();
+                return {
+                    x: rect.left - boardRect.left + rect.width / 2,
+                    y: rect.top - boardRect.top + rect.height / 2
+                };
+            }
+
+            // Calculate exact geographic center average across all covered dynamic numbers
+            let totalX = 0, totalY = 0, count = 0;
+            numbers.forEach(num => {
+                const cell = boardContainer.querySelector(`.bet-cell[data-num="${num}"]`);
+                if (cell) {
+                    const rect = cell.getBoundingClientRect();
+                    totalX += (rect.left - boardRect.left + rect.width / 2);
+                    totalY += (rect.top - boardRect.top + rect.height / 2);
+                    count++;
+                }
+            });
+
+            if (count > 0) {
+                return { x: totalX / count, y: totalY / count };
+            }
+
+            // Edge fallback coordinate
+            const rect = element.getBoundingClientRect();
+            return {
+                x: rect.left - boardRect.left + rect.width / 2,
+                y: rect.top - boardRect.top + rect.height / 2
+            };
+        }
+
+        // Highlights numbers matching current active hover
+        function highlightNumbers(numbers) {
+            numbers.forEach(num => {
+                const cell = boardContainer.querySelector(`.bet-cell[data-num="${num}"]`);
+                if (cell) cell.classList.add('highlight');
+            });
+        }
+
+        function clearBoardHighlights() {
+            boardContainer.querySelectorAll('.bet-cell').forEach(cell => {
+                cell.classList.remove('highlight');
+            });
+            previewChip.style.display = 'none';
+        }
+
+        /*************************************************************************
+         * INTERACTIVE CHIPS SELECTION & PLACEMENT LOGIC
+         *************************************************************************/
+
+        let currentHoveredBet = null;
+
+        function resolveEventBet(e) {
+            if (game.isSpinning) return null;
+            const cell = e.target.closest('.bet-cell');
+            if (!cell) return null;
+
+            let betDetails = null;
+
+            // Zero Column evaluations
+            if (cell.classList.contains('zero')) {
+                const rect = cell.getBoundingClientRect();
+                const fx = (e.clientX - rect.left) / rect.width;
+                const fy = (e.clientY - rect.top) / rect.height;
+                const t = 0.22;
+                if (fx > (1 - t)) {
+                    let targetNum = 2;
+                    if (fy < 0.33) targetNum = 3;
+                    else if (fy > 0.66) targetNum = 1;
+                    betDetails = { type: 'split', numbers: [0, targetNum], betId: `split_zero_${targetNum}` };
+                } else {
+                    betDetails = { type: 'straight', numbers: [0], betId: 'straight_0' };
+                }
+            }
+            // Dynamic Grid Numbers
+            else if (cell.dataset.num) {
+                const rect = cell.getBoundingClientRect();
+                const offsetX = e.clientX - rect.left;
+                const offsetY = e.clientY - rect.top;
+                betDetails = getBetForCell(cell, offsetX, offsetY);
+            }
+            // Outside & Columns Block Cells
+            else if (cell.dataset.type) {
+                const type = cell.dataset.type;
+                const val = cell.dataset.value;
+                let numbers = [];
+
+                if (type === 'column') {
+                    const row = parseInt(val);
+                    for (let col = 0; col < 12; col++) {
+                        numbers.push(col * 3 + (3 - row));
+                    }
+                } else if (type === 'dozen') {
+                    const d = parseInt(val);
+                    const start = (d - 1) * 12 + 1;
+                    for (let n = start; n < start + 12; n++) numbers.push(n);
+                } else if (type === 'lowhigh') {
+                    const limit = val === 'low' ? 18 : 36;
+                    const start = val === 'low' ? 1 : 19;
+                    for (let n = start; n <= limit; n++) numbers.push(n);
+                } else if (type === 'evenodd') {
+                    const start = val === 'even' ? 2 : 1;
+                    for (let n = start; n <= 36; n += 2) numbers.push(n);
+                } else if (type === 'color') {
+                    numbers = val === 'red' ? Array.from(redNumbers) : wheelNumbers.filter(n => n !== 0 && !redNumbers.has(n));
+                }
+
+                betDetails = { type, numbers, betId: `outside_${type}_${val}` };
+            }
+
+            if (betDetails) {
+                betDetails.element = cell;
+            }
+            return betDetails;
+        }
+
+        // Mouse Motion Tracking
+        boardContainer.addEventListener('pointermove', (e) => {
+            const bet = resolveEventBet(e);
+            if (bet) {
+                if (!currentHoveredBet || currentHoveredBet.betId !== bet.betId) {
+                    currentHoveredBet = bet;
+                    clearBoardHighlights();
+                    highlightNumbers(bet.numbers);
+
+                    // Position preview chip on target
+                    const coords = getBetCenter(bet.numbers, bet.element, bet.type);
+                    previewChip.className = `chip-preview chip-${game.selectedChip}`;
+                    previewChip.style.left = `${coords.x}px`;
+                    previewChip.style.top = `${coords.y}px`;
+                    previewChip.style.display = 'flex';
+                    previewChip.innerText = game.selectedChip >= 100 ? `${game.selectedChip}` : `$${game.selectedChip}`;
+                }
+            } else {
+                currentHoveredBet = null;
+                clearBoardHighlights();
+            }
+        });
+
+        boardContainer.addEventListener('pointerleave', () => {
+            currentHoveredBet = null;
+            clearBoardHighlights();
+        });
+
+        // Click Placement Integration
+        boardContainer.addEventListener('pointerdown', (e) => {
+            // Check context clicks for removal
+            if (e.button === 2) return;
+            
+            const bet = resolveEventBet(e);
+            if (bet) {
+                placeBet(bet.betId, bet.type, bet.numbers, bet.element);
+            }
+        });
+
+        // Clear singular bet via Context Menu (Right Click)
+        boardContainer.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (game.isSpinning) return;
+            const bet = resolveEventBet(e);
+            if (bet && game.activeBets.has(bet.betId)) {
+                saveUndoState();
+                const active = game.activeBets.get(bet.betId);
+                game.bankroll += active.amount;
+                game.currentBetAmount -= active.amount;
+                game.activeBets.delete(bet.betId);
+                
+                audio.playClink();
+                updateUI();
+                renderPlacedChips();
+                clearBoardHighlights();
+            }
+        });
+
+        function placeBet(betId, type, numbers, element) {
+            const val = game.selectedChip;
+            if (game.bankroll < val) {
+                triggerBankrollShake();
+                return;
+            }
+
+            saveUndoState();
+            game.bankroll -= val;
+            game.currentBetAmount += val;
+
+            if (game.activeBets.has(betId)) {
+                const bet = game.activeBets.get(betId);
+                bet.amount += val;
+            } else {
+                game.activeBets.set(betId, {
+                    id: betId,
+                    type,
+                    numbers,
+                    amount: val,
+                    element
+                });
+            }
+
+            audio.playClink();
+            updateUI();
+            renderPlacedChips();
+        }
+
+        // Render stacked chip clusters visually over the board coordinates
+        function renderPlacedChips() {
+            chipsOverlay.innerHTML = '';
+            game.activeBets.forEach(bet => {
+                const coords = getBetCenter(bet.numbers, bet.element, bet.type);
+                
+                // Break total bet on cell down into standard denominations stacks
+                const stack = getChipStack(bet.amount);
+                stack.forEach((val, idx) => {
+                    const chip = document.createElement('div');
+                    chip.className = `placed-chip chip-${val}`;
+                    chip.innerText = val >= 100 ? `${val}` : `$${val}`;
+                    
+                    // Create visual 3D stack offset
+                    chip.style.left = `${coords.x - idx * 0.8}px`;
+                    chip.style.top = `${coords.y - idx * 1.8}px`;
+                    chipsOverlay.appendChild(chip);
+                });
+            });
+        }
+
+        function getChipStack(amount) {
+            const stack = [];
+            let remaining = amount;
+            for (let den of chipDenominations) {
+                while (remaining >= den) {
+                    stack.push(den);
+                    remaining -= den;
+                }
+            }
+            return stack;
+        }
+
+        /*************************************************************************
+         * UNDO / REDO STATE ACTIONS
+         *************************************************************************/
+
+        function saveUndoState() {
+            const snapshot = new Map();
+            game.activeBets.forEach((val, key) => {
+                snapshot.set(key, { ...val });
+            });
+            game.undoStack.push({
+                activeBets: snapshot,
+                bankroll: game.bankroll,
+                currentBetAmount: game.currentBetAmount
+            });
+            if (game.undoStack.length > 25) game.undoStack.shift();
+            game.redoStack = []; // Flush redo chain on new interaction branch
+        }
+
+        function handleUndo() {
+            if (game.isSpinning || game.undoStack.length === 0) return;
+            const currentSnapshot = new Map();
+            game.activeBets.forEach((val, key) => {
+                currentSnapshot.set(key, { ...val });
+            });
+            game.redoStack.push({
+                activeBets: currentSnapshot,
+                bankroll: game.bankroll,
+                currentBetAmount: game.currentBetAmount
+            });
+
+            const previous = game.undoStack.pop();
+            game.activeBets = previous.activeBets;
+            game.bankroll = previous.bankroll;
+            game.currentBetAmount = previous.currentBetAmount;
+
+            audio.playClink();
+            updateUI();
+            renderPlacedChips();
+        }
+
+        // Insufficient funds shake warning
+        function triggerBankrollShake() {
+            const el = document.getElementById('bankroll-display');
+            el.classList.add('shake');
+            audio.playWarning();
+            setTimeout(() => el.classList.remove('shake'), 400);
+        }
+
+        /*************************************************************************
+         * HIGH-FIDELITY HTML5 CANVAS WHEEL RENDERER
+         *************************************************************************/
+
+        function drawWheel(rotation = 0, ballAngle = null, ballDistance = null) {
+            const size = Math.min(canvas.width, canvas.height);
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const r = size / 2 - 8;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Wood Outer Bezel Ring
+            const woodGrad = ctx.createRadialGradient(cx, cy, r * 0.76, cx, cy, r);
+            woodGrad.addColorStop(0, '#2b1401');
+            woodGrad.addColorStop(0.35, '#4e2405');
+            woodGrad.addColorStop(0.85, '#2b1401');
+            woodGrad.addColorStop(1, '#110800');
+            ctx.fillStyle = woodGrad;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Wood Rim outline divider
+            ctx.strokeStyle = varColor('--gold-accent');
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // 2. Inner Brass/Gold Ball Track Metallic Channel
+            const trackGrad = ctx.createRadialGradient(cx, cy, r * 0.64, cx, cy, r * 0.76);
+            trackGrad.addColorStop(0, '#111');
+            trackGrad.addColorStop(0.4, '#050505');
+            trackGrad.addColorStop(0.85, '#e5c060');
+            trackGrad.addColorStop(1, '#8c6e21');
+            ctx.fillStyle = trackGrad;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.76, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 3. Pockets Core
+            ctx.fillStyle = '#0a0a0a';
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.64, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 4. Pocket Wedges and Segment Numbers
+            const totalSegments = 37;
+            const slice = (Math.PI * 2) / totalSegments;
+
+            for (let i = 0; i < totalSegments; i++) {
+                const angle = rotation + i * slice;
+                const num = wheelNumbers[i];
+                let color = '#000000';
+                
+                if (num === 0) color = '#015a1c';
+                else if (redNumbers.has(num)) color = '#a60a0a';
+
+                // Wedge slice
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r * 0.64, angle - slice / 2, angle + slice / 2);
+                ctx.closePath();
+                ctx.fill();
+
+                // Brass wedge dividing spoke line
+                ctx.strokeStyle = '#cda235';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + r * 0.64 * Math.cos(angle - slice / 2), cy + r * 0.64 * Math.sin(angle - slice / 2));
+                ctx.stroke();
+
+                // Radial Number Labeling
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(angle);
+                ctx.fillStyle = '#f3e5ab';
+                ctx.font = `bold ${Math.floor(r * 0.065)}px 'Georgia', serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Position text inside pocket ring, rotated radially outward
+                ctx.translate(r * 0.55, 0);
+                ctx.rotate(Math.PI / 2);
+                ctx.fillText(num, 0, 0);
+                ctx.restore();
+            }
+
+            // 5. Metal Central Spindle Turret
+            const turretGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 0.44);
+            turretGrad.addColorStop(0, '#fff3a8');
+            turretGrad.addColorStop(0.3, '#d4af37');
+            turretGrad.addColorStop(0.7, '#8b7500');
+            turretGrad.addColorStop(1, '#2b2102');
+            ctx.fillStyle = turretGrad;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.44, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.44, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // 4-Spoke Spindle handle
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(rotation * 1.4); // Spin handles at slightly offset pace
+            ctx.strokeStyle = '#d4af37';
+            ctx.fillStyle = '#fff3a8';
+            ctx.lineWidth = r * 0.022;
+            for (let s = 0; s < 4; s++) {
+                const sAngle = (s * Math.PI) / 2;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(r * 0.28 * Math.cos(sAngle), r * 0.28 * Math.sin(sAngle));
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(r * 0.28 * Math.cos(sAngle), r * 0.28 * Math.sin(sAngle), r * 0.03, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            }
+            // Central pin head
+            ctx.beginPath();
+            ctx.arc(0, 0, r * 0.05, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+
+            // 6. 3D Ivory Ball Rendering
+            if (ballAngle !== null && ballDistance !== null) {
+                const bx = cx + ballDistance * Math.cos(ballAngle);
+                const by = cy + ballDistance * Math.sin(ballAngle);
+
+                ctx.save();
+                // Core ball drop-shadow
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+                ctx.shadowBlur = r * 0.025;
+                ctx.shadowOffsetX = r * 0.015;
+                ctx.shadowOffsetY = r * 0.018;
+
+                const ballRadius = r * 0.038;
+                const ballGrad = ctx.createRadialGradient(bx - ballRadius * 0.3, by - ballRadius * 0.3, ballRadius * 0.1, bx, by, ballRadius);
+                ballGrad.addColorStop(0, '#ffffff');
+                ballGrad.addColorStop(0.75, '#e0e0e0');
+                ballGrad.addColorStop(1, '#a6a6a6');
+
+                ctx.fillStyle = ballGrad;
+                ctx.beginPath();
+                ctx.arc(bx, by, ballRadius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Helper to retrieve CSS variables programmatically
+        function varColor(variable) {
+            return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+        }
+
+        // Keep canvas crisp on High-DPI screen architectures
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.resetTransform();
+            ctx.scale(dpr, dpr);
+
+            let bAngle = null, bDist = null;
+            if (!game.isSpinning && game.spinHistory.length > 0) {
+                const winIdx = wheelNumbers.indexOf(game.spinHistory[0]);
+                const slice = (Math.PI * 2) / 37;
+                bAngle = (game.wheelAngle + winIdx * slice) % (Math.PI * 2);
+                bDist = 0.54 * (rect.width / 2 - 8);
+            }
+            drawWheel(game.wheelAngle, bAngle, bDist);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        /*************************************************************************
+         * PHYSICS-BASED SPIN & COLLISION SIMULATOR
+         *************************************************************************/
+
+        function initSpin() {
+            if (game.isSpinning) return;
+            if (game.activeBets.size === 0) {
+                resultBanner.className = 'result-banner lose';
+                resultBanner.innerHTML = '<div>PLEASE PLACE BETS FIRST</div>';
+                resultBanner.style.display = 'block';
+                return;
+            }
+
+            // Snapshot bets for Rebet functionality
+            game.previousBets = new Map();
+            game.activeBets.forEach((val, key) => {
+                game.previousBets.set(key, { ...val });
+            });
+
+            // Transition states
+            game.isSpinning = true;
+            resultBanner.style.display = 'none';
+            boardContainer.classList.add('spinning');
+            updateButtonStates();
+
+            // Secure/High-quality RNG selection
+            const winningNumber = determineWinningNumber();
+            const winIdx = wheelNumbers.indexOf(winningNumber);
+
+            // Simulation parameters
+            const duration = 6500; // Mechanical simulation time: 6.5s
+            const startTimestamp = performance.now();
+
+            const startingWheelAngle = game.wheelAngle % (Math.PI * 2);
+            const wheelRotations = 4 + Math.random() * 1.5; // 4 to 5.5 revolutions
+            const targetWheelAngle = startingWheelAngle + wheelRotations * Math.PI * 2;
+
+            // Indicator offset marker (Top of wheel: -PI / 2)
+            const slice = (Math.PI * 2) / 37;
+            const finalWheelPos = targetWheelAngle % (Math.PI * 2);
+            
+            // To land winning sector at index `winIdx` exactly on -PI/2 relative to final wheel position
+            const finalBallAngle = (targetWheelAngle + winIdx * slice);
+            const ballRotations = -10 - Math.random() * 3; // 10 to 13 opposite revolutions
+            const startingBallAngle = finalBallAngle + ballRotations * Math.PI * 2;
+
+            let lastTickPocket = -1;
+
+            function animationLoop(timestamp) {
+                const elapsed = timestamp - startTimestamp;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Deceleration Ease curve
+                const ease = 1 - Math.pow(1 - progress, 3); // Cubic Ease Out
+
+                game.wheelAngle = startingWheelAngle + (targetWheelAngle - startingWheelAngle) * ease;
+                let ballAngle = startingBallAngle + (finalBallAngle - startingBallAngle) * ease;
+
+                // Radial pocket fall stages
+                let ballDistanceFactor = 0.84; // Outer perimeter channel
+                if (progress > 0.62 && progress <= 0.82) {
+                    // Spiral tracking inward
+                    const tSpiral = (progress - 0.62) / 0.20;
+                    ballDistanceFactor = 0.84 - 0.30 * (1 - Math.pow(1 - tSpiral, 2));
+                } else if (progress > 0.82) {
+                    // Resting pocket groove height
+                    ballDistanceFactor = 0.54;
+                }
+
+                // Complex bounce/jitter physics modeling upon entering sector pocket lanes
+                if (progress > 0.78 && progress < 0.97) {
+                    const tBounce = (progress - 0.78) / 0.19;
+                    const bounceAmp = (1 - tBounce) * slice * 2.8;
+                    const bounceFreq = tBounce * Math.PI * 10;
+                    ballAngle += Math.sin(bounceFreq) * bounceAmp;
+                    
+                    // Hop bounce heights
+                    ballDistanceFactor += Math.abs(Math.sin(bounceFreq)) * 0.05 * (1 - tBounce);
+                }
+
+                game.wheelAngle = game.wheelAngle % (Math.PI * 2);
+                ballAngle = ballAngle % (Math.PI * 2);
+
+                // Mechanically calculate pocket tick trigger sounds based on passing wedges
+                const relativeAngle = (ballAngle - game.wheelAngle) % (Math.PI * 2);
+                const normalizedAngle = relativeAngle < 0 ? relativeAngle + Math.PI * 2 : relativeAngle;
+                const currentPocket = Math.floor(normalizedAngle / slice) % 37;
+
+                if (currentPocket !== lastTickPocket && progress < 0.97) {
+                    audio.playTick();
+                    lastTickPocket = currentPocket;
+                }
+
+                // Render Canvas
+                const currentRadius = canvas.getBoundingClientRect().width / 2 - 8;
+                drawWheel(game.wheelAngle, ballAngle, ballDistanceFactor * currentRadius);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animationLoop);
+                } else {
+                    // End Spin sequence
+                    game.wheelAngle = targetWheelAngle % (Math.PI * 2);
+                    const terminalBallAngle = (game.wheelAngle + winIdx * slice) % (Math.PI * 2);
+                    
+                    // Clamp to exact absolute static coordinate
+                    drawWheel(game.wheelAngle, terminalBallAngle, 0.54 * currentRadius);
+
+                    boardContainer.classList.remove('spinning');
+                    game.spinHistory.unshift(winningNumber);
+                    if (game.spinHistory.length > 50) game.spinHistory.pop();
+
+                    processPayouts(winningNumber);
+                    updateHistoryDisplay();
+                    updateDistributionStats();
+                    game.isSpinning = false;
+                    updateButtonStates();
+                }
+            }
+
+            requestAnimationFrame(animationLoop);
+        }
+
+        // Secure Cryptographical Randomization algorithm
+        function determineWinningNumber() {
+            const arr = new Uint32Array(1);
+            window.crypto.getRandomValues(arr);
+            return arr[0] % 37;
+        }
+
+        /*************************************************************************
+         * PAYOUT CALCULATION ENGINE
+         *************************************************************************/
+
+        function processPayouts(winningNumber) {
+            let totalWinnings = 0;
+            let profit = 0;
+            let isWin = false;
+
+            const nextActiveBets = new Map();
+
+            game.activeBets.forEach((bet, betId) => {
+                if (bet.numbers.includes(winningNumber)) {
+                    isWin = true;
+                    let multiplier = 0;
+
+                    switch (bet.type) {
+                        case 'straight': multiplier = 35; break;
+                        case 'split': multiplier = 17; break;
+                        case 'street': multiplier = 11; break;
+                        case 'corner': multiplier = 8; break;
+                        case 'sixline': multiplier = 5; break;
+                        case 'dozen':
+                        case 'column': multiplier = 2; break;
+                        case 'color':
+                        case 'evenodd':
+                        case 'lowhigh': multiplier = 1; break;
+                    }
+
+                    // Payout returns the profit + original bet amount
+                    const betProfit = bet.amount * multiplier;
+                    profit += betProfit;
+                    totalWinnings += (betProfit + bet.amount);
+
+                    // Win bets stay on table according to standard automated electronic rules
+                    nextActiveBets.set(betId, bet);
+                }
+            });
+
+            // Credit bankroll
+            game.bankroll += totalWinnings;
+            game.activeBets = nextActiveBets;
+
+            // Recalculate remaining total bet amounts
+            let remBet = 0;
+            game.activeBets.forEach(bet => remBet += bet.amount);
+            game.currentBetAmount = remBet;
+
+            updateUI();
+            renderPlacedChips();
+
+            // Render details inside notifications alert banner
+            const colName = getNumberColor(winningNumber).toUpperCase();
+            let detailsStr = `${winningNumber} ${colName}`;
+            if (winningNumber !== 0) {
+                const par = winningNumber % 2 === 0 ? 'EVEN' : 'ODD';
+                const bounds = winningNumber <= 18 ? 'LOW' : 'HIGH';
+                detailsStr += ` | ${par} | ${bounds}`;
+            }
+
+            if (isWin) {
+                resultBanner.className = "result-banner win";
+                resultBanner.innerHTML = `<div>WINNING SECTOR: <span class="result-highlight">${winningNumber}</span></div><div>YOU WON: $${profit}!</div><div class="result-details">${detailsStr}</div>`;
+                lastWinVal.innerText = `$${profit}`;
+                audio.playWin();
+            } else {
+                resultBanner.className = "result-banner lose";
+                resultBanner.innerHTML = `<div>WINNING SECTOR: <span class="result-highlight">${winningNumber}</span></div><div>HOUSE WINS</div><div class="result-details">${detailsStr}</div>`;
+                lastWinVal.innerText = "-";
+            }
+            resultBanner.style.display = "block";
+        }
+
+        /*************************************************************************
+         * INTERFACE & CONTROL UPDATE DECORATIONS
+         *************************************************************************/
+
+        function updateUI() {
+            bankrollVal.innerText = `$${game.bankroll.toLocaleString()}`;
+            betVal.innerText = `$${game.currentBetAmount.toLocaleString()}`;
+            
+            // Toggle highlight visual triggers on pulsate spin button
+            if (game.currentBetAmount > 0) {
+                btnSpin.classList.add('pulsate');
+            } else {
+                btnSpin.classList.remove('pulsate');
+            }
+        }
+
+        function updateButtonStates() {
+            const disable = game.isSpinning;
+            btnSpin.disabled = disable;
+            btnClear.disabled = disable;
+            btnUndo.disabled = disable || game.undoStack.length === 0;
+            btnDouble.disabled = disable || game.activeBets.size === 0;
+            btnRebet.disabled = disable || !game.previousBets || game.previousBets.size === 0;
+        }
+
+        function updateHistoryDisplay() {
+            historyContainer.innerHTML = '';
+            if (game.spinHistory.length === 0) {
+                historyContainer.innerHTML = '<span style="font-size: 11px; color:#5c6f64;">No history recorded yet</span>';
+                return;
+            }
+
+            const dispArr = game.spinHistory.slice(0, 10);
+            dispArr.forEach(num => {
+                const pill = document.createElement('div');
+                pill.className = `history-pill ${getNumberColor(num)}`;
+                pill.innerText = num;
+                historyContainer.appendChild(pill);
+            });
+        }
+
+        function updateDistributionStats() {
+            if (game.spinHistory.length === 0) return;
+            let reds = 0, blacks = 0, greens = 0;
+            game.spinHistory.forEach(num => {
+                if (num === 0) greens++;
+                else if (redNumbers.has(num)) reds++;
+                else blacks++;
+            });
+
+            const total = game.spinHistory.length;
+            const rPct = ((reds / total) * 100).toFixed(1);
+            const bPct = ((blacks / total) * 100).toFixed(1);
+            const gPct = ((greens / total) * 100).toFixed(1);
+
+            const redEl = document.getElementById('pct-red');
+            const greenEl = document.getElementById('pct-green');
+            const blackEl = document.getElementById('pct-black');
+
+            redEl.style.width = `${rPct}%`;
+            redEl.innerText = `${rPct}%`;
+            greenEl.style.width = `${gPct}%`;
+            greenEl.innerText = `${gPct}%`;
+            blackEl.style.width = `${bPct}%`;
+            blackEl.innerText = `${bPct}%`;
+        }
+
+        // Event actions click definitions
+        btnClear.addEventListener('click', () => {
+            if (game.isSpinning || game.activeBets.size === 0) return;
+            saveUndoState();
+            game.activeBets.forEach(bet => {
+                game.bankroll += bet.amount;
+            });
+            game.activeBets.clear();
+            game.currentBetAmount = 0;
+            
+            audio.playClink();
+            updateUI();
+            renderPlacedChips();
+            clearBoardHighlights();
+        });
+
+        btnUndo.addEventListener('click', handleUndo);
+
+        btnDouble.addEventListener('click', () => {
+            if (game.isSpinning || game.activeBets.size === 0) return;
+            
+            let extraCost = 0;
+            game.activeBets.forEach(bet => extraCost += bet.amount);
+
+            if (game.bankroll >= extraCost) {
+                saveUndoState();
+                game.bankroll -= extraCost;
+                game.currentBetAmount += extraCost;
+                game.activeBets.forEach(bet => bet.amount *= 2);
+                
+                audio.playClink();
+                updateUI();
+                renderPlacedChips();
+            } else {
+                triggerBankrollShake();
+            }
+        });
+
+        btnRebet.addEventListener('click', () => {
+            if (game.isSpinning || !game.previousBets || game.previousBets.size === 0) return;
+
+            // Clear current layout first
+            if (game.activeBets.size > 0) {
+                game.activeBets.forEach(bet => game.bankroll += bet.amount);
+                game.activeBets.clear();
+            }
+
+            let cost = 0;
+            game.previousBets.forEach(bet => cost += bet.amount);
+
+            if (game.bankroll >= cost) {
+                saveUndoState();
+                game.bankroll -= cost;
+                game.currentBetAmount = cost;
+                game.activeBets = new Map();
+                game.previousBets.forEach((val, key) => {
+                    game.activeBets.set(key, { ...val });
+                });
+
+                audio.playClink();
+                updateUI();
+                renderPlacedChips();
+            } else {
+                triggerBankrollShake();
+            }
+        });
+
+        btnSpin.addEventListener('click', initSpin);
+
+        // Chip selectors initialization
+        document.querySelectorAll('.chip-selection').forEach(chip => {
+            chip.addEventListener('click', () => {
+                if (game.isSpinning) return;
+                document.querySelectorAll('.chip-selection').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                game.selectedChip = parseInt(chip.dataset.val);
+                audio.playClink();
+            });
+        });
+
+        // Initialize application structures on launch
+        generateBoard();
+        resizeCanvas();
+        updateUI();
+        updateButtonStates();
+
+        // Browser context listener to handle potential AudioContext suspension
+        window.addEventListener('pointerdown', () => {
+            audio.init();
+        });
+    </script>
+</body>
+</html>
