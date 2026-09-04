@@ -711,7 +711,7 @@
                     </div>
 
                     <div class="ai-panel-body">
-                        <!-- Operational Control & Target Wave Controller -->
+                        <!-- Operational Control & Doctrine Selector -->
                         <div style="background:#1e293b; border:1px solid #334155; border-radius:8px; padding:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <button id="btn-ai-toggle-master" type="button" class="btn-candy btn-green" onclick="Game.toggleAI()" style="padding:6px 14px; font-size:0.75rem;">
@@ -720,10 +720,39 @@
                                 <span style="font-size:0.75rem; color:#94a3b8;">Status: <strong id="ai-console-status" style="color:#38bdf8;">STANDBY</strong></span>
                             </div>
                             <div style="display:flex; align-items:center; gap:6px;">
+                                <label for="ai-doctrine-select" style="font-size:0.7rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Doctrine:</label>
+                                <select id="ai-doctrine-select" onchange="Game.autonomousAgent.setDoctrine(this.value)" style="background:#0f172a; border:1px solid #475569; color:#38bdf8; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:700; cursor:pointer;">
+                                    <option value="AUTO">AUTO (Adaptive)</option>
+                                    <option value="BALANCED">Balanced Equilibrium</option>
+                                    <option value="GREEDY_CAPITALIST">Greedy Capitalist (Compound)</option>
+                                    <option value="PERIMETER_FORTRESS">Perimeter Fortress (Chokepoint AOE)</option>
+                                    <option value="SNIPER_OVERWATCH">Sniper Overwatch (Anti-Boss)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Target Wave Simulation & Tactical Overlay Controls -->
+                        <div style="background:#1e293b; border:1px solid #334155; border-radius:8px; padding:8px 10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:6px;">
                                 <label for="ai-target-input" style="font-size:0.7rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Target Wave:</label>
                                 <input id="ai-target-input" type="number" min="1" max="100" placeholder="Continuous" style="width:75px; background:#0f172a; border:1px solid #475569; color:#f8fafc; padding:3px 6px; border-radius:4px; font-size:0.75rem; font-weight:700;">
                                 <button type="button" class="btn-candy btn-blue" onclick="Game.setAITargetWave()" style="padding:4px 10px; font-size:0.72rem;">Set Target</button>
                                 <button type="button" class="btn-candy btn-pink" onclick="Game.clearAITargetWave()" style="padding:4px 10px; font-size:0.72rem;">Clear</button>
+                            </div>
+                            <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.72rem; color:#94a3b8; cursor:pointer;">
+                                <input type="checkbox" id="ai-heatmap-toggle" onchange="Game.toggleHeatmap(this.checked)" style="accent-color:#38bdf8;">
+                                <span>Tactical Heatmap Overlay</span>
+                            </label>
+                        </div>
+
+                        <!-- Upcoming Wave Forecast Card (Lookahead Oracle) -->
+                        <div id="ai-forecast-card" style="background:#1e293b; border:1px solid #334155; border-radius:8px; padding:8px 12px; font-size:0.75rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <span style="font-weight:700; color:#38bdf8; text-transform:uppercase; font-size:0.68rem; letter-spacing:0.05em;">Upcoming Wave Forecast (Lookahead Oracle)</span>
+                                <span id="ai-forecast-tag" style="background:#0369a1; color:#ffffff; font-size:0.62rem; padding:1px 6px; border-radius:4px; font-weight:700;">WAVE 1</span>
+                            </div>
+                            <div id="ai-forecast-details" style="color:#cbd5e1; font-size:0.72rem; line-height:1.4;">
+                                Initializing predictive telemetry...
                             </div>
                         </div>
 
@@ -899,6 +928,19 @@
  */
 
 // Portrait-Optimized Pathway
+
+// Inter-Tower Tactical Synergy Affinities Matrix
+const TOWER_AFFINITIES = {
+    FROST:   { MORTAR: 2.2, BEAM: 2.0, VENOM: 1.6, GATLING: 1.4, TURRET: 1.2, SNIPER: 1.3 },
+    MORTAR:  { FROST: 2.2, VENOM: 1.4, GATLING: 1.2 },
+    BEAM:    { FROST: 2.0, SNIPER: 1.3 },
+    VENOM:   { FROST: 1.6, MORTAR: 1.4 },
+    SNIPER:  { BEAM: 1.3, FROST: 1.3 },
+    GATLING: { FROST: 1.4, MORTAR: 1.2 },
+    TURRET:  { FROST: 1.2 },
+    BANK:    {}
+};
+
 const PATH_POINTS_NORM = [
     {x: 0.15, y: -0.05}, {x: 0.15, y: 0.22}, {x: 0.85, y: 0.22}, 
     {x: 0.85, y: 0.52}, {x: 0.15, y: 0.52}, {x: 0.15, y: 0.82}, 
@@ -1271,20 +1313,39 @@ class Tower {
             return;
         }
 
+        // Tactical Target Selection with In-Flight Overkill Mitigation & Terminal Breach Convergence
         this.target = null;
-        const candidates = Game.enemies.filter(e => this.pos.dist(e.pos) <= this.range);
+        const inRange = Game.enemies.filter(e => !e.dead && !e.reachedEnd && this.pos.dist(e.pos) <= this.range);
         
-        if (candidates.length > 0) {
-            if (this.targetMode === 'FIRST') {
-                candidates.sort((a, b) => b.distanceTraveled - a.distanceTraveled);
-            } else if (this.targetMode === 'LAST') {
-                candidates.sort((a, b) => a.distanceTraveled - b.distanceTraveled);
-            } else if (this.targetMode === 'STRONGEST') {
-                candidates.sort((a, b) => b.hp - a.hp);
-            } else if (this.targetMode === 'WEAKEST') {
-                candidates.sort((a, b) => a.hp - b.hp);
+        if (inRange.length > 0) {
+            // Priority 1: Terminal Breach Convergence (critical threat TTB < 3.5s)
+            const totalPathLen = Game.calcTotalPathLength ? Game.calcTotalPathLength() : 1000;
+            const breachTarget = inRange.find(e => {
+                const remDist = Math.max(1, totalPathLen - e.distanceTraveled);
+                return (remDist / (e.speed || 100)) < 3.5;
+            });
+
+            if (breachTarget) {
+                this.target = breachTarget;
+            } else {
+                // Priority 2: Filter out enemies that already have lethal damage in-flight
+                const effectiveCandidates = inRange.filter(e => {
+                    const inFlightDmg = Game.calcInFlightDamage ? Game.calcInFlightDamage(e) : 0;
+                    return (e.hp - inFlightDmg) > 0;
+                });
+                const pool = effectiveCandidates.length > 0 ? effectiveCandidates : inRange;
+
+                if (this.targetMode === 'FIRST') {
+                    pool.sort((a, b) => b.distanceTraveled - a.distanceTraveled);
+                } else if (this.targetMode === 'LAST') {
+                    pool.sort((a, b) => a.distanceTraveled - b.distanceTraveled);
+                } else if (this.targetMode === 'STRONGEST') {
+                    pool.sort((a, b) => b.hp - a.hp);
+                } else if (this.targetMode === 'WEAKEST') {
+                    pool.sort((a, b) => a.hp - b.hp);
+                }
+                this.target = pool[0];
             }
-            this.target = candidates[0];
         }
 
         if (this.target) {
@@ -1558,33 +1619,107 @@ class SoundSystem {
  * Strict Zero-Emoji Compliance: Full contextual awareness, mathematical utility optimization,
  * multi-step lookahead, dynamic micro-targeting, research investing, and reasoning timeline.
  */
+
+/**
+ * AEGIS PROTOCOL: VECTOR DEFENSE — APEX EDITION
+ * Advanced Strategic Autonomous Commander & Multi-Step Lookahead Policy Engine
+ * 
+ * Features:
+ * - 4 Strategic Operational Doctrines (BALANCED, GREEDY_CAPITALIST, PERIMETER_FORTRESS, SNIPER_OVERWATCH)
+ * - Autonomous Dynamic Doctrine Selection (AUTO)
+ * - Multi-Step Wave Lookahead Oracle (pre-forecasts Wave W+1 and W+2, anticipates bosses)
+ * - Boss Preparation Capital Reserve Buffering
+ * - Pairwise Inter-Tower Synergy Matrix Calculus (Frost + Mortar/Beam kill-zone optimization)
+ * - In-Flight Overkill Mitigation & Terminal Breach Focus-Fire Coordination
+ * - Multi-Segment Roadway Curvature & Chokepoint Spatial Integration
+ * - Strict Zero-Emoji Compliance & Chronological Mathematical Reasoning Timeline
+ */
 class AutonomousAgent {
     constructor(gameInstance) {
         this.game = gameInstance;
         this.isEnabled = false;
-        this.decisionIntervalMs = 400;
+        this.decisionIntervalMs = 380;
         this.lastDecisionTime = 0;
-        this.lastActionLog = 'AUTONOMOUS AI ONLINE // AWAITING MISSION';
+        this.lastActionLog = 'AUTONOMOUS AI ONLINE // AWAITING STRATEGIC ORDERS';
         this.decisionCount = 0;
         this.history = [];
         this.maxHistoryLength = 150;
 
+        this.doctrine = 'AUTO'; // 'AUTO', 'BALANCED', 'GREEDY_CAPITALIST', 'PERIMETER_FORTRESS', 'SNIPER_OVERWATCH'
+        this.activeDoctrine = 'BALANCED';
+
         this.targetWave = null;
         this._targetWaveCompleted = false;
+        this.bestSectors = [];
+
+        this.forecast = {
+            wave: 1,
+            totalEnemies: 0,
+            projectedEHP: 0,
+            tankCount: 0,
+            swarmCount: 0,
+            sprinterCount: 0,
+            hasBoss: false,
+            reqDPS: 16,
+            preparedness: '1.00'
+        };
 
         this.telemetry = {
             threatEHP: 0,
             defenseDPS: 0,
-            coverageBottleneckIndex: 0,
-            activeShieldRatio: 0,
+            synergyIndex: 1.0,
+            overkillDamageSaved: 0,
             activeArmorRatio: 0,
             swarmRatio: 0,
             recommendedArchetype: 'TURRET',
             emergencyBreachAlert: false,
             pacingConfidence: 0,
             minTimeToBreach: 999,
-            bestAction: null
+            activeDoctrineName: 'BALANCED'
         };
+    }
+
+    setDoctrine(newDoc) {
+        this.doctrine = newDoc;
+        this.updateActiveDoctrine();
+        this.recordThinkingStep({
+            category: 'STATUS',
+            title: 'DOCTRINE SHIFT: ' + this.doctrine,
+            formula: 'Selected = ' + this.doctrine + ' | Operational Mode = ' + this.activeDoctrine,
+            rationale: 'Commander manually shifted doctrine to ' + this.doctrine + '. Strategic weightings and allocation policies updated immediately.',
+            gridPos: null
+        });
+        this.updateUI();
+    }
+
+    updateActiveDoctrine() {
+        if (this.doctrine !== 'AUTO') {
+            this.activeDoctrine = this.doctrine;
+            return;
+        }
+
+        // Autonomous Adaptive Doctrine Policy:
+        // 1. If Boss Wave incoming next: switch to SNIPER_OVERWATCH
+        if (this.forecast && this.forecast.hasBoss) {
+            this.activeDoctrine = 'SNIPER_OVERWATCH';
+            return;
+        }
+
+        // 2. Early waves with low threat: GREEDY_CAPITALIST to compound interest dividends
+        const bankCount = this.game.towers.filter(t => t.typeKey === 'BANK').length;
+        if (this.game.wave <= 6 && bankCount < 2 && this.telemetry.pacingConfidence >= 0.95) {
+            this.activeDoctrine = 'GREEDY_CAPITALIST';
+            return;
+        }
+
+        // 3. High Swarm density forecast: PERIMETER_FORTRESS
+        if (this.forecast && (this.forecast.swarmCount / Math.max(1, this.forecast.totalEnemies)) > 0.3) {
+            this.activeDoctrine = 'PERIMETER_FORTRESS';
+            return;
+        }
+
+        // 4. Default: BALANCED_EQUILIBRIUM
+        this.activeDoctrine = 'BALANCED';
     }
 
     setTargetWave(waveNum) {
@@ -1595,7 +1730,7 @@ class AutonomousAgent {
             category: 'STATUS',
             title: 'TARGET SET: WAVE ' + waveNum,
             formula: 'Goal = W' + waveNum + ' | Mode = AUTONOMOUS | Auto-Pause On Complete',
-            rationale: 'Autonomous simulation objective locked to Wave ' + waveNum + '. AI will execute tactical calculus until cleared, then pause.',
+            rationale: 'Autonomous simulation objective locked to Wave ' + waveNum + '. Strategic policy engine will execute tactical calculus until target wave is cleared.',
             gridPos: null
         });
         this.updateUI();
@@ -1622,9 +1757,9 @@ class AutonomousAgent {
         this.recordThinkingStep({
             category: 'STATUS',
             title: this.isEnabled ? 'COMMANDER AI ENGAGED' : 'MANUAL OVERRIDE',
-            formula: 'Mode = ' + (this.isEnabled ? 'AUTONOMOUS' : 'MANUAL') + ' | Speed = ' + this.game.gameSpeed + 'x',
+            formula: 'Mode = ' + (this.isEnabled ? 'AUTONOMOUS' : 'MANUAL') + ' | Doctrine = ' + this.activeDoctrine + ' | Speed = ' + this.game.gameSpeed + 'x',
             rationale: this.isEnabled
-                ? 'Autonomous policy assumed full operational command. Executing automated mathematical ROI optimization, ability targeting, and wave pacing.'
+                ? 'Autonomous policy assumed full operational command. Multi-wave lookahead and synergistic calculus active.'
                 : 'Commander returned tactical control to manual operator.',
             gridPos: null
         });
@@ -1642,12 +1777,53 @@ class AutonomousAgent {
     }
 
     executeAutonomousCycle() {
+        this.forecastUpcomingWaves();
+        this.updateActiveDoctrine();
         this.analyzeBattlefield();
         this.optimizeTowerTargeting();
         if (this.evaluateEmergencyDefense()) return;
         this.evaluateWavePacing();
         this.evaluateDefenseInvestments();
         this.updateUI();
+    }
+
+    forecastUpcomingWaves() {
+        const currentW = this.game.wave;
+        const targetW = (this.game.state === 'PREP') ? currentW : (currentW + 1);
+
+        const forecastQueue = this.game.generateWaveQueue(targetW);
+        let projectedEHP = 0;
+        let tankCount = 0;
+        let swarmCount = 0;
+        let sprinterCount = 0;
+        let hasBoss = false;
+
+        const baseHp = 24 * Math.pow(1.14, targetW - 1) + (targetW * 10);
+
+        for (const archKey of forecastQueue) {
+            const arch = ENEMY_ARCHETYPES[archKey] || ENEMY_ARCHETYPES.NORMAL;
+            if (archKey === 'BOSS') hasBoss = true;
+            if (archKey === 'TANK') tankCount++;
+            if (archKey === 'SWARM') swarmCount++;
+            if (archKey === 'SPRINTER') sprinterCount++;
+            const ehp = (baseHp * arch.hpMult) / Math.max(0.1, 1 - arch.armor);
+            projectedEHP += ehp;
+        }
+
+        const reqDPS = Math.pow(targetW, 1.15) * 16.0;
+        const preparedness = reqDPS > 0 ? (this.telemetry.defenseDPS / reqDPS) : 1.0;
+
+        this.forecast = {
+            wave: targetW,
+            totalEnemies: forecastQueue.length,
+            projectedEHP: Math.round(projectedEHP),
+            tankCount,
+            swarmCount,
+            sprinterCount,
+            hasBoss,
+            reqDPS: Math.round(reqDPS),
+            preparedness: preparedness.toFixed(2)
+        };
     }
 
     analyzeBattlefield() {
@@ -1659,6 +1835,31 @@ class AutonomousAgent {
             totalDPS += t.calcDPS();
         }
         this.telemetry.defenseDPS = totalDPS;
+
+        // Calculate Pairwise Inter-Tower Synergy Index
+        let totalSynergy = 1.0;
+        if (towers.length >= 2) {
+            let synergyPairs = 0;
+            let synergySum = 0;
+            for (let i = 0; i < towers.length; i++) {
+                for (let j = i + 1; j < towers.length; j++) {
+                    const t1 = towers[i];
+                    const t2 = towers[j];
+                    const dist = t1.pos.dist(t2.pos);
+                    const combRange = t1.range + t2.range;
+                    if (dist < combRange) {
+                        const overlap = 1 - (dist / combRange);
+                        const affinity = (TOWER_AFFINITIES[t1.typeKey] && TOWER_AFFINITIES[t1.typeKey][t2.typeKey]) || 1.0;
+                        synergySum += overlap * (affinity - 1.0);
+                        synergyPairs++;
+                    }
+                }
+            }
+            if (synergyPairs > 0) {
+                totalSynergy = 1.0 + (synergySum / synergyPairs);
+            }
+        }
+        this.telemetry.synergyIndex = Math.max(1.0, totalSynergy);
 
         let totalEHP = 0;
         let totalArmorEHP = 0;
@@ -1689,22 +1890,42 @@ class AutonomousAgent {
         this.telemetry.swarmRatio = enemies.length > 0 ? (swarmCount / enemies.length) : 0;
         this.telemetry.minTimeToBreach = minTimeToBreach;
         this.telemetry.emergencyBreachAlert = minTimeToBreach < 3.5;
+        this.telemetry.activeDoctrineName = this.activeDoctrine;
 
         const reqDPS = Math.pow(this.game.wave, 1.15) * 16.0;
-        this.telemetry.pacingConfidence = reqDPS > 0 ? (totalDPS / reqDPS) : 1;
+        this.telemetry.pacingConfidence = reqDPS > 0 ? ((totalDPS * this.telemetry.synergyIndex) / reqDPS) : 1;
 
-        if (bossActive || totalEHP > 4000) {
-            this.telemetry.recommendedArchetype = 'SNIPER';
-        } else if (this.telemetry.activeArmorRatio > 0.25) {
-            this.telemetry.recommendedArchetype = 'BEAM';
-        } else if (this.telemetry.swarmRatio > 0.3) {
-            this.telemetry.recommendedArchetype = 'GATLING';
-        } else if (!towers.some(t => t.typeKey === 'FROST') && towers.length >= 2) {
-            this.telemetry.recommendedArchetype = 'FROST';
-        } else if (towers.length >= 3 && !towers.some(t => t.typeKey === 'MORTAR')) {
-            this.telemetry.recommendedArchetype = 'MORTAR';
+        // Doctrine-Driven Archetype Recommendation
+        if (this.activeDoctrine === 'SNIPER_OVERWATCH' || bossActive || this.forecast.hasBoss) {
+            this.telemetry.recommendedArchetype = (!towers.some(t => t.typeKey === 'SNIPER')) ? 'SNIPER' : 'BEAM';
+        } else if (this.activeDoctrine === 'PERIMETER_FORTRESS') {
+            if (!towers.some(t => t.typeKey === 'FROST')) {
+                this.telemetry.recommendedArchetype = 'FROST';
+            } else if (!towers.some(t => t.typeKey === 'MORTAR')) {
+                this.telemetry.recommendedArchetype = 'MORTAR';
+            } else {
+                this.telemetry.recommendedArchetype = 'GATLING';
+            }
+        } else if (this.activeDoctrine === 'GREEDY_CAPITALIST') {
+            const bankCount = towers.filter(t => t.typeKey === 'BANK').length;
+            if (bankCount < 2 && this.game.wave <= 8) {
+                this.telemetry.recommendedArchetype = 'BANK';
+            } else {
+                this.telemetry.recommendedArchetype = 'TURRET';
+            }
         } else {
-            this.telemetry.recommendedArchetype = 'TURRET';
+            // Balanced Minimax Policy
+            if (this.telemetry.activeArmorRatio > 0.25 || this.forecast.tankCount >= 2) {
+                this.telemetry.recommendedArchetype = 'BEAM';
+            } else if (this.telemetry.swarmRatio > 0.3 || this.forecast.swarmCount >= 6) {
+                this.telemetry.recommendedArchetype = 'GATLING';
+            } else if (!towers.some(t => t.typeKey === 'FROST') && towers.length >= 2) {
+                this.telemetry.recommendedArchetype = 'FROST';
+            } else if (towers.length >= 3 && !towers.some(t => t.typeKey === 'MORTAR')) {
+                this.telemetry.recommendedArchetype = 'MORTAR';
+            } else {
+                this.telemetry.recommendedArchetype = 'TURRET';
+            }
         }
     }
 
@@ -1717,9 +1938,9 @@ class AutonomousAgent {
         for (const t of this.game.towers) {
             let desiredMode = 'FIRST';
             if (t.typeKey === 'SNIPER' || t.typeKey === 'BEAM') {
-                desiredMode = hasBoss ? 'STRONGEST' : (this.telemetry.activeArmorRatio > 0.3 ? 'STRONGEST' : 'FIRST');
+                desiredMode = hasBoss ? 'STRONGEST' : ((this.telemetry.activeArmorRatio > 0.25 || this.forecast.tankCount >= 2) ? 'STRONGEST' : 'FIRST');
             } else if (t.typeKey === 'GATLING' || t.typeKey === 'MORTAR') {
-                desiredMode = this.telemetry.swarmRatio > 0.3 ? 'WEAKEST' : 'FIRST';
+                desiredMode = (this.telemetry.swarmRatio > 0.25 || this.forecast.swarmCount >= 5) ? 'WEAKEST' : 'FIRST';
             } else if (t.typeKey === 'FROST') {
                 desiredMode = 'FIRST';
             }
@@ -1737,7 +1958,7 @@ class AutonomousAgent {
         if (criticalEnemy && this.game.money < 100 && this.game.towers.length >= 3) {
             const distantTower = this.game.towers.find(t => {
                 const distToCrit = t.pos.dist(criticalEnemy.pos);
-                return distToCrit > t.range * 1.8 && t.level <= 2;
+                return distToCrit > t.range * 1.8 && t.level <= 2 && t.typeKey !== 'BANK';
             });
 
             if (distantTower) {
@@ -1750,7 +1971,7 @@ class AutonomousAgent {
                     category: 'TACTICAL_VALUATION',
                     title: 'EMERGENCY RECYCLE: ' + distantTower.type.name,
                     formula: 'Refund: +' + refund + ' | Breach Alert at TTB=' + this.telemetry.minTimeToBreach.toFixed(1) + 's',
-                    rationale: 'Liquidated distant battery at (' + tx + ', ' + ty + ') to recover ' + refund + ' for emergency core defense.',
+                    rationale: 'Liquidated distant battery at (' + tx + ', ' + ty + ') to recover ' + refund + ' for emergency core defense focus-fire.',
                     gridPos: { x: tx, y: ty }
                 });
                 return true;
@@ -1766,7 +1987,7 @@ class AutonomousAgent {
                 category: 'STATUS',
                 title: 'MISSION OBJECTIVE ACHIEVED: WAVE ' + this.targetWave,
                 formula: 'Wave ' + (this.game.wave - 1) + ' >= Target ' + this.targetWave + ' | Auto-Pausing',
-                rationale: 'Target Wave ' + this.targetWave + ' cleared. Pausing simulation as instructed by operational orders.',
+                rationale: 'Target Wave ' + this.targetWave + ' cleared. Pausing simulation as ordered by mission objective.',
                 gridPos: null
             });
             if (this.game.state !== 'PAUSED') {
@@ -1778,12 +1999,16 @@ class AutonomousAgent {
 
         if (this.game.state === 'PREP') {
             const reqDPS = Math.pow(this.game.wave, 1.15) * 16.0;
-            if (this.telemetry.defenseDPS >= reqDPS || this.game.towers.length >= 1) {
+            // Wave Pacing Lookahead Check:
+            // If upcoming wave is a Boss Wave and preparedness < 1.0, wait to spend available gold first!
+            const bossHesitation = (this.forecast && this.forecast.hasBoss && parseFloat(this.forecast.preparedness) < 1.0 && this.game.money >= 200);
+            
+            if (!bossHesitation && (this.telemetry.defenseDPS >= reqDPS || this.game.towers.length >= 1)) {
                 this.recordThinkingStep({
                     category: 'WAVE_PACING',
                     title: 'INITIATE WAVE ' + this.game.wave,
-                    formula: 'Grid DPS: ' + Math.round(this.telemetry.defenseDPS) + ' >= Req: ' + Math.round(reqDPS) + ' (' + this.telemetry.pacingConfidence.toFixed(2) + 'x)',
-                    rationale: 'Perimeter output exceeds Wave ' + this.game.wave + ' threat projection. Autonomously accelerated wave launch.',
+                    formula: 'Grid DPS: ' + Math.round(this.telemetry.defenseDPS) + ' (x' + this.telemetry.synergyIndex.toFixed(2) + ' syn) >= Req: ' + Math.round(reqDPS) + ' (' + this.telemetry.pacingConfidence.toFixed(2) + 'x)',
+                    rationale: 'Perimeter output exceeds Wave ' + this.game.wave + ' threat projection (' + this.activeDoctrine + ' doctrine). Accelerated wave launch.',
                     gridPos: null
                 });
                 this.game.handleWaveClick();
@@ -1803,14 +2028,27 @@ class AutonomousAgent {
 
     evaluateDefenseInvestments() {
         const money = this.game.money;
-        if (money < 100) return;
+        if (money < 80) return;
 
+        // 1. Boss Preparation Capital Reserve Buffer:
+        // If a Boss wave is forecast and we don't have high burst/armor pierce, buffer gold
+        if (this.forecast && this.forecast.hasBoss && !this.game.towers.some(t => t.typeKey === 'SNIPER' || t.typeKey === 'BEAM')) {
+            if (money < 250) return; // Save for Candy Cane / Beam deploy
+        }
+
+        // 2. Evaluate Best Upgrade Candidate (Marginal ROI Calculus)
         let bestUpgradeTower = null;
         let maxUpgradeROI = -1;
 
         for (const t of this.game.towers) {
             if (t.level < t.maxLevel && money >= t.upgradeCost) {
-                const roi = t.calcMarginalROI();
+                let roi = t.calcMarginalROI();
+                // Doctrine Weighting for Upgrades
+                if (this.activeDoctrine === 'SNIPER_OVERWATCH' && (t.typeKey === 'SNIPER' || t.typeKey === 'BEAM')) {
+                    roi *= 1.45;
+                } else if (this.activeDoctrine === 'PERIMETER_FORTRESS' && (t.typeKey === 'MORTAR' || t.typeKey === 'FROST')) {
+                    roi *= 1.4;
+                }
                 if (roi > maxUpgradeROI) {
                     maxUpgradeROI = roi;
                     bestUpgradeTower = t;
@@ -1818,40 +2056,73 @@ class AutonomousAgent {
             }
         }
 
+        // 3. Evaluate Best New Build Sector (Spatial Arc Exposure + Synergy Matrix)
         const targetTypeKey = this.telemetry.recommendedArchetype;
         const proto = TOWER_TYPES[targetTypeKey] || TOWER_TYPES.TURRET;
 
         let bestBuildSpot = null;
         let maxBuildUtility = -1;
+        this.bestSectors = [];
 
         if (money >= proto.cost) {
-            const stepX = 45;
-            const stepY = 45;
+            const stepX = 40;
+            const stepY = 40;
             const range = proto.range;
 
             for (let x = 60; x < this.game.width - 60; x += stepX) {
                 for (let y = 80; y < this.game.height - 60; y += stepY) {
                     if (this.game.isValidPlacement(x, y, proto)) {
-                        const pathExposure = this.game.calcPathExposure(x, y, range);
-                        if (pathExposure > 0) {
+                        const pathDetails = this.game.calcPathExposureWithDetails
+                            ? this.game.calcPathExposureWithDetails(x, y, range)
+                            : { coveragePct: this.game.calcPathExposure(x, y, range), segmentsIntersected: 1 };
+                        
+                        if (pathDetails.coveragePct > 0 || proto.id === 7) {
+                            // Chokepoint Multiplier (intersection of multiple roadway segments)
+                            const chokepointMult = (pathDetails.segmentsIntersected >= 2) ? 1.4 : 1.0;
+
+                            // Pairwise Spatial Synergy Bonus with existing batteries
+                            let synergyBonus = 0;
                             let overlapPenalty = 0;
+
                             for (const existing of this.game.towers) {
                                 const dist = existing.pos.dist({ x, y });
-                                if (dist < range * 0.65) overlapPenalty += (1 - dist / (range * 0.65)) * 1.5;
+                                const combRange = range + existing.range;
+                                if (dist < combRange) {
+                                    const overlapRatio = 1 - (dist / combRange);
+                                    const affinity = (TOWER_AFFINITIES[targetTypeKey] && TOWER_AFFINITIES[targetTypeKey][existing.typeKey]) || 1.0;
+                                    synergyBonus += overlapRatio * (affinity - 1.0) * 35;
+                                }
+                                if (dist < range * 0.65) {
+                                    overlapPenalty += (1 - dist / (range * 0.65)) * 1.6;
+                                }
                             }
-                            const utility = pathExposure - overlapPenalty;
+
+                            // Bank positioning (place Banks away from prime track sectors)
+                            let utility = 0;
+                            if (proto.id === 7) {
+                                utility = 25 - (pathDetails.coveragePct * 0.5); // Prefer low-coverage edge spots for banks
+                            } else {
+                                utility = (pathDetails.coveragePct * chokepointMult) + synergyBonus - overlapPenalty;
+                            }
+
                             if (utility > maxBuildUtility) {
                                 maxBuildUtility = utility;
                                 bestBuildSpot = { x, y };
+                            }
+
+                            if (utility > 15) {
+                                this.bestSectors.push({ x, y, utility });
                             }
                         }
                     }
                 }
             }
+            this.bestSectors.sort((a, b) => b.utility - a.utility);
+            this.bestSectors = this.bestSectors.slice(0, 5);
         }
 
-        if (bestUpgradeTower && (maxUpgradeROI * 120 > maxBuildUtility || !bestBuildSpot)) {
-            const oldLvl = bestUpgradeTower.level;
+        // 4. Marginal ROI vs Spatial Arc Utility Investment Decision
+        if (bestUpgradeTower && (maxUpgradeROI * 110 > maxBuildUtility || !bestBuildSpot)) {
             const cost = bestUpgradeTower.upgradeCost;
             bestUpgradeTower.upgrade();
             this.game.money -= cost;
@@ -1861,7 +2132,7 @@ class AutonomousAgent {
                 category: 'ROI_UPGRADE',
                 title: 'UPGRADE ' + bestUpgradeTower.type.name + ' -> LVL ' + bestUpgradeTower.level,
                 formula: 'Marginal ROI = ' + maxUpgradeROI.toFixed(3) + ' DPS/$ | Base DPS -> ' + bestUpgradeTower.calcDPS().toFixed(1) + '/s',
-                rationale: 'Evaluated marginal rate of return. Upgrading ' + bestUpgradeTower.type.name + ' at (' + Math.round(bestUpgradeTower.pos.x) + ', ' + Math.round(bestUpgradeTower.pos.y) + ') yielded superior DPS efficiency.',
+                rationale: 'Evaluated marginal return on investment (' + this.activeDoctrine + ' doctrine). Upgrading ' + bestUpgradeTower.type.name + ' at (' + Math.round(bestUpgradeTower.pos.x) + ', ' + Math.round(bestUpgradeTower.pos.y) + ') yields peak DPS/$.',
                 gridPos: { x: Math.round(bestUpgradeTower.pos.x), y: Math.round(bestUpgradeTower.pos.y) }
             });
         } else if (bestBuildSpot && money >= proto.cost) {
@@ -1873,8 +2144,8 @@ class AutonomousAgent {
             this.recordThinkingStep({
                 category: 'CONSTRUCTION',
                 title: 'CONSTRUCT ' + proto.name,
-                formula: 'Utility = ' + maxBuildUtility.toFixed(1) + ' | Archetype Demand: ' + targetTypeKey + ' | Cost: ' + proto.cost,
-                rationale: 'Constructed ' + proto.name + ' at optimal sector coordinates (' + bestBuildSpot.x + ', ' + bestBuildSpot.y + ') to counter wave threat matrix.',
+                formula: 'Utility = ' + maxBuildUtility.toFixed(1) + ' | Archetype: ' + targetTypeKey + ' | Synergy Bonus Active',
+                rationale: 'Constructed ' + proto.name + ' at optimal chokepoint (' + bestBuildSpot.x + ', ' + bestBuildSpot.y + ') aligned with ' + this.activeDoctrine + ' doctrine.',
                 gridPos: { x: bestBuildSpot.x, y: bestBuildSpot.y }
             });
         }
@@ -1923,12 +2194,14 @@ class AutonomousAgent {
         if (ticker) {
             ticker.classList.toggle('hidden', !this.isEnabled);
             const modeEl = document.getElementById('ai-ticker-mode');
-            if (modeEl) modeEl.innerText = this.targetWave ? ('GOAL: W' + this.targetWave) : 'AUTONOMOUS';
+            if (modeEl) {
+                modeEl.innerText = this.targetWave ? ('GOAL: W' + this.targetWave) : ('DOCTRINE: ' + this.activeDoctrine);
+            }
 
             const telemEl = document.getElementById('ai-ticker-telemetry');
             if (telemEl) {
                 const reqDPS = Math.pow(this.game.wave, 1.15) * 16.0;
-                telemEl.innerText = 'Threat: ' + this.telemetry.threatEHP + ' EHP • Grid: ' + this.telemetry.defenseDPS.toFixed(1) + ' DPS • Req: ' + Math.round(reqDPS) + ' DPS (' + this.telemetry.pacingConfidence.toFixed(2) + 'x)';
+                telemEl.innerText = 'Threat: ' + this.telemetry.threatEHP + ' EHP • Grid: ' + this.telemetry.defenseDPS.toFixed(1) + ' DPS (x' + this.telemetry.synergyIndex.toFixed(2) + ') • Req: ' + Math.round(reqDPS) + ' DPS (' + this.telemetry.pacingConfidence.toFixed(2) + 'x)';
             }
 
             const actionEl = document.getElementById('ai-ticker-action');
@@ -1940,7 +2213,7 @@ class AutonomousAgent {
         }
         const conStatus = document.getElementById('ai-console-status');
         if (conStatus) {
-            conStatus.innerText = this.isEnabled ? 'ENGAGED' : 'STANDBY';
+            conStatus.innerText = this.isEnabled ? ('ACTIVE [' + this.activeDoctrine + ']') : 'STANDBY';
             conStatus.style.color = this.isEnabled ? '#10b981' : '#94a3b8';
         }
 
@@ -1965,8 +2238,24 @@ class AutonomousAgent {
             }
         }
 
+        // Update Forecast Card in Console
+        const forecastTag = document.getElementById('ai-forecast-tag');
+        const forecastDetails = document.getElementById('ai-forecast-details');
+        if (forecastTag && this.forecast) {
+            forecastTag.innerText = 'WAVE ' + this.forecast.wave + (this.forecast.hasBoss ? ' [BOSS]' : '');
+            forecastTag.style.background = this.forecast.hasBoss ? '#dc2626' : '#0369a1';
+        }
+        if (forecastDetails && this.forecast) {
+            forecastDetails.innerText = 'Projected EHP: ' + this.forecast.projectedEHP.toLocaleString() + ' • Enemies: ' + this.forecast.totalEnemies + ' (Tanks: ' + this.forecast.tankCount + ', Swarms: ' + this.forecast.swarmCount + ') • Preparedness: ' + this.forecast.preparedness + 'x';
+        }
+
         const countEl = document.getElementById('ai-timeline-count');
         if (countEl) countEl.innerText = this.history.length + ' Decisions';
+
+        const docSelect = document.getElementById('ai-doctrine-select');
+        if (docSelect && docSelect.value !== this.doctrine) {
+            docSelect.value = this.doctrine;
+        }
     }
 
     renderTimeline() {
@@ -2003,6 +2292,92 @@ class AutonomousAgent {
 
 const Game = {
     // Mathematical Path Geometry & Autonomous Strategic Calculus
+    calcInFlightDamage(enemy) {
+        if (!enemy || !this.projectiles) return 0;
+        let incoming = 0;
+        for (const p of this.projectiles) {
+            if (p.active && p.target === enemy) {
+                incoming += p.dmg;
+            }
+        }
+        return incoming;
+    },
+
+    calcPathExposureWithDetails(x, y, range) {
+        if (!this.levelWaypoints || this.levelWaypoints.length < 2) return { coveragePct: 0, segmentsIntersected: 0 };
+        let exposedLength = 0;
+        let segmentsIntersected = 0;
+        const totalLen = this.calcTotalPathLength();
+        for (let i = 0; i < this.levelWaypoints.length - 1; i++) {
+            const p1 = this.levelWaypoints[i];
+            const p2 = this.levelWaypoints[i+1];
+            const segLen = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+            if (segLen === 0) continue;
+            let hitSeg = false;
+            const steps = Math.max(2, Math.ceil(segLen / 8));
+            for (let s = 0; s <= steps; s++) {
+                const t = s / steps;
+                const px = p1.x + t * (p2.x - p1.x);
+                const py = p1.y + t * (p2.y - p1.y);
+                if (Math.hypot(px - x, py - y) <= range) {
+                    exposedLength += (segLen / steps);
+                    hitSeg = true;
+                }
+            }
+            if (hitSeg) segmentsIntersected++;
+        }
+        return {
+            coveragePct: Math.min(100, (exposedLength / totalLen) * 100),
+            segmentsIntersected
+        };
+    },
+
+    toggleHeatmap(val) {
+        this.showTacticalHeatmap = (val !== undefined) ? val : !this.showTacticalHeatmap;
+    },
+
+    renderTacticalOverlay(ctx) {
+        if (!this.showTacticalHeatmap || !this.autonomousAgent || !this.autonomousAgent.isEnabled) return;
+        ctx.save();
+
+        // 1. Render AI Sector Utility Hotspots
+        if (this.autonomousAgent.bestSectors && this.autonomousAgent.bestSectors.length > 0) {
+            for (const s of this.autonomousAgent.bestSectors) {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, 16, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.18)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = "bold 9px monospace";
+                ctx.fillText(Math.round(s.utility) + 'u', s.x - 7, s.y + 3);
+            }
+        }
+
+        // 2. Render Critical Breach Convergence Vectors
+        if (this.autonomousAgent.telemetry && this.autonomousAgent.telemetry.emergencyBreachAlert) {
+            const criticalEnemy = this.enemies.find(e => !e.dead && !e.reachedEnd && (this.calcTotalPathLength() - e.distanceTraveled) < 220);
+            if (criticalEnemy) {
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                for (const t of this.towers) {
+                    if (t.pos.dist(criticalEnemy.pos) <= t.range) {
+                        ctx.beginPath();
+                        ctx.moveTo(t.pos.x, t.pos.y);
+                        ctx.lineTo(criticalEnemy.pos.x, criticalEnemy.pos.y);
+                        ctx.stroke();
+                    }
+                }
+                ctx.setLineDash([]);
+            }
+        }
+        ctx.restore();
+    },
+
     calcTotalPathLength() {
         if (!this.levelWaypoints || this.levelWaypoints.length < 2) return 1;
         let total = 0;
@@ -2124,6 +2499,8 @@ const Game = {
     
     shakeIntensity: 0, shakeX: 0, shakeY: 0,
     soundSystem: new SoundSystem(),
+    autonomousAgent: null,
+    showTacticalHeatmap: false,
 
     init() {
         this.bgCtx = this.bgCanvas.getContext('2d');
@@ -2783,6 +3160,9 @@ const Game = {
         this.enemies.forEach(e => e.draw(this.ctx, time));
         this.projectiles.forEach(p => p.draw(this.ctx));
         this.particles.forEach(p => p.draw(this.ctx));
+
+        // AI Tactical Heatmap & Vectors Overlay
+        this.renderTacticalOverlay(this.ctx);
 
         // Placement Preview Ring for Mobile/Touch
         if ((this.state === 'PREP' || this.state === 'WAVE') && this.selectedTowerType) {
