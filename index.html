@@ -3,162 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GokuGames</title>
+    <title>GokuGames — Instant Web Arcade</title>
     
-    <!-- Google Fonts: Inter & Orbitron -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Centralized Tailwind Configuration -->
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: { 
-                        sans:['Inter', 'sans-serif'],
-                        display:['Orbitron', 'sans-serif']
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif']
                     },
                     colors: {
-                        brand: { 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed' },
-                        neon: { blue: '#00f0ff', purple: '#b026ff', pink: '#ff0055' },
-                        slate: { 850: '#151e2e', 900: '#0f172a', 950: '#020617' }
-                    },
-                    animation: {
-                        blob: 'blob 7s infinite',
-                        'text-glow': 'text-glow 2s ease-in-out infinite alternate',
-                    },
-                    keyframes: {
-                        blob: {
-                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
-                        },
-                        'text-glow': {
-                            '0%': { textShadow: '0 0 10px rgba(176,38,255,0.5), 0 0 20px rgba(176,38,255,0.3)' },
-                            '100%': { textShadow: '0 0 20px rgba(0,240,255,0.8), 0 0 30px rgba(0,240,255,0.5)' }
+                        surface: {
+                            base: '#0b0f19',
+                            card: '#131b2e',
+                            elevated: '#1e293b',
+                            border: '#2a374f',
+                            borderLight: '#3b4a6b'
                         }
                     }
                 }
             }
-        }
+        };
     </script>
 
     <style>
+        :root {
+            --color-bg: #0b0f19;
+            --color-surface: #131b2e;
+            --color-border: #2a374f;
+            --color-text: #f8fafc;
+            --color-text-muted: #94a3b8;
+            --radius-md: 12px;
+        }
+
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #b026ff; }
+        ::-webkit-scrollbar-track { background: var(--color-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
         html { scroll-behavior: smooth; }
-        
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .game-card-hover:hover {
-            box-shadow: 0 0 25px rgba(176, 38, 255, 0.3), inset 0 0 15px rgba(0, 240, 255, 0.1);
-            border-color: rgba(176, 38, 255, 0.5);
-            transform: translateY(-5px);
+
+        .surface-panel {
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
         }
 
-        .sidebar-item { transition: all 0.2s ease-in-out; }
+        .game-card {
+            transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .game-card:hover {
+            transform: translateY(-3px);
+            border-color: #38bdf8;
+            box-shadow: 0 10px 24px -10px rgba(2, 132, 199, 0.25);
+        }
+        .game-card:focus-visible {
+            outline: 2px solid #38bdf8;
+            outline-offset: 2px;
+        }
+
+        .sidebar-item {
+            transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        }
         .sidebar-item.active {
-            background: linear-gradient(90deg, rgba(176,38,255,0.1) 0%, transparent 100%);
-            border-left: 4px solid #b026ff;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(176,38,255,0.8);
+            background-color: #1e293b;
+            border-left: 3px solid #38bdf8;
+            color: #ffffff;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+        .sidebar-item:focus-visible {
+            outline: 2px solid #38bdf8;
+            outline-offset: -2px;
         }
 
-        /* Collapsed Sidebar State styling (Desktop Only) */
         @media (min-width: 1024px) {
             body.desktop-collapsed #sidebar { width: 5rem; }
             body.desktop-collapsed #main-content { margin-left: 5rem; }
-            body.desktop-collapsed .sidebar-text { 
-                opacity: 0; 
-                width: 0; 
-                visibility: hidden; 
-                margin: 0; 
-            }
+            body.desktop-collapsed .sidebar-text { display: none; }
             body.desktop-collapsed .sidebar-item { 
-                gap: 0; 
                 padding-left: 0; 
                 padding-right: 0; 
                 justify-content: center; 
             }
-            body.desktop-collapsed .sidebar-heading { 
-                opacity: 0; 
-                height: 0; 
-                margin: 0; 
-                overflow: hidden; 
-            }
+            body.desktop-collapsed .sidebar-heading { display: none; }
             body.desktop-collapsed #sidebar-inner { 
                 padding-left: 0.5rem; 
                 padding-right: 0.5rem; 
             }
-            body.desktop-collapsed .sidebar-divider {
-                display: block;
-                height: 1px;
-                background: rgba(255,255,255,0.1);
-                margin: 1.5rem 1rem;
-            }
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-300 font-sans antialiased overflow-x-hidden relative flex flex-col min-h-screen transition-all duration-300">
-
-    <!-- Background Blobs -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div class="absolute top-0 left-1/4 w-96 h-96 bg-neon-purple/20 rounded-full mix-blend-screen filter blur-[100px] opacity-40 animate-blob"></div>
-        <div class="absolute top-1/2 right-1/4 w-96 h-96 bg-neon-blue/20 rounded-full mix-blend-screen filter blur-[100px] opacity-40 animate-blob" style="animation-delay: 2s;"></div>
-    </div>
+<body class="bg-[#0b0f19] text-slate-200 font-sans antialiased flex flex-col min-h-screen">
 
     <!-- Top Navigation Header -->
-    <header class="fixed top-0 w-full z-50 glass-panel border-b border-white/5 shadow-lg h-20 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header class="fixed top-0 w-full z-50 bg-[#0f172a]/95 backdrop-blur-md border-b border-[#2a374f] h-20 flex items-center justify-between px-4 sm:px-6 lg:px-8">
         
         <div class="flex items-center gap-4">
-            <!-- Universal Menu Toggle Button -->
-            <button id="menu-btn" class="p-2 text-slate-400 hover:text-white focus:outline-none transition-colors group">
-                <svg class="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <button id="menu-btn" type="button" aria-label="Toggle navigation menu" aria-expanded="false" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
             
-            <a href="#" class="flex items-center gap-3 text-white font-display font-bold text-xl sm:text-2xl tracking-wider hover:text-neon-blue transition-colors duration-300">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-purple to-neon-blue flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.5)]">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 1.6l8.4 5.8v6.8L10 20l-8.4-5.8V7.4L10 1.6z"/></svg>
+            <a href="index.html" class="flex items-center gap-3 text-white font-display font-bold text-xl sm:text-2xl tracking-wider hover:text-sky-400 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 rounded-lg p-1">
+                <div class="w-10 h-10 rounded-lg bg-sky-600 flex items-center justify-center text-white shadow-md">
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4m-2-2v4m9-2h.01m3-2h.01"></path></svg>
                 </div>
-                <span class="hidden sm:inline">GOKU<span class="text-neon-blue">GAMES</span></span>
+                <span>GOKU<span class="text-sky-400">GAMES</span></span>
             </a>
         </div>
 
         <!-- Global Search Bar -->
-        <div class="flex-1 max-w-2xl px-6 hidden sm:block relative">
-            <div class="absolute inset-y-0 left-10 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <div class="flex-1 max-w-xl px-6 hidden sm:block">
+            <div class="relative">
+                <label for="game-search" class="sr-only">Search games</label>
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <input type="search" id="game-search" class="block w-full pl-10 pr-4 py-2 border border-slate-700 rounded-lg bg-slate-900 text-white placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all sm:text-sm" placeholder="Search by title or genre...">
             </div>
-            <input type="search" id="game-search" class="block w-full pl-12 pr-4 py-2.5 border border-white/10 rounded-2xl bg-slate-900/50 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent transition-all shadow-inner sm:text-sm" placeholder="Search games...">
         </div>
 
-        <div class="flex items-center gap-4">
-            <!-- GitHub Link (Kept top-right for non-intrusive access) -->
-            <a href="https://github.com/gokuthug1" target="_blank" rel="noopener noreferrer" class="hidden md:flex items-center gap-2 text-slate-300 hover:text-white group transition-colors">
-                <svg class="w-7 h-7 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        <div class="flex items-center gap-3">
+            <a href="https://github.com/gokuthug1" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-300 hover:text-white rounded-lg hover:bg-slate-800 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                <span class="hidden md:inline font-medium">GitHub</span>
             </a>
             
-            <span class="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-400/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                FREE
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-md border border-emerald-700">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                FREE PLAY
             </span>
         </div>
     </header>
@@ -166,30 +145,29 @@
     <div class="flex flex-1 pt-20">
         
         <!-- Sidebar Navigation -->
-        <aside id="sidebar" class="fixed inset-y-0 left-0 pt-20 w-64 glass-panel border-r border-white/5 transform -translate-x-full lg:translate-x-0 transition-all duration-300 z-40 overflow-y-auto overflow-x-hidden">
-            <div id="sidebar-inner" class="p-6 transition-all duration-300">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 pt-20 w-64 bg-[#0f172a] border-r border-[#2a374f] transform -translate-x-full lg:translate-x-0 transition-transform duration-200 z-40 overflow-y-auto" aria-label="Game Categories">
+            <div id="sidebar-inner" class="p-4 space-y-6">
                 
                 <!-- Discover Section -->
-                <div class="mb-8">
-                    <h3 class="sidebar-heading text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 transition-all duration-300 whitespace-nowrap">Discover</h3>
-                    <div class="sidebar-divider hidden"></div>
-                    <ul class="space-y-2">
+                <div>
+                    <h2 class="sidebar-heading text-xs font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Discover</h2>
+                    <ul class="space-y-1">
                         <li>
-                            <button data-filter="All" title="Home" class="sidebar-item active w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:text-white font-medium border-l-4 border-transparent overflow-hidden">
-                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                                <span class="sidebar-text whitespace-nowrap transition-all duration-300">Home</span>
+                            <button type="button" data-filter="All" class="sidebar-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-medium text-sm text-left">
+                                <svg class="w-5 h-5 flex-shrink-0 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                                <span class="sidebar-text">All Games</span>
                             </button>
                         </li>
                         <li>
-                            <button data-filter="Trending" title="Trending" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:text-white font-medium border-l-4 border-transparent overflow-hidden">
-                                <svg class="w-5 h-5 flex-shrink-0 text-neon-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/></svg>
-                                <span class="sidebar-text whitespace-nowrap transition-all duration-300">Trending</span>
+                            <button type="button" data-filter="Trending" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-medium text-sm text-left">
+                                <svg class="w-5 h-5 flex-shrink-0 text-rose-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                                <span class="sidebar-text">Trending</span>
                             </button>
                         </li>
                         <li>
-                            <button data-filter="Mobile" title="Mobile Only" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:text-white font-medium border-l-4 border-transparent overflow-hidden">
-                                <svg class="w-5 h-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                                <span class="sidebar-text whitespace-nowrap transition-all duration-300">Mobile Only</span>
+                            <button type="button" data-filter="Mobile" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-medium text-sm text-left">
+                                <svg class="w-5 h-5 flex-shrink-0 text-emerald-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                                <span class="sidebar-text">Mobile Ready</span>
                             </button>
                         </li>
                     </ul>
@@ -197,31 +175,30 @@
 
                 <!-- Genres Section -->
                 <div>
-                    <h3 class="sidebar-heading text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 transition-all duration-300 whitespace-nowrap">Genres</h3>
-                    <div class="sidebar-divider hidden"></div>
-                    <ul class="space-y-2">
+                    <h2 class="sidebar-heading text-xs font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Genres</h2>
+                    <ul class="space-y-1">
                         <li>
-                            <button data-filter="Action" title="Action" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:text-white font-medium border-l-4 border-transparent overflow-hidden">
-                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                <span class="sidebar-text whitespace-nowrap transition-all duration-300">Action</span>
+                            <button type="button" data-filter="Strategy" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-medium text-sm text-left">
+                                <svg class="w-5 h-5 flex-shrink-0 text-sky-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+                                <span class="sidebar-text">Strategy</span>
                             </button>
                         </li>
                         <li>
-                            <button data-filter="Puzzle" title="Puzzle" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:text-white font-medium border-l-4 border-transparent overflow-hidden">
-                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
-                                <span class="sidebar-text whitespace-nowrap transition-all duration-300">Puzzle</span>
+                            <button type="button" data-filter="Action" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-medium text-sm text-left">
+                                <svg class="w-5 h-5 flex-shrink-0 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                <span class="sidebar-text">Action</span>
                             </button>
                         </li>
                         <li>
-                            <button data-filter="Racing" title="Racing" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:text-white font-medium border-l-4 border-transparent overflow-hidden">
-                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m22 4v-4m-3.1-2l-1.2-5.4C20.4 7.2 18.5 6 16.3 6H7.7C5.5 6 3.6 7.2 3.3 9.6L2.1 15m18.8 0H3.1m5.9-4h6m-9.5 9h11a2 2 0 002-2v-1a2 2 0 00-2-2H6a2 2 0 00-2 2v1a2 2 0 002 2z"/></svg>
-                                <span class="sidebar-text whitespace-nowrap transition-all duration-300">Racing</span>
+                            <button type="button" data-filter="Puzzle" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-medium text-sm text-left">
+                                <svg class="w-5 h-5 flex-shrink-0 text-purple-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path></svg>
+                                <span class="sidebar-text">Puzzle</span>
                             </button>
                         </li>
                         <li>
-                            <button data-filter="Strategy" title="Strategy" class="sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-300 hover:text-white font-medium border-l-4 border-transparent overflow-hidden">
-                                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-                                <span class="sidebar-text whitespace-nowrap transition-all duration-300">Strategy</span>
+                            <button type="button" data-filter="Racing" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 font-medium text-sm text-left">
+                                <svg class="w-5 h-5 flex-shrink-0 text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>
+                                <span class="sidebar-text">Racing</span>
                             </button>
                         </li>
                     </ul>
@@ -231,79 +208,147 @@
         </aside>
 
         <!-- Overlay for mobile when sidebar is open -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-30 hidden lg:hidden transition-opacity"></div>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden lg:hidden transition-opacity" aria-hidden="true"></div>
 
         <!-- Main Content Area -->
-        <main id="main-content" class="flex-1 w-full lg:ml-64 relative z-10 px-4 sm:px-6 lg:px-8 py-8 space-y-12 transition-all duration-300">
+        <main id="main-content" class="flex-1 w-full lg:ml-64 px-4 sm:px-6 lg:px-8 py-6 space-y-8">
             
             <!-- Mobile Search Bar (Only visible on small screens) -->
-            <div class="sm:hidden relative w-full mb-8">
-                <input type="search" id="mobile-game-search" class="block w-full pl-10 pr-4 py-3 border border-white/10 rounded-xl bg-slate-900/80 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-neon-blue focus:border-transparent text-sm" placeholder="Search games...">
-                <svg class="h-5 w-5 text-slate-400 absolute left-3 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <div class="sm:hidden">
+                <label for="mobile-game-search" class="sr-only">Search games</label>
+                <div class="relative">
+                    <input type="search" id="mobile-game-search" class="block w-full pl-10 pr-4 py-2.5 border border-slate-700 rounded-lg bg-slate-900 text-white placeholder-slate-400 focus:outline-none focus:border-sky-500 text-sm" placeholder="Search games...">
+                    <svg class="h-5 w-5 text-slate-400 absolute left-3 top-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
             </div>
 
-            <!-- Hero Banner -->
-            <section class="relative rounded-3xl overflow-hidden glass-panel p-8 md:p-14 border border-white/10">
-                <div class="absolute inset-0 bg-gradient-to-r from-neon-purple/10 to-neon-blue/10 pointer-events-none"></div>
-                <div class="relative z-10 max-w-2xl">
-                    <h1 class="text-3xl md:text-5xl font-display font-black text-white tracking-tight mb-4">
-                        INSTANT PLAY.<br/>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink animate-text-glow">ZERO FRICTION.</span>
+            <!-- Hero Section -->
+            <section class="rounded-2xl surface-panel p-6 md:p-10 border border-[#2a374f] relative overflow-hidden" aria-labelledby="hero-title">
+                <div class="max-w-2xl relative z-10 space-y-3">
+                    <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-sky-950 text-sky-400 border border-sky-800 text-xs font-semibold">
+                        NATIVE HTML5 • INSTANT PLAY
+                    </div>
+                    <h1 id="hero-title" class="text-2xl sm:text-4xl font-display font-bold text-white tracking-wide">
+                        ZERO DOWNLOADS. INSTANT ACTION.
                     </h1>
-                    <p class="text-slate-400 text-sm md:text-base font-medium">
-                        No downloads, no accounts, no paywalls. Jump straight into the action with our curated collection of HTML5 games.
+                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                        Curated collection of high-performance HTML5 browser games. Works offline, on desktop, and on mobile.
                     </p>
                 </div>
             </section>
 
-            <!-- Dynamic Section Title -->
-            <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                <h2 id="section-title" class="text-2xl md:text-3xl font-display font-bold text-white flex items-center gap-3">
-                    <span class="w-2 h-8 rounded-full bg-neon-purple shadow-[0_0_10px_rgba(176,38,255,0.8)]"></span>
+            <!-- Section Controls & Count -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h2 id="section-title" class="text-xl font-display font-semibold text-white flex items-center gap-2">
+                    <span class="w-1.5 h-6 bg-sky-500 rounded-sm"></span>
                     Featured Titles
                 </h2>
                 <span id="game-count" class="text-slate-400 text-sm font-medium">0 Games</span>
             </div>
 
             <!-- Game Grid -->
-            <section aria-label="Games Grid">
-                <div id="game-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <!-- Javascript renders games here -->
+            <section aria-label="Available Games">
+                <div id="game-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    <!-- JavaScript dynamically renders games here -->
                 </div>
             </section>
 
             <!-- Footer -->
-            <footer class="mt-20 border-t border-white/10 pt-8 pb-4 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p class="text-slate-500 text-sm">© 2026 GokuGames. All Systems Operational.</p>
-                <a href="https://github.com/gokuthug1" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                    Built by gokuthug1
-                </a>
+            <footer class="mt-16 border-t border-slate-800 pt-6 pb-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+                <p>© 2026 GokuGames. All rights reserved.</p>
+                <div class="flex items-center gap-4">
+                    <a href="https://github.com/gokuthug1" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300 transition-colors">Developer Profile</a>
+                    <span>•</span>
+                    <a href="Tower-Defense.html" class="hover:text-slate-300 transition-colors">Desktop Edition</a>
+                    <span>•</span>
+                    <a href="Tower-DefenseM.html" class="hover:text-slate-300 transition-colors">Mobile Edition</a>
+                </div>
             </footer>
 
         </main>
     </div>
 
-    <!-- Application Logic -->
+    <!-- Application Script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
-            // ==========================================
-            // 1. ADVANCED GAME DATA
-            // ==========================================
-            const games =[
-                { title: "Candy Tower Defense!", genre: "Strategy", url: "https://gokuthug1.github.io/games/Tower-Defense", isMobile: false,  isTrending: true },
-                { title: "Coming Soon!",         genre: "Puzzle",   url: "#", isMobile: true,  isTrending: false },
-                { title: "Coming Soon!",         genre: "Action",   url: "#", isMobile: false, isTrending: true },
-                { title: "Coming Soon!",         genre: "Racing",   url: "#", isMobile: true,  isTrending: false },
-                { title: "Coming Soon!",         genre: "Strategy", url: "#", isMobile: true,  isTrending: false },
-                { title: "Coming Soon!",         genre: "Action",   url: "#", isMobile: true,  isTrending: true },
-                { title: "Coming Soon!",         genre: "Puzzle",   url: "#", isMobile: false, isTrending: false },
-                { title: "Coming Soon!",         genre: "Racing",   url: "#", isMobile: true,  isTrending: true },
-                { title: "Candy Tower Defense Mobile!", genre: "Strategy", url: "https://gokuthug1.github.io/games/Tower-DefenseM", isMobile: true,  isTrending: true },
+            // Device Detection: Coarse pointer or small viewport indicates mobile
+            const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
+
+            // Load persistent game statistics from localStorage
+            const savedHighScore = localStorage.getItem('candy_defense_highscore') || 0;
+            const savedBestWave = localStorage.getItem('candy_defense_best_wave') || 0;
+
+            const games = [
+                { 
+                    id: "td-desktop",
+                    title: "Candy Tower Defense!", 
+                    genre: "Strategy", 
+                    url: "Tower-Defense.html", 
+                    isMobile: false,  
+                    isTrending: true,
+                    isReady: true,
+                    desc: "Desktop Edition with full mouse controls, hotkeys, and tactical depth.",
+                    badge: !isTouchDevice ? "Recommended" : null
+                },
+                { 
+                    id: "td-mobile",
+                    title: "Candy Tower Defense Mobile!", 
+                    genre: "Strategy", 
+                    url: "Tower-DefenseM.html", 
+                    isMobile: true,   
+                    isTrending: true,
+                    isReady: true,
+                    desc: "Touch-optimized edition designed specifically for mobile and tablets.",
+                    badge: isTouchDevice ? "Recommended" : null
+                },
+                { 
+                    id: "cs-1",
+                    title: "Sugar Match Challenge", 
+                    genre: "Puzzle",   
+                    url: "#", 
+                    isMobile: true,  
+                    isTrending: false,
+                    isReady: false,
+                    desc: "Match-3 candy puzzle adventure. Currently in development."
+                },
+                { 
+                    id: "cs-2",
+                    title: "Gummy Run", 
+                    genre: "Action",   
+                    url: "#", 
+                    isMobile: false, 
+                    isTrending: true,
+                    isReady: false,
+                    desc: "Fast-paced endless runner through candy terrain."
+                },
+                { 
+                    id: "cs-3",
+                    title: "Sugar Speedway", 
+                    genre: "Racing",   
+                    url: "#", 
+                    isMobile: true,  
+                    isTrending: false,
+                    isReady: false,
+                    desc: "Kart racing on waffle and frosting tracks."
+                },
+                { 
+                    id: "cs-4",
+                    title: "Jelly Kingdom Wars", 
+                    genre: "Strategy", 
+                    url: "#", 
+                    isMobile: true,  
+                    isTrending: false,
+                    isReady: false,
+                    desc: "Turn-based kingdom management and siege defense."
+                }
             ];
 
-            // Initial sort by genre
-            games.sort((a, b) => a.genre.localeCompare(b.genre));
+            // Initial sort: Ready games first, then by title
+            games.sort((a, b) => {
+                if (a.isReady !== b.isReady) return b.isReady ? 1 : -1;
+                return a.title.localeCompare(b.title);
+            });
 
             // State Elements
             const gameGrid = document.getElementById('game-grid');
@@ -315,12 +360,8 @@
             let currentFilter = 'All';
             let currentSearch = '';
 
-            // ==========================================
-            // 2. RENDER GRID LOGIC
-            // ==========================================
+            // Render Game Cards
             const renderGames = () => {
-                
-                // 1. Filter by Category
                 let filtered = games.filter(game => {
                     if (currentFilter === 'All') return true;
                     if (currentFilter === 'Trending') return game.isTrending;
@@ -328,185 +369,181 @@
                     return game.genre === currentFilter;
                 });
 
-                // 2. Filter by Search
                 if (currentSearch) {
                     filtered = filtered.filter(game => 
                         game.title.toLowerCase().includes(currentSearch) || 
-                        game.genre.toLowerCase().includes(currentSearch)
+                        game.genre.toLowerCase().includes(currentSearch) ||
+                        game.desc.toLowerCase().includes(currentSearch)
                     );
                 }
 
-                // Update UI Counters & Headers
-                gameCount.textContent = `${filtered.length} Games`;
+                // Update UI Counters & Title
+                gameCount.textContent = `${filtered.length} ${filtered.length === 1 ? 'Game' : 'Games'}`;
                 
                 let headerText = 'Featured Titles';
-                if (currentSearch) headerText = `Search: "${currentSearch}"`;
-                else if (currentFilter === 'Trending') headerText = 'Trending Now';
-                else if (currentFilter === 'Mobile') headerText = 'Mobile Friendly';
+                if (currentSearch) headerText = `Results for "${currentSearch}"`;
+                else if (currentFilter === 'Trending') headerText = 'Trending Games';
+                else if (currentFilter === 'Mobile') headerText = 'Mobile Compatible Games';
                 else if (currentFilter !== 'All') headerText = `${currentFilter} Games`;
                 
-                sectionTitle.innerHTML = `<span class="w-2 h-8 rounded-full bg-neon-purple shadow-[0_0_10px_rgba(176,38,255,0.8)]"></span> ${headerText}`;
+                sectionTitle.innerHTML = `<span class="w-1.5 h-6 bg-sky-500 rounded-sm"></span> ${headerText}`;
 
                 // Handle Empty State
                 if (filtered.length === 0) {
                     gameGrid.innerHTML = `
-                        <div class="col-span-full py-16 flex flex-col items-center justify-center border border-dashed border-slate-700 rounded-2xl bg-slate-900/50">
-                            <svg class="w-16 h-16 text-slate-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <p class="text-slate-400 font-display text-lg">No games found.</p>
+                        <div class="col-span-full py-12 px-4 flex flex-col items-center justify-center border border-dashed border-slate-700 rounded-xl bg-slate-900/60 text-center">
+                            <svg class="w-12 h-12 text-slate-500 mb-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <h3 class="text-base font-semibold text-slate-200 mb-1">No matching games found</h3>
+                            <p class="text-sm text-slate-400 max-w-sm mb-4">No titles match your current search or genre filter.</p>
+                            <button type="button" id="btn-clear-search" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors border border-slate-600">
+                                Reset Filters
+                            </button>
                         </div>
                     `;
+                    document.getElementById('btn-clear-search')?.addEventListener('click', () => {
+                        currentFilter = 'All';
+                        currentSearch = '';
+                        searchInputDesk.value = '';
+                        searchInputMob.value = '';
+                        document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+                        document.querySelector('.sidebar-item[data-filter="All"]')?.classList.add('active');
+                        renderGames();
+                    });
                     return;
                 }
 
                 // Render Cards
-                gameGrid.innerHTML = filtered.map((game, index) => {
-                    const isComingSoon = game.url === "#";
-                    const animDelay = index * 40;
+                gameGrid.innerHTML = filtered.map(game => {
+                    const isPlayable = game.isReady && game.url !== '#';
                     
+                    let statPill = '';
+                    if (isPlayable && savedHighScore > 0) {
+                        statPill = `
+                            <div class="flex items-center gap-1.5 text-xs font-medium text-amber-300 bg-amber-950/60 px-2 py-1 rounded border border-amber-800/60">
+                                <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                <span>Record: ${Number(savedHighScore).toLocaleString()} pts (Wave ${savedBestWave})</span>
+                            </div>
+                        `;
+                    }
+
                     let badgesHtml = '';
-                    if (game.isTrending) badgesHtml += `<span class="bg-neon-pink/20 text-neon-pink border border-neon-pink/30 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1 shadow-[0_0_5px_rgba(255,0,85,0.3)]"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"/></svg>HOT</span>`;
-                    if (game.isMobile) badgesHtml += `<span class="bg-emerald-400/20 text-emerald-400 border border-emerald-400/30 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>MOBILE</span>`;
+                    if (game.badge) {
+                        badgesHtml += `<span class="bg-sky-950 text-sky-300 border border-sky-700 text-xs font-semibold px-2 py-0.5 rounded">${game.badge}</span>`;
+                    }
+                    if (game.isTrending) {
+                        badgesHtml += `<span class="bg-rose-950 text-rose-300 border border-rose-800 text-xs font-semibold px-2 py-0.5 rounded">Hot</span>`;
+                    }
+                    if (game.isMobile) {
+                        badgesHtml += `<span class="bg-emerald-950 text-emerald-300 border border-emerald-800 text-xs font-semibold px-2 py-0.5 rounded">Mobile</span>`;
+                    }
 
                     return `
-                    <article 
-                        class="game-card group relative bg-slate-900 rounded-2xl overflow-hidden transition-all duration-300 ${isComingSoon ? 'cursor-not-allowed opacity-75 grayscale-[20%]' : 'cursor-pointer game-card-hover'}" 
-                        data-game-url="${game.url}" 
-                        tabindex="0"
-                        style="animation: fadeIn 0.4s ease-out ${animDelay}ms both;"
-                    >
-                        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-20"></div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent pointer-events-none"></div>
-
-                        <div class="absolute top-3 left-3 flex flex-col gap-1 z-20">
-                            ${badgesHtml}
+                    <article class="game-card surface-panel rounded-xl flex flex-col justify-between p-5 ${!isPlayable ? 'opacity-60' : ''}">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">${game.genre}</span>
+                                <div class="flex items-center gap-1 flex-wrap justify-end">
+                                    ${badgesHtml}
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-lg font-bold text-white mb-2 leading-snug">
+                                ${game.title}
+                            </h3>
+                            
+                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                                ${game.desc}
+                            </p>
                         </div>
 
-                        <div class="relative flex flex-col items-center justify-center p-6 h-48 text-center border border-white/5 rounded-2xl group-hover:border-transparent transition-colors z-10">
-                            <h2 class="text-xl font-display font-bold mb-3 mt-4 ${isComingSoon ? 'text-slate-400' : 'text-white group-hover:text-neon-blue transition-colors drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]'}">
-                                ${game.title}
-                            </h2>
+                        <div class="space-y-3 pt-2 border-t border-slate-800/80">
+                            ${statPill}
                             
-                            <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md border ${
-                                isComingSoon 
-                                ? 'text-slate-500 border-slate-700 bg-slate-800/50' 
-                                : 'text-neon-purple border-neon-purple/50 bg-neon-purple/10 shadow-[0_0_10px_rgba(176,38,255,0.2)]'
-                            }">
-                                ${game.genre}
-                            </span>
-                            
-                            <div class="absolute inset-0 bg-slate-950/80 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-sm rounded-2xl">
-                                <span class="inline-flex items-center gap-2 font-bold px-5 py-2.5 text-sm rounded-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 ${
-                                    isComingSoon 
-                                        ? 'bg-slate-800 text-slate-400' 
-                                        : 'bg-gradient-to-r from-neon-purple to-neon-blue text-white shadow-[0_0_20px_rgba(0,240,255,0.5)]'
-                                }">
-                                    ${isComingSoon 
-                                        ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Coming Soon' 
-                                        : '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg> Play Now'}
-                                </span>
-                            </div>
+                            ${isPlayable ? `
+                                <a href="${game.url}" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-semibold text-sm rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                    Play Now
+                                </a>
+                            ` : `
+                                <button type="button" disabled class="w-full px-4 py-2.5 bg-slate-800 text-slate-500 font-semibold text-sm rounded-lg cursor-not-allowed border border-slate-700">
+                                    Coming Soon
+                                </button>
+                            `}
                         </div>
                     </article>
-                `}).join('');
-
-                attachAccessibility();
+                    `;
+                }).join('');
             };
 
-            // ==========================================
-            // 3. EVENT LISTENERS
-            // ==========================================
-            
-            // Sidebar Filtering
+            // Sidebar Filter Listener
             const sidebarButtons = document.querySelectorAll('.sidebar-item');
             sidebarButtons.forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     sidebarButtons.forEach(b => b.classList.remove('active'));
-                    e.currentTarget.classList.add('active');
+                    const targetBtn = e.currentTarget;
+                    targetBtn.classList.add('active');
                     
-                    currentFilter = e.currentTarget.getAttribute('data-filter');
+                    currentFilter = targetBtn.getAttribute('data-filter') || 'All';
                     
-                    // On mobile, close sidebar after clicking
-                    if (window.innerWidth < 1024) toggleMobileMenu();
-                    
+                    if (window.innerWidth < 1024) closeMobileMenu();
                     renderGames();
                 });
             });
 
-            // Search Handlers
+            // Search Listeners
             const handleSearch = (e) => {
                 currentSearch = e.target.value.toLowerCase().trim();
-                if(e.target === searchInputDesk) searchInputMob.value = currentSearch;
+                if (e.target === searchInputDesk) searchInputMob.value = currentSearch;
                 else searchInputDesk.value = currentSearch;
                 renderGames();
             };
             searchInputDesk.addEventListener('input', handleSearch);
             searchInputMob.addEventListener('input', handleSearch);
 
-            // Card Accessibility
-            const attachAccessibility = () => {
-                const cards = document.querySelectorAll('.game-card');
-                cards.forEach(card => {
-                    card.addEventListener('click', () => {
-                        const url = card.getAttribute('data-game-url');
-                        if (url && url !== "#") window.open(url, '_blank');
-                    });
-                    card.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            card.click();
-                        }
-                    });
-                });
-            };
-
-            // Sidebar Menu Toggle Logic (Mobile & Desktop)
+            // Responsive Sidebar Menu Toggle
             const menuBtn = document.getElementById('menu-btn');
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
             let isMobileMenuOpen = false;
 
-            const toggleMobileMenu = () => {
-                isMobileMenuOpen = !isMobileMenuOpen;
-                if(isMobileMenuOpen) {
-                    sidebar.classList.remove('-translate-x-full');
-                    overlay.classList.remove('hidden');
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    sidebar.classList.add('-translate-x-full');
-                    overlay.classList.add('hidden');
-                    document.body.style.overflow = '';
-                }
+            const openMobileMenu = () => {
+                isMobileMenuOpen = true;
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                menuBtn.setAttribute('aria-expanded', 'true');
             };
 
-            const toggleDesktopMenu = () => {
-                document.body.classList.toggle('desktop-collapsed');
+            const closeMobileMenu = () => {
+                isMobileMenuOpen = false;
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+                menuBtn.setAttribute('aria-expanded', 'false');
             };
 
             menuBtn.addEventListener('click', () => {
                 if (window.innerWidth < 1024) {
-                    toggleMobileMenu();
+                    if (isMobileMenuOpen) closeMobileMenu();
+                    else openMobileMenu();
                 } else {
-                    toggleDesktopMenu();
+                    document.body.classList.toggle('desktop-collapsed');
                 }
             });
             
-            overlay.addEventListener('click', () => {
-                if (window.innerWidth < 1024) toggleMobileMenu();
+            overlay.addEventListener('click', closeMobileMenu);
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && isMobileMenuOpen) closeMobileMenu();
             });
 
-            // Reset states on resize
             window.addEventListener('resize', () => {
                 if (window.innerWidth >= 1024 && isMobileMenuOpen) {
-                    isMobileMenuOpen = false;
-                    overlay.classList.add('hidden');
-                    document.body.style.overflow = '';
-                    sidebar.classList.remove('-translate-x-full');
-                } else if (window.innerWidth < 1024 && !isMobileMenuOpen) {
-                    sidebar.classList.add('-translate-x-full');
+                    closeMobileMenu();
                 }
             });
 
-            // Initial load
+            // Initial Render
             renderGames();
         });
     </script>
