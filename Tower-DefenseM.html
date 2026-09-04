@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230284c7'/%3E%3Crect x='4' y='8' width='24' height='16' rx='4' fill='none' stroke='%23ffffff' stroke-width='2.5'/%3E%3Cpath d='M9 16h6m-3-3v6m9-3h.01m3-2h.01' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+    <link rel="alternate icon" href="favicon.ico">
     <title>Candy Tower Defense Mobile — GokuGames</title>
     
     <!-- Fonts -->
@@ -446,6 +448,9 @@
 
             <div id="nav-controls" class="hud-col" style="align-items:flex-end;">
                 <div class="hud-row">
+                    <button id="btn-fullscreen" type="button" class="control-btn" onclick="Game.toggleFullscreen()" title="Fullscreen" aria-label="Toggle Fullscreen">
+                        <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                    </button>
                     <button id="btn-pause" type="button" class="control-btn" onclick="Game.togglePause()" title="Pause Game" aria-label="Pause or Resume">
                         <svg id="pause-icon" width="14" height="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
                     </button>
@@ -1240,6 +1245,12 @@ const Game = {
 
         this.resize();
         window.addEventListener('resize', () => this.resize());
+        window.addEventListener('message', (e) => {
+            if (e.data && e.data.action === 'parentFullscreenChange') {
+                setTimeout(() => this.resize(), 50);
+                setTimeout(() => this.resize(), 200);
+            }
+        });
         this.setupInput();
         this.setupUI();
         
@@ -1268,6 +1279,17 @@ const Game = {
         }
     },
 
+    toggleFullscreen() {
+        if (window.self !== window.top) {
+            window.parent.postMessage({ action: 'toggleFullscreen' }, '*');
+            return;
+        }
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+            document.exitFullscreen().catch(() => {});
+        }
+    },
     togglePause() {
         if (this.state === 'PAUSED') {
             this.resume();
@@ -1928,7 +1950,7 @@ const Game = {
             this.ctx.fillText(ft.text, ft.x, ft.y);
         });
 
-        ctx.restore();
+        this.ctx.restore();
     },
 
     spawnParticles(x, y, color, count, hasGravity = false) {
