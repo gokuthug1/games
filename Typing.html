@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cyber Laser Typer — GokuGames</title>
+    <style>
+        :root {
+            --bg-base: #0b0f19;
+            --bg-card: #131b2e;
+            --border: #2a374f;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-cyan: #38bdf8;
+            --accent-rose: #f43f5e;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #c084fc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Hub Header */
+        .hub-bar {
+            width: 100%;
+            height: 48px;
+            background: rgba(19, 27, 46, 0.95);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100;
+        }
+
+        .hub-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--accent-cyan);
+        }
+
+        .hub-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-hub {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #1e293b;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+        .btn-hub:hover {
+            background: #2a374f;
+            border-color: var(--accent-cyan);
+            color: #fff;
+        }
+
+        /* Arena Layout */
+        .game-layout {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            gap: 12px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Top HUD */
+        .hud {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .hud-metric {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hud-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .hud-val {
+            font-family: monospace;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--accent-cyan);
+        }
+
+        /* Canvas Arena */
+        .canvas-box {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            background: #060913;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Mobile Focus Input */
+        #mobile-input {
+            position: absolute;
+            top: -100px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(11, 15, 25, 0.88);
+            backdrop-filter: blur(6px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 50;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .overlay h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
+        }
+
+        .overlay p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .btn-start {
+            background: var(--accent-cyan);
+            color: #0b0f19;
+            font-size: 15px;
+            font-weight: 800;
+            padding: 12px 32px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+
+        .btn-start:hover {
+            transform: scale(1.05);
+        }
+
+        .icon-svg {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="hub-bar">
+        <div class="hub-title">
+            <svg class="icon-svg" style="stroke: #38bdf8; fill: none; stroke-width: 2;" viewBox="0 0 24 24">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" y1="19" x2="20" y2="19"></line>
+            </svg>
+            <span>CYBER LASER TYPER</span>
+        </div>
+        <div class="hub-actions">
+            <button class="btn-hub" id="btn-sound" title="Toggle Audio">
+                <svg class="icon-svg" id="sound-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+            </button>
+            <button class="btn-hub" onclick="toggleHubFullscreen()" title="Fullscreen">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                </svg>
+            </button>
+            <button class="btn-hub" onclick="returnToHub()" title="Return to Arcade Hub">
+                <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>HUB</span>
+            </button>
+        </div>
+    </header>
+
+    <input type="text" id="mobile-input" autocomplete="off" autocapitalize="off">
+
+    <!-- Game Arena -->
+    <main class="game-layout">
+        
+        <div class="hud">
+            <div class="hud-metric">
+                <span class="hud-label">SCORE</span>
+                <span class="hud-val" id="score-val">0</span>
+            </div>
+            <div class="hud-metric">
+                <span class="hud-label">WPM</span>
+                <span class="hud-val" id="wpm-val">0</span>
+            </div>
+            <div class="hud-metric">
+                <span class="hud-label">ACCURACY</span>
+                <span class="hud-val" id="acc-val">100%</span>
+            </div>
+            <div class="hud-metric">
+                <span class="hud-label">HULL INTEGRITY</span>
+                <span class="hud-val" id="hull-val" style="color: #10b981;">100%</span>
+            </div>
+        </div>
+
+        <div class="canvas-box" id="canvas-box">
+            <canvas id="typer-canvas" width="800" height="500"></canvas>
+            
+            <div class="overlay" id="overlay">
+                <h2 id="overlay-title">LASER PERIMETER DEFENSE</h2>
+                <p id="overlay-desc">Type descending words to vaporize incoming cyber missiles before they breach hull.</p>
+                <button class="btn-start" id="btn-start" onclick="startGame()">ENGAGE DEFENSE</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        /* Hub Navigation Protocol */
+        function returnToHub() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ action: 'closeGame' }, '*');
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function toggleHubFullscreen() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ action: 'toggleFullscreen' }, '*');
+            } else {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                } else {
+                    document.exitFullscreen().catch(() => {});
+                }
+            }
+        }
+
+        /* Procedural Web Audio Engine */
+        const Sound = (() => {
+            let ctx = null;
+            let enabled = true;
+
+            const init = () => {
+                if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (ctx.state === 'suspended') ctx.resume();
+            };
+
+            const tone = (freq, duration, type = 'sine', vol = 0.1) => {
+                if (!enabled) return;
+                init();
+                try {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                    gain.gain.setValueAtTime(vol, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + duration);
+                } catch(e) {}
+            };
+
+            return {
+                toggle: () => {
+                    enabled = !enabled;
+                    return enabled;
+                },
+                laser: () => tone(880, 0.05, 'sawtooth', 0.12),
+                explode: () => {
+                    tone(200, 0.15, 'square', 0.2);
+                    setTimeout(() => tone(90, 0.3, 'sawtooth', 0.25), 50);
+                },
+                hullHit: () => tone(120, 0.3, 'sawtooth', 0.3),
+                error: () => tone(160, 0.1, 'sawtooth', 0.1)
+            };
+        })();
+
+        document.getElementById('btn-sound').addEventListener('click', () => {
+            const active = Sound.toggle();
+            const icon = document.getElementById('sound-icon');
+            if (active) {
+                icon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>';
+            } else {
+                icon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>';
+            }
+        });
+
+        /* Word Dictionary */
+        const WORDS = [
+            "CYBER", "LASER", "FIREWALL", "ROBOT", "VECTOR", "PIXEL", "SIGNAL", "NETWORK",
+            "PACKET", "SYSTEM", "SHIELD", "MATRIX", "QUANTUM", "SYNAPSE", "GLITCH", "KERNEL",
+            "CIPHER", "PROXY", "CIRCUIT", "TERMINAL", "CONSOLE", "COMMAND", "PROTOCOL", "RADAR",
+            "LOGIC", "ENGINE", "MEMORY", "ROUTER", "VORTEX", "STREAM", "BINARY", "OCTAL",
+            "DEVICE", "ONLINE", "SENSOR", "ENERGY", "THRUST", "BEACON", "HORIZON", "TARGET"
+        ];
+
+        const canvas = document.getElementById('typer-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score-val');
+        const wpmEl = document.getElementById('wpm-val');
+        const accEl = document.getElementById('acc-val');
+        const hullEl = document.getElementById('hull-val');
+        const overlay = document.getElementById('overlay');
+        const overlayTitle = document.getElementById('overlay-title');
+        const overlayDesc = document.getElementById('overlay-desc');
+        const btnStart = document.getElementById('btn-start');
+        const mobileInput = document.getElementById('mobile-input');
+
+        let isRunning = false;
+        let score = 0;
+        let hull = 100;
+        let wordsTyped = 0;
+        let totalCharsTyped = 0;
+        let correctCharsTyped = 0;
+        let startTime = 0;
+
+        let activeWords = [];
+        let activeTarget = null;
+        let lasers = [];
+        let particles = [];
+        let spawnTimer = 0;
+        let spawnInterval = 140;
+
+        function spawnWord() {
+            const text = WORDS[Math.floor(Math.random() * WORDS.length)];
+            const textWidth = ctx.measureText(text).width || 80;
+            const x = Math.random() * (canvas.width - 160) + 80;
+            activeWords.push({
+                text,
+                typedIndex: 0,
+                x,
+                y: 20,
+                speed: 0.6 + Math.min(1.2, score / 1500)
+            });
+        }
+
+        function handleChar(char) {
+            if (!isRunning) return;
+            totalCharsTyped++;
+
+            if (!activeTarget) {
+                // Find a word starting with this character (prioritize lowest on screen)
+                let bestMatch = null;
+                for (const w of activeWords) {
+                    if (w.text[0] === char) {
+                        if (!bestMatch || w.y > bestMatch.y) {
+                            bestMatch = w;
+                        }
+                    }
+                }
+
+                if (bestMatch) {
+                    activeTarget = bestMatch;
+                    fireLaserAt(activeTarget);
+                    activeTarget.typedIndex = 1;
+                    correctCharsTyped++;
+                    Sound.laser();
+                    if (activeTarget.typedIndex >= activeTarget.text.length) {
+                        destroyWord(activeTarget);
+                    }
+                } else {
+                    Sound.error();
+                }
+            } else {
+                // Continue typing targeted word
+                if (activeTarget.text[activeTarget.typedIndex] === char) {
+                    fireLaserAt(activeTarget);
+                    activeTarget.typedIndex++;
+                    correctCharsTyped++;
+                    Sound.laser();
+                    if (activeTarget.typedIndex >= activeTarget.text.length) {
+                        destroyWord(activeTarget);
+                    }
+                } else {
+                    Sound.error();
+                }
+            }
+
+            updateStats();
+        }
+
+        function fireLaserAt(w) {
+            lasers.push({
+                x1: canvas.width / 2,
+                y1: canvas.height - 20,
+                x2: w.x,
+                y2: w.y,
+                life: 1.0
+            });
+        }
+
+        function destroyWord(w) {
+            score += w.text.length * 10;
+            wordsTyped++;
+            Sound.explode();
+
+            // Spawn explosion particles
+            for (let i = 0; i < 16; i++) {
+                particles.push({
+                    x: w.x,
+                    y: w.y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 1.0,
+                    color: Math.random() > 0.5 ? '#38bdf8' : '#f43f5e'
+                });
+            }
+
+            const idx = activeWords.indexOf(w);
+            if (idx !== -1) activeWords.splice(idx, 1);
+            activeTarget = null;
+        }
+
+        function updateStats() {
+            scoreEl.textContent = score.toLocaleString();
+            const elapsedMinutes = (performance.now() - startTime) / 60000;
+            const wpm = elapsedMinutes > 0 ? Math.round((correctCharsTyped / 5) / elapsedMinutes) : 0;
+            wpmEl.textContent = wpm;
+
+            const accuracy = totalCharsTyped > 0 ? Math.round((correctCharsTyped / totalCharsTyped) * 100) : 100;
+            accEl.textContent = accuracy + '%';
+
+            hullEl.textContent = hull + '%';
+            if (hull > 50) hullEl.style.color = '#10b981';
+            else if (hull > 25) hullEl.style.color = '#f59e0b';
+            else hullEl.style.color = '#f43f5e';
+        }
+
+        function update() {
+            if (!isRunning) return;
+
+            spawnTimer++;
+            if (spawnTimer >= spawnInterval) {
+                spawnTimer = 0;
+                spawnInterval = Math.max(70, 140 - Math.floor(score / 400));
+                spawnWord();
+            }
+
+            // Move Words
+            for (let i = activeWords.length - 1; i >= 0; i--) {
+                const w = activeWords[i];
+                w.y += w.speed;
+
+                // Breach defense perimeter
+                if (w.y >= canvas.height - 40) {
+                    hull -= 20;
+                    Sound.hullHit();
+                    if (w === activeTarget) activeTarget = null;
+                    activeWords.splice(i, 1);
+
+                    if (hull <= 0) {
+                        hull = 0;
+                        updateStats();
+                        gameOver();
+                        return;
+                    }
+                }
+            }
+
+            // Lasers
+            for (let i = lasers.length - 1; i >= 0; i--) {
+                const l = lasers[i];
+                l.life -= 0.15;
+                if (l.life <= 0) lasers.splice(i, 1);
+            }
+
+            // Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.04;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+
+            updateStats();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Defense Perimeter Line
+            ctx.strokeStyle = '#f43f5e';
+            ctx.lineWidth = 2;
+            ctx.shadowColor = '#f43f5e';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - 40);
+            ctx.lineTo(canvas.width, canvas.height - 40);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Turret Base
+            ctx.fillStyle = '#1e293b';
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height - 15, 24, Math.PI, 0, false);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Lasers
+            lasers.forEach(l => {
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 3 * l.life;
+                ctx.shadowColor = '#38bdf8';
+                ctx.shadowBlur = 12;
+                ctx.beginPath();
+                ctx.moveTo(l.x1, l.y1);
+                ctx.lineTo(l.x2, l.y2);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            });
+
+            // Particles
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+
+            // Words
+            ctx.font = 'bold 20px monospace';
+            ctx.textAlign = 'center';
+            activeWords.forEach(w => {
+                const isTarget = w === activeTarget;
+
+                // Word background pill
+                const width = ctx.measureText(w.text).width;
+                ctx.fillStyle = isTarget ? 'rgba(56, 189, 248, 0.2)' : 'rgba(15, 23, 42, 0.8)';
+                ctx.strokeStyle = isTarget ? '#38bdf8' : '#2a374f';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(w.x - width / 2 - 8, w.y - 18, width + 16, 26);
+                ctx.fillRect(w.x - width / 2 - 8, w.y - 18, width + 16, 26);
+
+                // Word letters
+                let curX = w.x - width / 2;
+                for (let i = 0; i < w.text.length; i++) {
+                    const char = w.text[i];
+                    const charW = ctx.measureText(char).width;
+
+                    if (i < w.typedIndex) {
+                        ctx.fillStyle = '#10b981'; // Typed letter (green)
+                    } else if (isTarget && i === w.typedIndex) {
+                        ctx.fillStyle = '#f59e0b'; // Next letter to type (gold)
+                    } else {
+                        ctx.fillStyle = '#f8fafc'; // Untyped
+                    }
+                    ctx.fillText(char, curX + charW / 2, w.y + 2);
+                    curX += charW;
+                }
+            });
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            overlay.classList.remove('visible');
+            score = 0;
+            hull = 100;
+            wordsTyped = 0;
+            totalCharsTyped = 0;
+            correctCharsTyped = 0;
+            startTime = performance.now();
+            activeWords = [];
+            activeTarget = null;
+            lasers = [];
+            particles = [];
+            spawnTimer = 0;
+            isRunning = true;
+            mobileInput.focus();
+        }
+
+        function gameOver() {
+            isRunning = false;
+            overlayTitle.textContent = "DEFENSE PERIMETER BREACHED";
+            overlayTitle.style.color = "#f43f5e";
+            overlayDesc.textContent = `Score: ${score} | WPM: ${wpmEl.textContent} | Accuracy: ${accEl.textContent}`;
+            btnStart.textContent = "REBOOT TURRET";
+            overlay.classList.add('visible');
+        }
+
+        // Key Listener
+        window.addEventListener('keydown', (e) => {
+            if (!isRunning) {
+                if (e.code === 'Space' || e.code === 'Enter') startGame();
+                return;
+            }
+            const key = e.key.toUpperCase();
+            if (/^[A-Z]$/.test(key)) {
+                handleChar(key);
+            }
+        });
+
+        // Click canvas to refocus mobile input
+        document.getElementById('canvas-box').addEventListener('click', () => {
+            mobileInput.focus();
+        });
+
+        mobileInput.addEventListener('input', (e) => {
+            const val = mobileInput.value.toUpperCase();
+            if (val.length > 0) {
+                const char = val[val.length - 1];
+                if (/^[A-Z]$/.test(char)) {
+                    handleChar(char);
+                }
+                mobileInput.value = '';
+            }
+        });
+
+        overlay.classList.add('visible');
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

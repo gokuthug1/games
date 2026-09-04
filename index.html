@@ -604,9 +604,7 @@
                 <div class="flex items-center gap-4">
                     <a href="https://github.com/gokuthug1" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300 transition-colors">Developer Profile</a>
                     <span>•</span>
-                    <button type="button" onclick="GameHub.openGame('td-desktop')" class="hover:text-slate-300 transition-colors">Desktop Edition</button>
-                    <span>•</span>
-                    <button type="button" onclick="GameHub.openGame('td-mobile')" class="hover:text-slate-300 transition-colors">Mobile Edition</button>
+                    <a href="https://github.com/gokuthug1/games" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300 transition-colors">GitHub Repository</a>
                 </div>
             </footer>
 
@@ -617,7 +615,7 @@
     <script>
         const GameHub = (() => {
             
-            const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
+                        const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
 
             const games = [
                 { 
@@ -625,8 +623,7 @@
                     title: "Candy Tower Defense", 
                     genre: "Strategy", 
                     url: "Tower-Defense.html", 
-                    altUrl: "Tower-DefenseM.html",
-                    altId: "td-mobile",
+                    thumb: "assets/thumbnails/candy-td.jpg",
                     isMobile: false,  
                     isTrending: true,
                     isReady: true,
@@ -654,8 +651,7 @@
                     title: "Candy TD Mobile", 
                     genre: "Strategy", 
                     url: "Tower-DefenseM.html", 
-                    altUrl: "Tower-Defense.html",
-                    altId: "td-desktop",
+                    thumb: "assets/thumbnails/candy-td.jpg",
                     isMobile: true,   
                     isTrending: true,
                     isReady: true,
@@ -679,6 +675,7 @@
                     title: "Grandmaster Chess Studio", 
                     genre: "Card & Board", 
                     url: "Chess.html", 
+                    thumb: "assets/thumbnails/chess-studio.jpg",
                     isMobile: true, 
                     isTrending: true,
                     isReady: true,
@@ -702,6 +699,7 @@
                     title: "Aegis Protocol: Vector Defense", 
                     genre: "Strategy", 
                     url: "AegisProtocol/index.html", 
+                    thumb: "assets/thumbnails/aegis-vector.jpg",
                     isMobile: false, 
                     isTrending: true,
                     isReady: true,
@@ -725,6 +723,7 @@
                     title: "Royal Blackjack Casino", 
                     genre: "Card & Board", 
                     url: "BlackJack.html", 
+                    thumb: "assets/thumbnails/blackjack-royal.jpg",
                     isMobile: true, 
                     isTrending: true,
                     isReady: true,
@@ -748,6 +747,7 @@
                     title: "Classic Klondike Solitaire", 
                     genre: "Card & Board", 
                     url: "Solitaire.html", 
+                    thumb: "assets/thumbnails/solitaire-classic.jpg",
                     isMobile: true, 
                     isTrending: false,
                     isReady: true,
@@ -770,6 +770,7 @@
                     title: "Nebula Cannons", 
                     genre: "Physics & 3D", 
                     url: "NebulaCannons/index.html", 
+                    thumb: "assets/thumbnails/nebula-cannons.jpg",
                     isMobile: true, 
                     isTrending: true,
                     isReady: true,
@@ -792,6 +793,7 @@
                     title: "Animal Stack Arcade", 
                     genre: "Physics & 3D", 
                     url: "AnimalStack.html", 
+                    thumb: "assets/thumbnails/stack-physics.jpg",
                     isMobile: true, 
                     isTrending: true,
                     isReady: true,
@@ -814,6 +816,7 @@
                     title: "Friday Night Funkin' Web", 
                     genre: "Physics & 3D", 
                     url: "FridayNightFunkin.html", 
+                    thumb: "assets/thumbnails/fnf-rhythm.jpg",
                     isMobile: true, 
                     isTrending: true,
                     isReady: true,
@@ -836,6 +839,7 @@
                     title: "Minecraft Web 3D (GokuMC)", 
                     genre: "Physics & 3D", 
                     url: "GokuMC.html", 
+                    thumb: "assets/thumbnails/goku-mc.jpg",
                     isMobile: false, 
                     isTrending: true,
                     isReady: true,
@@ -861,6 +865,7 @@
                     title: "Retro Neon Snake 2.0", 
                     genre: "Arcade", 
                     url: "Snake.html", 
+                    thumb: "assets/thumbnails/neon-snake.jpg",
                     isMobile: true, 
                     isTrending: true,
                     isReady: true,
@@ -882,6 +887,7 @@
                     title: "Cyber Breakout", 
                     genre: "Arcade", 
                     url: "Breakout.html", 
+                    thumb: "assets/thumbnails/cyber-breakout.jpg",
                     isMobile: true, 
                     isTrending: true,
                     isReady: true,
@@ -904,6 +910,7 @@
                     title: "Vector Space Asteroids", 
                     genre: "Arcade", 
                     url: "Asteroids.html", 
+                    thumb: "assets/thumbnails/asteroids-vector.jpg",
                     isMobile: true, 
                     isTrending: true,
                     isReady: true,
@@ -926,6 +933,7 @@
                     title: "Sugar Match-3 Blitz", 
                     genre: "Puzzle", 
                     url: "Match3.html", 
+                    thumb: "assets/thumbnails/sugar-match3.jpg",
                     isMobile: true, 
                     isTrending: true,
                     isReady: true,
@@ -947,6 +955,7 @@
                     title: "Cyber 2048 Matrix", 
                     genre: "Puzzle", 
                     url: "2048.html", 
+                    thumb: "assets/thumbnails/matrix-2048.jpg",
                     isMobile: true, 
                     isTrending: true,
                     isReady: true,
@@ -969,6 +978,7 @@
                     title: "Connect 4 Tactical AI", 
                     genre: "Card & Board", 
                     url: "Connect4.html", 
+                    thumb: "assets/thumbnails/connect4-ai.jpg",
                     isMobile: true, 
                     isTrending: true,
                     isReady: true,
@@ -983,6 +993,184 @@
                         { key: "Click / Tap Column", action: "Drop colored cyber chip into chosen slot" },
                         { key: "Mode Toggle", action: "Switch between Vs. AI Bot and 2 Players Pass & Play" },
                         { key: "Reset Button", action: "Clear board and begin fresh round" }
+                    ]
+                },
+                { 
+                    id: "cyber-minesweeper",
+                    title: "Cyber Minesweeper", 
+                    genre: "Puzzle", 
+                    url: "Minesweeper.html", 
+                    thumb: "assets/thumbnails/cyber-minesweeper.jpg",
+                    isMobile: true, 
+                    isTrending: true,
+                    isReady: true,
+                    desc: "Futuristic tactical minefield sweeper with safe first-click generation, chording auto-clear, and 3 standard tiers.",
+                    badge: "First-Click Safe",
+                    rating: "4.8 ★",
+                    developer: "gokuthug1",
+                    releaseDate: "2026",
+                    orientation: "Responsive",
+                    tags: ["Puzzle", "Minesweeper", "Tactical", "Logic", "Chording", "Retro"],
+                    controls: [
+                        { key: "Left Click / Tap", action: "Reveal cyber sensory grid sector" },
+                        { key: "Right Click / Flag Mode", action: "Deploy threat warning flag on suspected mine" },
+                        { key: "Double Click / Number", action: "Chord auto-clear remaining adjacent unflagged cells" },
+                        { key: "Smiley Button", action: "Re-initialize neural sensor field" }
+                    ]
+                },
+                { 
+                    id: "cyber-tetris",
+                    title: "Cyber Tetris Matrix", 
+                    genre: "Arcade", 
+                    url: "Tetris.html", 
+                    thumb: "assets/thumbnails/cyber-tetris.jpg",
+                    isMobile: true, 
+                    isTrending: true,
+                    isReady: true,
+                    desc: "Guideline-compliant arcade falling block stacker featuring SRS rotation, ghost projections, hold slot, and 7-bag generator.",
+                    badge: "SRS Rotation",
+                    rating: "4.9 ★",
+                    developer: "gokuthug1",
+                    releaseDate: "2026",
+                    orientation: "Responsive",
+                    tags: ["Arcade", "Tetris", "Blocks", "Matrix", "Retro", "Combos"],
+                    controls: [
+                        { key: "Left / Right (A / D)", action: "Shift falling tetromino horizontally" },
+                        { key: "Up Arrow / W", action: "Rotate tetromino 90 degrees clockwise with wall kicks" },
+                        { key: "Down Arrow / S", action: "Soft drop for faster descent (+1 score/row)" },
+                        { key: "Spacebar", action: "Hard drop instantly into landing matrix (+2 score/row)" },
+                        { key: "C Key / Shift", action: "Swap active piece with hold chamber slot" }
+                    ]
+                },
+                { 
+                    id: "neon-pacman",
+                    title: "Neon Pac-Man Maze", 
+                    genre: "Arcade", 
+                    url: "Pacman.html", 
+                    thumb: "assets/thumbnails/neon-pacman.jpg",
+                    isMobile: true, 
+                    isTrending: true,
+                    isReady: true,
+                    desc: "Vibrant neon vector retro maze runner with authentic 4-ghost AI personalities, power pellet fright mode, and fruit multipliers.",
+                    badge: "4 Ghost AIs",
+                    rating: "4.9 ★",
+                    developer: "gokuthug1",
+                    releaseDate: "2026",
+                    orientation: "Responsive",
+                    tags: ["Arcade", "Pacman", "Retro", "Maze", "Ghosts", "Classic"],
+                    controls: [
+                        { key: "Arrow Keys / WASD", action: "Steer Pac-Man with responsive pre-turn buffering" },
+                        { key: "Swipe Screen / D-Pad", action: "Touch controls for mobile maze navigation" },
+                        { key: "Power Pellets", action: "Turn ghosts blue and hunt them for 200 to 1600 bonus pts" }
+                    ]
+                },
+                { 
+                    id: "cyber-flappy",
+                    title: "Cyber Flappy Jet", 
+                    genre: "Arcade", 
+                    url: "Flappy.html", 
+                    thumb: "assets/thumbnails/cyber-flappy.jpg",
+                    isMobile: true, 
+                    isTrending: true,
+                    isReady: true,
+                    desc: "One-button cyber jet flight corridor with particle rocket thrusters, glowing neon laser gates, and physics trajectory.",
+                    badge: "One-Button Flight",
+                    rating: "4.7 ★",
+                    developer: "gokuthug1",
+                    releaseDate: "2026",
+                    orientation: "Responsive",
+                    tags: ["Arcade", "Flappy", "Flying", "Jet", "Neon", "Addictive"],
+                    controls: [
+                        { key: "Space / Up Arrow", action: "Fire thruster impulse to ascend" },
+                        { key: "Tap / Click Screen", action: "Mobile impulse boost" }
+                    ]
+                },
+                { 
+                    id: "cyber-pong",
+                    title: "Cyber Pong Duel", 
+                    genre: "Arcade", 
+                    url: "Pong.html", 
+                    thumb: "assets/thumbnails/cyber-pong.jpg",
+                    isMobile: true, 
+                    isTrending: true,
+                    isReady: true,
+                    desc: "High-octane neon cyber pong and air hockey with paddle spin deflection, accelerating rally physics, and 2-player local mode.",
+                    badge: "Solo & 2P Local",
+                    rating: "4.8 ★",
+                    developer: "gokuthug1",
+                    releaseDate: "2026",
+                    orientation: "Landscape",
+                    tags: ["Arcade", "Pong", "Air Hockey", "Duel", "2 Players", "Versus"],
+                    controls: [
+                        { key: "W / S or Up / Down", action: "Glide player paddle vertically" },
+                        { key: "Touch / Mouse Drag", action: "Direct responsive paddle tracking" },
+                        { key: "Mode Selector", action: "Switch between Solo vs Cyber AI and 2-Player Local" }
+                    ]
+                },
+                { 
+                    id: "cyber-wordle",
+                    title: "Cyber Word Matrix", 
+                    genre: "Puzzle", 
+                    url: "Wordle.html", 
+                    thumb: "assets/thumbnails/cyber-wordle.jpg",
+                    isMobile: true, 
+                    isTrending: true,
+                    isReady: true,
+                    desc: "Cyber cryptographic 5-letter word decryption terminal with 6 attempts, virtual keyboard, and comprehensive local dictionary.",
+                    badge: "Word Decryptor",
+                    rating: "4.8 ★",
+                    developer: "gokuthug1",
+                    releaseDate: "2026",
+                    orientation: "Responsive",
+                    tags: ["Puzzle", "Wordle", "Terminal", "Brain", "Vocabulary", "Logic"],
+                    controls: [
+                        { key: "Keyboard / Virtual Keys", action: "Type 5-letter cipher guess" },
+                        { key: "Enter Key", action: "Submit and decrypt row with color feedback" },
+                        { key: "Backspace / DEL", action: "Erase previous typed character" }
+                    ]
+                },
+                { 
+                    id: "cyber-typer",
+                    title: "Cyber Laser Typer", 
+                    genre: "Arcade", 
+                    url: "Typing.html", 
+                    thumb: "assets/thumbnails/cyber-typer.jpg",
+                    isMobile: true, 
+                    isTrending: true,
+                    isReady: true,
+                    desc: "Laser turret speed typing defense matrix. Blast descending cyber missiles with real-time WPM calculation and laser beams.",
+                    badge: "WPM Defense",
+                    rating: "4.8 ★",
+                    developer: "gokuthug1",
+                    releaseDate: "2026",
+                    orientation: "Landscape",
+                    tags: ["Arcade", "Typing", "Laser", "Defense", "Speed", "WPM"],
+                    controls: [
+                        { key: "Type Initial Letter", action: "Lock laser turret onto descending target word" },
+                        { key: "Type Remaining Letters", action: "Discharge rapid plasma bolts to vaporize missile" },
+                        { key: "Space / Enter", action: "Start / restart defense simulation" }
+                    ]
+                },
+                { 
+                    id: "neon-memory",
+                    title: "Neon Memory Matrix", 
+                    genre: "Puzzle", 
+                    url: "Memory.html", 
+                    thumb: "assets/thumbnails/neon-memory.jpg",
+                    isMobile: true, 
+                    isTrending: true,
+                    isReady: true,
+                    desc: "3D holographic flip-card memory challenge featuring 18 custom geometric vector icons, move counters, and 3 grid sizes.",
+                    badge: "18 Cyber Icons",
+                    rating: "4.8 ★",
+                    developer: "gokuthug1",
+                    releaseDate: "2026",
+                    orientation: "Responsive",
+                    tags: ["Puzzle", "Memory", "Card Flip", "Visual", "Brain", "Casual"],
+                    controls: [
+                        { key: "Click / Tap Card", action: "Flip card face up to reveal cyber icon" },
+                        { key: "Match Pairs", action: "Pair matching symbols to lock them into matrix" },
+                        { key: "Grid Size Buttons", action: "Choose Casual (4x4), Medium (6x4), or Master (6x6)" }
                     ]
                 }
             ];
@@ -1112,20 +1300,23 @@
                     }
 
                     return `
-                    <article class="game-card surface-panel rounded-xl flex flex-col justify-between p-5 ${!isPlayable ? 'opacity-60' : ''}">
+                    <article class="game-card surface-panel rounded-xl flex flex-col justify-between p-4 ${!isPlayable ? 'opacity-60' : ''}">
                         <div>
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">${game.genre}</span>
-                                <div class="flex items-center gap-1 flex-wrap justify-end">
-                                    ${badgesHtml}
+                            <!-- Game Thumbnail Banner -->
+                            <div class="relative w-full aspect-video rounded-lg overflow-hidden mb-3 bg-slate-900 border border-slate-800 group">
+                                <img src="${game.thumb || 'assets/thumbnails/' + game.id + '.jpg'}" alt="${game.title}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                                <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-200 bg-slate-900/90 backdrop-blur-sm px-2 py-0.5 rounded border border-slate-700/60">${game.genre}</span>
+                                    <div class="flex items-center gap-1">${badgesHtml}</div>
                                 </div>
                             </div>
                             
-                            <h3 class="text-lg font-bold text-white mb-2 leading-snug">
+                            <h3 class="text-base font-bold text-white mb-1.5 leading-snug">
                                 ${game.title}
                             </h3>
                             
-                            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                            <p class="text-xs text-slate-400 leading-relaxed mb-3 line-clamp-2">
                                 ${game.desc}
                             </p>
                         </div>
@@ -1297,10 +1488,13 @@
                 playNextList.innerHTML = others.map(g => {
                     const playable = g.isReady && g.url !== '#';
                     return `
-                        <div class="surface-panel p-3.5 rounded-xl flex items-center justify-between gap-3 border border-slate-800 hover:border-slate-700 transition-colors">
-                            <div>
-                                <h4 class="text-xs sm:text-sm font-bold text-white mb-0.5">${g.title}</h4>
-                                <span class="text-[11px] text-slate-400">${g.genre}</span>
+                        <div class="surface-panel p-2.5 rounded-xl flex items-center justify-between gap-3 border border-slate-800 hover:border-slate-700 transition-colors">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <img src="${g.thumb || 'assets/thumbnails/' + g.id + '.jpg'}" alt="${g.title}" class="w-12 h-9 rounded object-cover flex-shrink-0 border border-slate-700" loading="lazy">
+                                <div class="min-w-0">
+                                    <h4 class="text-xs font-bold text-white mb-0.5 truncate">${g.title}</h4>
+                                    <span class="text-[10px] text-slate-400">${g.genre}</span>
+                                </div>
                             </div>
                             ${playable ? `
                                 <button type="button" onclick="GameHub.openGame('${g.id}')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs rounded-lg transition-colors flex-shrink-0">
