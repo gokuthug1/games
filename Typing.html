@@ -1462,6 +1462,40 @@
         const resWordsEl = document.getElementById('res-words');
         const resStreakEl = document.getElementById('res-streak');
 
+        /* Game State Variables & Objects */
+        let isRunning = false;
+        let isPaused = false;
+        let score = 0;
+        let displayedScore = 0;
+        let lives = 5;
+        const MAX_LIVES = 5;
+        let level = 1;
+        let wordsInLevel = 0;
+        let streak = 0;
+        let bestStreak = 0;
+        let wordsCleared = 0;
+        let totalKeystrokes = 0;
+        let correctKeystrokes = 0;
+        let startTime = 0;
+        let totalPlayTime = 0; // in seconds
+        let peakWpm = 0;
+
+        // Rolling WPM tracker (last 10 seconds)
+        let recentKeystrokeTimestamps = [];
+
+        // Game Objects
+        let activeWords = [];
+        let activeTarget = null;
+        let floatingTexts = [];
+        let particles = [];
+        let targetPulse = 0;
+        let screenShake = 0;
+        let dangerFlash = 0;
+
+        // Spawn timer
+        let spawnTimer = 0;
+        let lastFrameTimestamp = performance.now();
+
         /* Exact User Screen Aspect Ratio Manager */
         function updateScreenRatio() {
             let screenW = window.screen ? (window.screen.width || 1920) : 1920;
@@ -1486,8 +1520,21 @@
         let WIDTH = 960;
         let HEIGHT = 540;
         let dpr = 1;
-        let screenShake = 0;
-        let dangerFlash = 0;
+
+        /* Lane System for Anti-Collision (Responsive) */
+        const LANE_COUNT = 6;
+        function getLanePadding() {
+            return Math.max(45, Math.round(WIDTH * 0.08));
+        }
+        function getLaneWidth() {
+            const pad = getLanePadding();
+            return (WIDTH - pad * 2) / LANE_COUNT;
+        }
+        function getLaneCenterX(index) {
+            const pad = getLanePadding();
+            const laneW = getLaneWidth();
+            return pad + index * laneW + laneW / 2;
+        }
 
         function resizeCanvas() {
             updateScreenRatio();
@@ -1531,53 +1578,6 @@
             });
         }
         resizeCanvas();
-
-        /* Lane System for Anti-Collision (Responsive) */
-        const LANE_COUNT = 6;
-        function getLanePadding() {
-            return Math.max(45, Math.round(WIDTH * 0.08));
-        }
-        function getLaneWidth() {
-            const pad = getLanePadding();
-            return (WIDTH - pad * 2) / LANE_COUNT;
-        }
-        function getLaneCenterX(index) {
-            const pad = getLanePadding();
-            const laneW = getLaneWidth();
-            return pad + index * laneW + laneW / 2;
-        }
-
-        /* Game State Variables */
-        let isRunning = false;
-        let isPaused = false;
-        let score = 0;
-        let displayedScore = 0;
-        let lives = 5;
-        const MAX_LIVES = 5;
-        let level = 1;
-        let wordsInLevel = 0;
-        let streak = 0;
-        let bestStreak = 0;
-        let wordsCleared = 0;
-        let totalKeystrokes = 0;
-        let correctKeystrokes = 0;
-        let startTime = 0;
-        let totalPlayTime = 0; // in seconds
-        let peakWpm = 0;
-
-        // Rolling WPM tracker (last 10 seconds)
-        let recentKeystrokeTimestamps = [];
-
-        // Game Objects
-        let activeWords = [];
-        let activeTarget = null;
-        let floatingTexts = [];
-        let particles = [];
-        let targetPulse = 0;
-
-        // Spawn timer
-        let spawnTimer = 0;
-        let lastFrameTimestamp = performance.now();
 
         /* Mathematical Progression Formulas */
         function getBaseFallTime(lvl) {
